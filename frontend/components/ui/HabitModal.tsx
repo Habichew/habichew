@@ -1,18 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Modal,
-  StyleSheet,
-  Platform,
-  FlatList,
-  ActivityIndicator,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
+import {View,Text,TextInput,Modal,StyleSheet,Platform,FlatList,ActivityIndicator,TouchableWithoutFeedback,TouchableOpacity,ScrollView,Dimensions,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomDropdown from './select';
@@ -239,135 +228,91 @@ return (
           <View style={{ maxHeight: Dimensions.get('window').height, width: Dimensions.get('window').width }}>
             <View style={styles.modal}>
               <View style={styles.modalHeader}>
-                {/* Title Row */}
-                <View style={styles.titleRow}>
+
+                <View style={styles.habitSection}>  {/* habit section */}
                   <TextInput
                     ref={inputRef}
-                    autoFocus={true}
-                    placeholder="Habit title"
-                    placeholderTextColor="#1C1A1F"
+                    autoFocus
+                    placeholder="Habit Title"
+                    placeholderTextColor="#bbb"  
                     style={styles.title}
                     value={formData.habitTitle}
                     onChangeText={text => setFormData({ ...formData, habitTitle: text })}
                   />
-                  {/*<TextInput ref={inputRef} autoFocus={true} placeholder="Habit description"*/}
-                  {/*           placeholderTextColor="#1C1A1F" style={styles.description}*/}
-                  {/*           value={formData.habitDescription} onChangeText={text => setFormData({*/}
-                  {/*    ...formData,*/}
-                  {/*    habitDescription: text*/}
-                  {/*})}/>*/}
-                  {isEdit ? (
-                    <TouchableOpacity onPress={() => setShowConfirmDelete(true)}>
-                      <Ionicons name="trash-outline" size={24} color="#555" />
-                    </TouchableOpacity>
-                  ) : (
-                    <View style={{ width: 24 }} /> /* align */
-                  )}
-                </View>
 
-                {/* Date / Priority / Frequency Row(s) */}
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    flexShrink: 1,
-                    marginVertical: 20,
-                  }}
-                >
-                  {Platform.OS === 'web' ? (
-                    <View style={webDateInputWrapper}>
-                      <input
-                        type="date"
-                        value={formData.goalDate}
-                        onChange={e => setFormData({ ...formData, goalDate: e.target.value })}
-                        style={{ ...webDateInput, color: formData.goalDate ? '#000' : '#bbb' }}
-                      />
-                    </View>
-                  ) : (
-                    <>
-                      <TouchableOpacity
-                        style={[
-                          styles.tag,
-                          { color: formData.goalDate ? 'black' : '#bbbbbb', flexDirection: 'row', alignItems: 'center' },
-                        ]}
-                        onPress={() => setShowDatePicker(true)}
-                      >
-                        <Ionicons name="calendar-outline" size={24} color="#555" style={{ marginRight: 5 }} />
-                        <Text>
-                          {formData.goalDate ? new Date(formData.goalDate).toLocaleDateString() : 'Due Date'}
-                        </Text>
-                      </TouchableOpacity>
-                      {showDatePicker && (
-                        <DateTimePicker
-                          value={formData.goalDate ? new Date(formData.goalDate) : new Date()}
-                          mode="date"
-                          display="calendar"
-                          onChange={(event: any, selectedDate: Date | undefined) => {
-                            setShowDatePicker(false);
-                            if (selectedDate) {
-                              const y = selectedDate.getFullYear();
-                              const m = selectedDate.getMonth() + 1;
-                              const d = selectedDate.getDate();
-                              const formattedDate = `${y}-${m.toString().padStart(2, '0')}-${d
-                                .toString()
-                                .padStart(2, '0')}`;
-                              setFormData({ ...formData, goalDate: formattedDate });
-                            }
-                          }}
+                  {/* date */}
+                  <View style={styles.inputGroup}>
+                    {Platform.OS === 'web' ? (
+                      <View style={webDateInputWrapper}>
+                        <input
+                          type="date"
+                          value={formData.goalDate}
+                          onChange={e => setFormData({ ...formData, goalDate: e.target.value })}
+                          style={{ ...webDateInput, color: formData.goalDate ? '#000' : '#bbb' }}
                         />
-                      )}
-                    </>
-                  )}
+                      </View>
+                    ) : (
+                      <TouchableOpacity style={styles.tag} onPress={() => setShowDatePicker(true)}>
+                        <Ionicons name="calendar-outline" size={24} color="#555" style={{ marginRight: 5 }} />
+                        <Text>{formData.goalDate ? new Date(formData.goalDate).toLocaleDateString() : 'Due Date'}</Text>
+                      </TouchableOpacity>
+                    )}
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={formData.goalDate ? new Date(formData.goalDate) : new Date()}
+                        mode="date"
+                        display="calendar"
+                        onChange={(event, selectedDate) => {
+                          setShowDatePicker(false);
+                          if (selectedDate) {
+                            const y = selectedDate.getFullYear();
+                            const m = selectedDate.getMonth() + 1;
+                            const d = selectedDate.getDate();
+                            const formattedDate = `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+                            setFormData({ ...formData, goalDate: formattedDate });
+                          }
+                        }}
+                      />
+                    )}
+                  </View>
 
+                  {/* Frequency */}
                   <CustomDropdown
-                    zIndex={4}
-                    zIndexInverse={3}
-                    items={[
-                      { label: 'Low', value: 'Low' },
-                      { label: 'Medium', value: 'Medium' },
-                      { label: 'High', value: 'High' },
-                    ]}
-                    value={formData.priority}
-                    setValue={val => val && setFormData({ ...formData, priority: val })}
-                    placeholder="Priority"
-                    style={{ maxWidth: '30%', height: 36 }}
-                    icon={<View />}
-                  />
-
-                  <CustomDropdown
-                    zIndex={2}
-                    zIndexInverse={1}
                     items={[
                       { label: 'Daily', value: 'Daily' },
                       { label: 'Weekly', value: 'Weekly' },
                       { label: 'Monthly', value: 'Monthly' },
                     ]}
+                    placeholder="Select Frequency"
                     value={formData.frequency}
                     setValue={val => val && setFormData({ ...formData, frequency: val })}
-                    placeholder="Frequency"
-                    style={{ maxWidth: '34%' }}
+                  />
+
+                  {/* Priority */}
+                  <CustomDropdown
+                    items={[
+                      { label: 'Low', value: 'Low' },
+                      { label: 'Medium', value: 'Medium' },
+                      { label: 'High', value: 'High' },
+                    ]}
+                    placeholder="Select Priority"
+                    value={formData.priority}
+                    setValue={val => val && setFormData({ ...formData, priority: val })}
                   />
                 </View>
               </View>
 
-              {/* Body */}
+              {/* Tasks section*/}
               <View style={styles.modalBody}>
-                {/* Tasks header */}
+                {/* Tasks Header */}
                 <View style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }}>
                   <Text style={styles.taskTitle}>Tasks</Text>
-                  {/*<TouchableOpacity style={{marginLeft: "auto", marginVertical: "auto"}} onPress={() => setGeneratedTasks([])}>*/}
-                  {/*  <Ionicons name="trash-outline" size={24} color="#000"/>*/}
-                  {/*</TouchableOpacity>*/}
-                <TouchableOpacity
-                    style={{ marginLeft: 'auto', marginVertical: 'auto', width: 30, height: 30 }}
-                    onPress={() => addTaskInput()}
-                  >
+                  <TouchableOpacity style={{ marginLeft: 'auto', width: 30, height: 30 }} onPress={addTaskInput}>
                     <Ionicons name="add" size={24} color="#000" />
                   </TouchableOpacity>
                 </View>
 
-                {/* Tasks content */}
+                {/* Tasks Content */}
                 {loadingTasks ? (
                   <ActivityIndicator size="large" />
                 ) : generatedTasks.length === 0 ? (
@@ -382,19 +327,14 @@ return (
                     data={generatedTasks}
                     keyExtractor={(item, index) => index}
                     renderItem={({ item, index }) => renderTask(item, index)}
-                    style={{ maxHeight: windowHeight / 3 }}
+                    style={styles.taskList}
                   />
                 )}
 
-                {/* Footer buttons */}
-                <View style={styles.buttons}>
-                  {/*<TouchableOpacity style={styles.cancelBtn} onPress={() => {onClose(); setGeneratedTasks([])}}><Text style={styles.cancelText}>Cancel</Text></TouchableOpacity>*/}
-                  <TouchableOpacity
-                    onPress={handleSave}
-                    style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, padding: 10, borderRadius: 24 }}
-                  >
+                {/* Create Button */}
+                <View style={styles.centeredButtons}>
+                  <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
                     <Text style={styles.saveText}>{isEdit ? 'Save' : 'Create'}</Text>
-                    <Ionicons name="return-down-forward-outline" size={24} color="#555" style={{ marginTop: 4 }} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -440,21 +380,21 @@ export default HabitModal;
 
 const styles = ScaledSheet.create({
   overlay: { flexDirection: 'row', flex: 1, alignItems: 'flex-end', overflow: 'hidden', marginTop: 'auto' },
-  modal: { backgroundColor: '#dab7ff', borderTopLeftRadius: 24, borderTopRightRadius: 24, position: 'relative' },
+  modal: { backgroundColor: '#DAB7FF', borderTopLeftRadius: 24, borderTopRightRadius: 24, position: 'relative' },
 
   /* HEADER */
-  modalHeader: { padding: 24, paddingBottom: 12 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'nowrap' }, // CHANGED: keep single row, consistent gap
-  title: {fontSize: '22@ms', fontWeight: '700', marginBottom: 0, marginRight: 12, flex: 1 }, // CHANGED: larger title, take remaining space
-  headerGrid: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 14, marginBottom: 8 }, // NEW: row for date & priority
+  modalHeader: { padding: 24, paddingBottom: 16 },
+  titleRow: {  flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'nowrap' }, // CHANGED: keep single row, consistent gap
+  title: {backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,fontWeight: 'bold',fontSize: 16, color: '#000',marginBottom: 15,}, // CHANGED: larger title, take remaining space
+  headerGrid: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 16}, // row for date & priority
   headerLeft: { flex: 1, gap: 12 }, // NEW
   headerRight: { width: 180 }, // NEW: keep priority width consistent on web & mobile
   chipRow: { flexDirection: 'row', gap: 16, alignItems: 'center' }, // NEW
-  tag: { backgroundColor: '#fff', borderRadius: 24, paddingHorizontal: 16, height: 36, minWidth: 140, fontWeight: 'bold', fontSize: '13@ms', textAlignVertical: 'center', textAlign: 'left', justifyContent: 'center' },
+  tag: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000' },
 
   /* BODY */
   modalBody: { padding: 24, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff' }, // CHANGED: soft divider line
-  sectionDivider: { height: StyleSheet.hairlineWidth, backgroundColor: '#cda6ff', marginVertical: 12, borderRadius: 1 }, // NEW optional
+  sectionDivider: { height: StyleSheet.hairlineWidth, backgroundColor: '#DAB7FF', marginVertical: 12, borderRadius: 1 }, // NEW optional
   taskTitle: { fontWeight: '700', fontSize: 18, height: 30 },
   taskHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }, // NEW: Tasks title + plus icon on one line
   taskList: { maxHeight: 320 }, // CHANGED: stable height across devices
@@ -468,9 +408,9 @@ const styles = ScaledSheet.create({
   /* FOOTER BUTTONS */
   buttons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 },
   cancelBtn: { backgroundColor: '#000', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24 },
-  cancelText: { fontSize: 18, color: '#dab7ff', fontWeight: 'bold' },
-  saveBtn: { backgroundColor: '#EDE2FF', borderColor: '#2b2140', borderWidth: 1, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 24 }, // CHANGED: closer to your preview style
-  saveText: { fontSize: 18, color: '#2b2140', fontWeight: '700', marginRight: 6 },
+  cancelText: { fontSize: 18, color: '#DAB7FF', fontWeight: 'bold' },
+  saveBtn: { backgroundColor: '#000',  borderWidth: 1, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 24 }, // CHANGED: closer to your preview style
+  saveText: { fontSize: 18, color: '#fff', fontWeight: '700', marginRight: 6 },
 
   /* CONFIRM DELETE */
   deleteIcon: { position: 'absolute', top: 16, right: 16 },
@@ -480,7 +420,11 @@ const styles = ScaledSheet.create({
   confirmButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
 
   /* INPUTS */
-  input: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000', marginBottom: 16 },
   description: { fontWeight: 'normal', fontSize: '13@ms' },
+  habitSection: { backgroundColor: '#cda6ff', padding: 10, borderRadius: 16 },
+  inputGroup: { marginBottom: 16 },
+  dropdownLabel: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+  picker: { backgroundColor: '#fff', borderRadius: 10, height: 40 },
+  centeredButtons: { alignItems: 'center', marginTop: 24 },
 });
 

@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Modal,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import {Modal,View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,TouchableWithoutFeedback} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useUser, Task } from "../../app/context/UserContext";
@@ -112,7 +104,7 @@ export default function TaskModal({
   const renderDateInput = () => {
     if (Platform.OS === "web") {
       return (
-        <View style={webDateInputWrapper}>
+        <View style={[webDateInputWrapper, { marginBottom: 16 }]}>
           <input
             type="date"
             value={dueDate ?? ""}
@@ -157,80 +149,88 @@ export default function TaskModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.container}>
-          <View style={styles.rowEnd}>
-            {task && (
-              <TouchableOpacity onPress={handleDelete}>
-                <Ionicons name="trash-outline" size={20} color="#888" />
-              </TouchableOpacity>
-            )}
-          </View>
+        <TouchableWithoutFeedback>
+          <View style={styles.container}>
+            <View style={styles.rowEnd}>
+              {task && (
+                <TouchableOpacity onPress={handleDelete}>
+                  <Ionicons name="trash-outline" size={20} color="#888" />
+                </TouchableOpacity>
+              )}
+            </View>
 
-          <TextInput
-            placeholder="Add Task"
-            placeholderTextColor="#bbbbbb"
-            style={styles.input}
-            value={title}
-            onChangeText={setTitle}
-          />
-
-          <View style={{ marginBottom: 16 }}>
             <TextInput
-              placeholder="Description"
+              placeholder="Add Task"
               placeholderTextColor="#bbbbbb"
-              style={[styles.input, styles.textArea]}
-              value={description ?? ""}
-              onChangeText={(val) => setDescription(val || null)}
-              multiline
+              style={styles.input}
+              value={title}
+              onChangeText={setTitle}
             />
+
+            <View style={{ marginBottom: 16 }}>
+              <TextInput
+                placeholder="Description"
+                placeholderTextColor="#bbbbbb"
+                style={[styles.input, styles.textArea]}
+                value={description ?? ""}
+                onChangeText={(val) => setDescription(val || null)}
+                multiline
+              />
+            </View>
+
+            <View style={{ zIndex: 9 }}>{renderDateInput()}</View>
+
+            <View style={{ zIndex: 8, marginBottom: 6 }}>
+              <CustomDropdown
+                zIndex={8}
+                zIndexInverse={7}
+                items={[
+                  { label: "Low", value: "Low" },
+                  { label: "Medium", value: "Medium" },
+                  { label: "High", value: "High" },
+                ]}
+                value={priority}
+                setValue={(val) => setPriority(val as "Low" | "Medium" | "High")}
+                placeholder="Priority"
+              />
+            </View>
+
+            <View style={styles.footerButtons}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+                <Text style={styles.saveText}>{task ? "Save" : "Create"}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <View style={{ zIndex: 9 }}>{renderDateInput()}</View>
-
-          <View style={{ zIndex: 8, marginBottom: 6 }}>
-            <CustomDropdown
-              zIndex={8}
-              zIndexInverse={7}
-              items={[
-                { label: "Low", value: "Low" },
-                { label: "Medium", value: "Medium" },
-                { label: "High", value: "High" },
-              ]}
-              value={priority}
-              setValue={(val) => setPriority(val as "Low" | "Medium" | "High")}
-              placeholder="Priority"
-            />
-          </View>
-
-          <View style={styles.footerButtons}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-              <Text style={styles.saveText}>{task ? "Save" : "Create"}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        </TouchableWithoutFeedback>
       </View>
-    </Modal>
-  );
+    </TouchableWithoutFeedback>
+  </Modal>
+);
+
 }
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    overflow: 'hidden',
   },
   container: {
     backgroundColor: "#DAB7FF",
     borderRadius: 20,
     padding: 20,
-    width: "90%",
+    width: "100%",
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
   rowEnd: {
     alignItems: "flex-end",
@@ -265,15 +265,6 @@ const styles = StyleSheet.create({
   dateText: {
     color: "#666",
     marginLeft: 6,
-  },
-  priorityBox: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    justifyContent: "center",
-    alignItems: "center",
   },
   priorityOption: {
     fontSize: 14,
