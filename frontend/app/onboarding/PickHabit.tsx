@@ -35,17 +35,34 @@ export default function PickHabit() {
   useEffect(() => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + "/presets/categories")
       .then((res) => res.json())
-      .then(setCategories)
+      .then((data) => {
+        console.log('hey',data);
+        if (!Array.isArray(data)) {
+          let arr = [];
+          arr.push(data);
+          setCategories(arr);
+        } else {
+          setCategories(data);
+        }
+      })
       .catch(console.error);
   }, []);
 
   const fetchPresets = async (categoryId: number) => {
     try {
+      console.log('categoryId', categoryId);
       const res = await fetch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/presets/categories/${categoryId}/habits`,
       );
       const data = await res.json();
-      setPresets(data);
+      if (!Array.isArray(data)) {
+        let arr = [];
+        arr.push(data);
+        setPresets(arr);
+      } else {
+        setPresets(data);      }
+      console.log('fetched preset habits', data);
+
     } catch (err) {
       console.error("Failed to fetch presets", err);
     }
@@ -97,6 +114,7 @@ export default function PickHabit() {
     }
   };
 
+  // @ts-ignore
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
