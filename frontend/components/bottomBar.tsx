@@ -4,11 +4,12 @@ import {
   View,
   TouchableOpacity,
   StyleSheet,
-  Image,
   Text,
-  Platform,
+  Platform, Pressable,
 } from "react-native";
 import { useRouter, usePathname } from "expo-router";
+import { Image } from 'expo-image';
+import PieChart from "react-native-expo-pie-chart";
 
 export default function BottomBar() {
   const router = useRouter();
@@ -36,22 +37,32 @@ export default function BottomBar() {
         >
           <Image
             source={require("@/assets/images/tasks.png")}
-            style={[styles.icon, isActive("/tasks") && styles.activeIcon]}
+            style={[styles.icon, isActive("/tasks") && styles.activeIcon, {width: 28, height: 'auto', aspectRatio: 1, margin: -2}]}
           />
           <Text style={styles.label}>List</Text>
         </TouchableOpacity>
       </View>
 
       {/* Middle cat icon */}
-      <TouchableOpacity
+      <Pressable
         style={styles.centerIconContainer}
         onPress={() => router.push("/(tabs)/pet")}
+        android_ripple={{color: '#00000020', borderless: false, foreground: true, radius: 35}}
       >
+        <PieChart rotation={-90} zeroTotalCircleColor={'#ECECEC'} style={styles.creditChart} data={[{
+          color: '#1CC282',
+          count: 750,
+          key: 'creditsCollected'
+        }, {
+          color: '#ECECEC',
+          count: 250,
+          key: 'creditsNeeded'
+        }]} length={80}> </PieChart>
         <Image
-          source={require("@/assets/images/catWhiteCircle.png")}
+          source={require("@/assets/images/cat.png")}
           style={styles.centerIcon}
         />
-      </TouchableOpacity>
+      </Pressable>
 
       {/* Right buttons */}
       <View style={styles.sideGroup}>
@@ -72,7 +83,7 @@ export default function BottomBar() {
         >
           <Image
             source={require("@/assets/images/profile.png")}
-            style={[styles.icon, isActive("/Profile") && styles.activeIcon]}
+            style={[styles.icon, isActive("/Profile") && styles.activeIcon, {width: 25, height: 'auto', aspectRatio: 1, margin: -0}]}
           />
           <Text style={styles.label}>Profile</Text>
         </TouchableOpacity>
@@ -128,12 +139,24 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -34 }],
     backgroundColor: "#ECECEC",
     borderRadius: 50,
-    padding: 6,
-    elevation: 6,
+    // padding: 6,
+    elevation: 6
   },
   centerIcon: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
     width: 68,
     height: 68,
-    resizeMode: "contain",
+    resizeMode: 'contain',
+    zIndex: 10,
+    backgroundColor: 'white',
+    borderRadius: 40
   },
+  creditChart: {
+    position: 'absolute',
+    top: -80,
+    // padding: 3,
+    zIndex: 9
+  }
 });
