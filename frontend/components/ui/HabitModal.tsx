@@ -252,10 +252,15 @@ return (
                         />
                       </View>
                     ) : (
-                      <TouchableOpacity style={styles.tag} onPress={() => setShowDatePicker(true)}>
-                        <Ionicons name="calendar-outline" size={24} color="#555" style={{ marginRight: 5 }} />
-                        <Text>{formData.goalDate ? new Date(formData.goalDate).toLocaleDateString() : 'Due Date'}</Text>
+                      <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+                        <Text style={styles.dateText}>
+                          {formData.goalDate
+                            ? new Date(formData.goalDate).toLocaleDateString()
+                            : 'Due Date'}
+                        </Text>
+                        <Ionicons name="calendar-outline" size={24} color="#bbb" />
                       </TouchableOpacity>
+
                     )}
                     {showDatePicker && (
                       <DateTimePicker
@@ -390,7 +395,8 @@ const styles = ScaledSheet.create({
   headerLeft: { flex: 1, gap: 12 }, // NEW
   headerRight: { width: 180 }, // NEW: keep priority width consistent on web & mobile
   chipRow: { flexDirection: 'row', gap: 16, alignItems: 'center' }, // NEW
-  tag: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000' },
+  dateInput: {backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between',},
+  dateText: {fontSize: 16,fontWeight: 'bold',color: '#bbb',},
 
   /* BODY */
   modalBody: { padding: 24, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff' }, // CHANGED: soft divider line

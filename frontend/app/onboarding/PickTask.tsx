@@ -271,6 +271,7 @@ const styles = StyleSheet.create({
     top: 28,
     left: 24,
     zIndex: 10,
+    marginTop:20,
   },
 
   arrowText: {

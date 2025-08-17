@@ -1,7 +1,7 @@
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import React, { useState } from "react";
-import ProgressIndicator from "@/components/ui/ProgressIndicator";
+import ProgressIndicator from "@/components/ui/StoryIndicator";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
 
 const storyImages = [
@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
     top: 28,
     left: 24,
     zIndex: 10,
+    marginTop:20,
   },
 
   arrowText: {

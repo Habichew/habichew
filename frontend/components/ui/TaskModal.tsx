@@ -119,15 +119,19 @@ export default function TaskModal({
     } else {
       return (
         <>
-          <TouchableOpacity
-            style={{ flexDirection: "row", alignItems: "center" }}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={{ marginLeft: 6, color: "#666" }}>
-              {dueDate ? new Date(dueDate).toDateString() : "DDL"}
+
+          <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+            <Text
+              style={[
+                styles.dateText,
+                { color: dueDate ? '#000' : '#bbb' }  
+              ]}
+            >
+              {dueDate ? new Date(dueDate).toDateString() : 'DDL'}
             </Text>
+            <Ionicons name="calendar-outline" size={20} color={dueDate ? '#000' : '#bbb'} />
           </TouchableOpacity>
+
           {showDatePicker && (
             <DateTimePicker
               mode="date"
@@ -217,94 +221,20 @@ export default function TaskModal({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    overflow: 'hidden',
-  },
-  container: {
-    backgroundColor: "#DAB7FF",
-    borderRadius: 20,
-    padding: 20,
-    width: "100%",
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  rowEnd: {
-    alignItems: "flex-end",
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 12,
-    marginTop: 12,
-    fontSize: 16,
-    color: "#000",
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  rowGap: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 12,
-    gap: 8,
-  },
-  dateInput: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    flex: 1,
-  },
-  dateText: {
-    color: "#666",
-    marginLeft: 6,
-  },
-  priorityOption: {
-    fontSize: 14,
-    color: "#bbb",
-    paddingVertical: 4,
-  },
-  selected: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  footerButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 24,
-    zIndex: 1,
-  },
-  cancelBtn: {
-    backgroundColor: "#000",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    zIndex: 1,
-  },
-  cancelText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-    zIndex: 1,
-  },
-  saveBtn: {
-    backgroundColor: "#1CC282",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    zIndex: 1,
-  },
-  saveText: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#000",
-    zIndex: 1,
-  },
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end", alignItems: "flex-end", overflow: 'hidden' },
+  container: { backgroundColor: "#DAB7FF", borderRadius: 20, padding: 20, width: "100%", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
+  rowEnd: { alignItems: "flex-end" },
+  input: { backgroundColor: "#fff", borderRadius: 16, padding: 12, marginTop: 12, fontSize: 16, color: "#000" },
+  textArea: { height: 100, textAlignVertical: "top" },
+  rowGap: { flexDirection: "row", justifyContent: "space-between", marginTop: 12, gap: 8 },
+  dateInput: { marginBottom: 16, backgroundColor: '#fff', borderRadius: 24, paddingHorizontal: 16, minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  dateText: { fontSize: 16, fontWeight: 'bold', color: '#bbb' },
+  priorityOption: { fontSize: 14, color: "#bbb", paddingVertical: 4 },
+  selected: { color: "#000", fontWeight: "bold" },
+  footerButtons: { flexDirection: "row", justifyContent: "space-between", marginTop: 24, zIndex: 1 },
+  cancelBtn: { backgroundColor: "#000", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30, zIndex: 1 },
+  cancelText: { color: "#fff", fontWeight: "bold", fontSize: 16, zIndex: 1 },
+  saveBtn: { backgroundColor: "#1CC282", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30, zIndex: 1 },
+  saveText: { fontWeight: "bold", fontSize: 16, color: "#000", zIndex: 1 }
 });
+

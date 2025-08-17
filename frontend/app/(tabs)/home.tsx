@@ -432,7 +432,8 @@ const Home = () => {
             color: "#000",
             bottom: 15,
             fontFamily: "Poppins",
-            marginBottom: -15,
+            // marginBottom: -15,
+            marginTop:50,
             width: "100%",
           }}
         >

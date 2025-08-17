@@ -28,7 +28,7 @@ export default function ProgressBar({
 }
 
 const styles = StyleSheet.create({
-  wrapper: { width: "100%", paddingHorizontal: 24, marginTop: 20 },
+  wrapper: { width: "100%", paddingHorizontal: 24, marginBottom: 50 },
   text: { fontSize: 14, fontWeight: "bold", marginBottom: 6, color: "#333" },
   barBackground: {
     height: 8,
