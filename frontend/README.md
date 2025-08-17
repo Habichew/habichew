@@ -48,9 +48,9 @@ This command will move the starter code to the **app-example** directory and cre
 
 ## File Structure
 
-``` 
+```
 frontend/
-├── .env 
+├── .env
 ├── app/ # Main routing & screen entry points
 │ ├── (tabs)/ # Tab-based layout routing
 │ │ ├── _layout.tsx # Root layout for tab navigation
@@ -109,56 +109,69 @@ frontend/
 ```
 
 ## Test on Android via development build
+
 A React Native app consists of two parts: the JavaScript bundle and the native app.
-The JavaScript bundle (``npx expo start``) contains app's UI code and business logic are and it can be live reloaded during development.
+The JavaScript bundle (`npx expo start`) contains app's UI code and business logic are and it can be live reloaded during development.
 The native app contains all of the app's native code and requires a build and signature before being installed on an Android device. Every time a new library with native code is added to the app, a native app has to be rebuilt and re-installed.
 
 ### Difference between Expo Go and development builds
+
 Expo Go is a native app that comes with a number of native libraries so that developers can easily update their app's JavaScript code on their local machine and see the changes on Expo Go. It cannot be modified, meaning you can only rely on the native code and tools that exist in Expo Go when it was uploaded to the app store.
 This means that when we try use Expo Go to test our app and add a library that is not included in [this file](https://github.com/expo/expo/blob/main/apps/expo-go/package.json#L23), the app will hot-reload and immediately run into errors, because it cannot find the package.
 
-If we want to develop and test other libraries (e.g. rive-react-native), we instead have to use a development build. This allows adding any native libraries as well as see changes to the app icon, name and splash screen.    
+If we want to develop and test other libraries (e.g. rive-react-native), we instead have to use a development build. This allows adding any native libraries as well as see changes to the app icon, name and splash screen.
 
-There are two main ways of creating a development build with Expo: 
+There are two main ways of creating a development build with Expo:
+
 - Build on EAS (easiest way, can be done remotely)
 - Build on your local machine (more set-up required)
 
 Both Expo Go and development builds require a development server to be running.
 
 ### Build on EAS
-Sources: 
+
+Sources:
+
 - https://docs.expo.dev/build/setup/
 - https://docs.expo.dev/develop/development-builds/create-a-build/
 
 EAS Build is a service hosted by Expo for building app binaries for your Expo and React Native projects. You will need an [Expo user account](https://expo.dev/signup) to use EAS Build.
 
 #### Log in to your Expo account
-```eas login```
+
+`eas login`
 
 #### Run an android build
-````eas build --platform android --profile development````
+
+`eas build --platform android --profile development`
 
 This process will take a long time (up to an hour) because in the free plan of EAS, we will usually have to wait in a queue.
 
 #### Deploy the build
-Once the build has finished, the Expo page of the organisation will be updated and your terminal will show a QR code and link to the APK file. Now, you can download the apk and install the native app. Once you have downloaded this app, start a local development server with ```npx expo start``` and connect your Android device to the same local network.
+
+Once the build has finished, the Expo page of the organisation will be updated and your terminal will show a QR code and link to the APK file. Now, you can download the apk and install the native app. Once you have downloaded this app, start a local development server with `npx expo start` and connect your Android device to the same local network.
 Once you have a development build installed, you do not need to reinstall it until you add a new library that is not already included in Expo Go.
 
 ### Build on your local machine
+
 This process takes more time to prepare but is much faster once it is set up (on my laptop, it takes up to 15 minutes). It requires installing Android Studio to get the Android SDK and Android Debug Bridge.
 
 #### Start the ADB server
-````adb start-server````
 
-Note: the terminal should respond with a message like "* daemon not running; starting now at tcp:5037
-* daemon started successfully". If not, try shutting down the server with ````adb kill-server```` and starting it again.
+`adb start-server`
+
+Note: the terminal should respond with a message like "\* daemon not running; starting now at tcp:5037
+
+- daemon started successfully". If not, try shutting down the server with `adb kill-server` and starting it again.
 
 #### Build native Android project
-````npx expo run:android````
+
+`npx expo run:android`
 
 If there are no errors, the terminal should then display the path to the .apk file.
 
 #### Deploy the build
-Copy the .apk to your device and install it from there. Alternatively, you can enable USB-debugging in the settings of your Android device (activate developer mode first), run ``npx expo start`` and press 'A' to let expo install the app automatically.
 
-Note: if you the error message ``Error: could not connect to TCP port 5562``, try restarting the adb server.
+Copy the .apk to your device and install it from there. Alternatively, you can enable USB-debugging in the settings of your Android device (activate developer mode first), run `npx expo start` and press 'A' to let expo install the app automatically.
+
+Note: if you the error message `Error: could not connect to TCP port 5562`, try restarting the adb server.

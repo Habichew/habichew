@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -7,13 +7,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform, TouchableWithoutFeedback,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { useUser, Task } from '../../app/context/UserContext';
-import { webDateInputWrapper, webDateInput } from './webDateStyles';
-import CustomDropdown from './select';
-
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useUser, Task } from "../../app/context/UserContext";
+import { webDateInputWrapper, webDateInput } from "./webDateStyles";
+import CustomDropdown from "./select";
 
 interface TaskModalProps {
   visible: boolean;
@@ -24,13 +23,13 @@ interface TaskModalProps {
 }
 
 const formatDate = (input: string | Date): string => {
-  const d = typeof input === 'string' ? new Date(`${input}T00:00:00`) : input;
+  const d = typeof input === "string" ? new Date(`${input}T00:00:00`) : input;
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const hour = String(d.getHours()).padStart(2, '0');
-  const min = String(d.getMinutes()).padStart(2, '0');
-  const sec = String(d.getSeconds()).padStart(2, '0');
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hour = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  const sec = String(d.getSeconds()).padStart(2, "0");
   return `${y}-${m}-${day} ${hour}:${min}:${sec}`;
 };
 
@@ -43,30 +42,32 @@ export default function TaskModal({
 }: TaskModalProps) {
   const { addTask, updateTask, deleteTask, user } = useUser();
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null); // yyyy-mm-dd
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [priority, setPriority] = useState<'Low' | 'Medium' | 'High' | null>(null);
+  const [priority, setPriority] = useState<"Low" | "Medium" | "High" | null>(
+    null,
+  );
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title || '');
+      setTitle(task.title || "");
       setDescription(task.description ?? null);
       setDueDate(task.dueAt?.substring(0, 10) ?? null);
       if (
         task.priority &&
-        ['low', 'medium', 'high'].includes(task.priority.toLowerCase())
+        ["low", "medium", "high"].includes(task.priority.toLowerCase())
       ) {
         const capitalized =
           task.priority.charAt(0).toUpperCase() +
           task.priority.slice(1).toLowerCase();
-        setPriority(capitalized as 'Low' | 'Medium' | 'High');
+        setPriority(capitalized as "Low" | "Medium" | "High");
       } else {
         setPriority(null);
       }
     } else {
-      setTitle('');
+      setTitle("");
       setDescription(null);
       setDueDate(null);
       setPriority(null);
@@ -76,7 +77,7 @@ export default function TaskModal({
   const handleSave = async () => {
     if (!user) return;
     if (!title.trim()) {
-      alert('Please enter a task title.');
+      alert("Please enter a task title.");
       return;
     }
 
@@ -85,7 +86,9 @@ export default function TaskModal({
       title,
       description: description?.trim() || null,
       dueAt: dueDate ? formatDate(dueDate) : null,
-      priority: priority ? (priority.toLowerCase() as 'low' | 'medium' | 'high') : null,
+      priority: priority
+        ? (priority.toLowerCase() as "low" | "medium" | "high")
+        : null,
       habitId: task?.habitId ?? defaultHabitId ?? null,
       credit: 50,
     };
@@ -107,16 +110,16 @@ export default function TaskModal({
   };
 
   const renderDateInput = () => {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       return (
         <View style={webDateInputWrapper}>
           <input
             type="date"
-            value={dueDate ?? ''}
+            value={dueDate ?? ""}
             onChange={(e) => setDueDate(e.target.value)}
             style={{
               ...webDateInput,
-              color: dueDate ? '#000' : '#bbb',
+              color: dueDate ? "#000" : "#bbb",
             }}
           />
         </View>
@@ -124,10 +127,13 @@ export default function TaskModal({
     } else {
       return (
         <>
-          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => setShowDatePicker(true)}>
+          <TouchableOpacity
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={() => setShowDatePicker(true)}
+          >
             <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={{ marginLeft: 6, color: '#666' }}>
-              {dueDate ? new Date(dueDate).toDateString() : 'DDL'}
+            <Text style={{ marginLeft: 6, color: "#666" }}>
+              {dueDate ? new Date(dueDate).toDateString() : "DDL"}
             </Text>
           </TouchableOpacity>
           {showDatePicker && (
@@ -138,8 +144,8 @@ export default function TaskModal({
                 setShowDatePicker(false);
                 if (selected) {
                   const y = selected.getFullYear();
-                  const m = String(selected.getMonth() + 1).padStart(2, '0');
-                  const d = String(selected.getDate()).padStart(2, '0');
+                  const m = String(selected.getMonth() + 1).padStart(2, "0");
+                  const d = String(selected.getDate()).padStart(2, "0");
                   setDueDate(`${y}-${m}-${d}`);
                 }
               }}
@@ -178,27 +184,25 @@ export default function TaskModal({
               placeholder="Description"
               placeholderTextColor="#bbbbbb"
               style={[styles.input, styles.textArea]}
-              value={description ?? ''}
+              value={description ?? ""}
               onChangeText={(val) => setDescription(val || null)}
               multiline
             />
           </View>
 
-          <View style={{ zIndex: 9 }}>
-            {renderDateInput()}
-          </View>
+          <View style={{ zIndex: 9 }}>{renderDateInput()}</View>
 
           <View style={{ zIndex: 8, marginBottom: 6 }}>
             <CustomDropdown
               zIndex={8}
               zIndexInverse={7}
               items={[
-                { label: 'Low', value: 'Low' },
-                { label: 'Medium', value: 'Medium' },
-                { label: 'High', value: 'High' },
+                { label: "Low", value: "Low" },
+                { label: "Medium", value: "Medium" },
+                { label: "High", value: "High" },
               ]}
               value={priority}
-              setValue={(val) => setPriority(val as 'Low' | 'Medium' | 'High')}
+              setValue={(val) => setPriority(val as "Low" | "Medium" | "High")}
               placeholder="Priority"
             />
           </View>
@@ -209,7 +213,7 @@ export default function TaskModal({
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-              <Text style={styles.saveText}>{task ? 'Save' : 'Create'}</Text>
+              <Text style={styles.saveText}>{task ? "Save" : "Create"}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -219,102 +223,101 @@ export default function TaskModal({
   );
 }
 
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   container: {
-    backgroundColor: '#DAB7FF',
+    backgroundColor: "#DAB7FF",
     borderRadius: 20,
     padding: 20,
-    width: '90%',
+    width: "90%",
   },
   rowEnd: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 12,
     marginTop: 12,
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   rowGap: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 12,
     gap: 8,
   },
   dateInput: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 10,
     flex: 1,
   },
   dateText: {
-    color: '#666',
+    color: "#666",
     marginLeft: 6,
   },
   priorityBox: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   priorityOption: {
     fontSize: 14,
-    color: '#bbb',
+    color: "#bbb",
     paddingVertical: 4,
   },
   selected: {
-    color: '#000',
-    fontWeight: 'bold',
+    color: "#000",
+    fontWeight: "bold",
   },
   footerButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 24,
-    zIndex: 1
+    zIndex: 1,
   },
   cancelBtn: {
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 30,
-    zIndex: 1
+    zIndex: 1,
   },
   cancelText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
-    zIndex: 1
+    zIndex: 1,
   },
   saveBtn: {
-    backgroundColor: '#1CC282',
+    backgroundColor: "#1CC282",
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 30,
-    zIndex: 1
+    zIndex: 1,
   },
   saveText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
-    color: '#000',
-    zIndex: 1
+    color: "#000",
+    zIndex: 1,
   },
 });

@@ -21,7 +21,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.habichew.habichewAndroid"
+      "package": "com.habichew.habichewAndroid",
+      "permissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -60,28 +64,29 @@
         }
       ],
       [
-        "expo-build-properties", {
+        "expo-build-properties",
+        {
           "android": {
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
-
     "experiments": {
       "baseUrl": "",
       "typedRoutes": true
+    },
+    "owner": "habichew",
+    "runtimeVersion": "exposdk:53.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/ad4e0854-ebb2-4ec8-88c8-6a3d5a9b22d9"
     },
     "extra": {
       "router": {},
       "eas": {
         "projectId": "ad4e0854-ebb2-4ec8-88c8-6a3d5a9b22d9"
       }
-    },
-    "owner": "habichew",
-    "runtimeVersion": "exposdk:53.0.0",
-    "updates": {
-      "url": "https://u.expo.dev/ad4e0854-ebb2-4ec8-88c8-6a3d5a9b22d9"
     }
   }
 }

@@ -1,7 +1,14 @@
 // components/menu.tsx
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, Image, Modal } from 'react-native';
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  Image,
+  Modal,
+} from "react-native";
 
 export default function TopBar() {
   const router = useRouter();
@@ -11,13 +18,19 @@ export default function TopBar() {
     <View style={styles.container}>
       {/* Profile button */}
       <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-        <Image source={require('@/assets/images/profile.png')} style={styles.icon} />
+        <Image
+          source={require("@/assets/images/profile.png")}
+          style={styles.icon}
+        />
       </TouchableOpacity>
 
       {/* Home button */}
-      <TouchableOpacity onPress={() => router.push('/pet')}>
+      <TouchableOpacity onPress={() => router.push("/pet")}>
         <View style={styles.homeContainer}>
-          <Image source={require('@/assets/images/home.png')} style={styles.icon} />
+          <Image
+            source={require("@/assets/images/home.png")}
+            style={styles.icon}
+          />
         </View>
       </TouchableOpacity>
 
@@ -26,8 +39,12 @@ export default function TopBar() {
         transparent={true}
         visible={showMenu}
         animationType="fade"
-        onRequestClose={() => setShowMenu(false)}>
-        <TouchableOpacity style={styles.overlay} onPress={() => setShowMenu(false)}>
+        onRequestClose={() => setShowMenu(false)}
+      >
+        <TouchableOpacity
+          style={styles.overlay}
+          onPress={() => setShowMenu(false)}
+        >
           <View style={styles.menuContainer}>
             <Text style={styles.username}>Username</Text>
             <Text style={styles.email}>example@gmail.com</Text>
@@ -48,14 +65,14 @@ export default function TopBar() {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 20,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     zIndex: 1000,
   },
   icon: {
@@ -63,43 +80,43 @@ const styles = StyleSheet.create({
     height: 44,
   },
   homeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   homeText: {
     marginLeft: 6,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    backgroundColor: "rgba(0,0,0,0.2)",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
     paddingTop: 100,
     paddingLeft: 20,
   },
   menuContainer: {
     width: 220,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 10,
   },
   username: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   email: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginBottom: 12,
   },
   divider: {
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     marginVertical: 8,
   },
   menuItem: {

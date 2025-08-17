@@ -1,6 +1,14 @@
-import { useRouter } from 'expo-router';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Animated, Easing } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useRouter } from "expo-router";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Animated,
+  Easing,
+} from "react-native";
+import { useEffect, useRef } from "react";
 
 export default function LaunchScreen() {
   const router = useRouter();
@@ -21,7 +29,7 @@ export default function LaunchScreen() {
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
@@ -29,7 +37,7 @@ export default function LaunchScreen() {
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
-          source={require('@/assets/images/cat.png')}
+          source={require("@/assets/images/cat.png")}
           style={styles.image}
           resizeMode="cover"
         />
@@ -37,9 +45,12 @@ export default function LaunchScreen() {
 
       <View style={styles.bottomSection}>
         <Text style={styles.subtitle}>Welcome to</Text>
-        <TouchableOpacity onPress={() => router.push('/onboarding/story')} activeOpacity={0.9}>
+        <TouchableOpacity
+          onPress={() => router.push("/onboarding/story")}
+          activeOpacity={0.9}
+        >
           <Animated.Image
-            source={require('@/assets/images/habichewLogo.png')}
+            source={require("@/assets/images/habichewLogo.png")}
             style={[styles.logo, { transform: [{ translateY: floatAnim }] }]}
             resizeMode="contain"
           />
@@ -52,27 +63,27 @@ export default function LaunchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   imageContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop:100,
-    overflow: 'hidden',
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 100,
+    overflow: "hidden",
   },
   image: {
-    width: "80%"
+    width: "80%",
   },
   bottomSection: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     // paddingHorizontal: 14,
   },
   subtitle: {
     fontSize: 24,
-    fontWeight: '600',
-    color: '#444',
+    fontWeight: "600",
+    color: "#444",
   },
   logo: {
     width: 300,

@@ -1,3 +1,19 @@
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+} from "react-native";
+import { useUser, Task } from "../context/UserContext";
+import TaskModal from "../../components/ui/TaskModal";
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
+import { RiveRef } from "rive-react-native";
 import React, {useEffect, useRef, useState} from 'react';
 import {Dimensions, View, Text, StyleSheet, Image, Pressable, TouchableOpacity, TextInput, ActivityIndicator, FlatList} from 'react-native';
 import { useUser, Task } from '../context/UserContext';
@@ -20,13 +36,15 @@ export default function Tasks() {
   const numericHabitId = habitId ? parseInt(habitId as string) : undefined;
 
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
-  const [searchText, setSearchText] = useState(habitName as string || '');
+  const [searchText, setSearchText] = useState((habitName as string) || "");
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isHabitFilterLocked, setIsHabitFilterLocked] = useState(true);
   const [hasEverEnteredHabit, setHasEverEnteredHabit] = useState(false);
   const [showEmptyPrompt, setShowEmptyPrompt] = useState(false);
-  const [lastFilteredHabitId, setLastFilteredHabitId] = useState<number | null>(null);
+  const [lastFilteredHabitId, setLastFilteredHabitId] = useState<number | null>(
+    null,
+  );
   const [loadingTasks, setLoadingTasks] = useState<boolean>(false);
 
   const riveRef = useRef<RiveRef>(null);
@@ -35,15 +53,24 @@ export default function Tasks() {
   let row: Array<any> = [];
   const flatListRef = useRef<SwipeableFlatListRef<any> | null>(null);
 
-  const closeAllOpenRows = () => {
-    flatListRef.current?.closeAnyOpenRows();
-  };
+    const closeAllOpenRows = () => {
+        flatListRef.current?.closeAnyOpenRows();
+    };
+
+  //When the page regains focus and there is no habitId parameter, clear the filter
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!habitId) {
+        setSearchText("");
+        setIsHabitFilterLocked(false);
+        setLastFilteredHabitId(null);
+      }
+    }, [habitId]),
+  );
 
   useEffect(() => {
-    if (user) {
-      loadTasks();
-    }
-  }, [user]);
+    loadTasks();
+  }, []);
 
   useEffect(() => {
     if (numericHabitId && numericHabitId !== lastFilteredHabitId) {
@@ -62,7 +89,6 @@ export default function Tasks() {
   }
 
   useEffect(() => {
-    console.log('maybeeeeee')
     let filtered = tasks.filter(t => {
       if (isHabitFilterLocked && numericHabitId) return t.habitId === numericHabitId;
       return t.title.toLowerCase().includes(searchText.toLowerCase());
@@ -94,9 +120,9 @@ export default function Tasks() {
   };
 
   const formatDate = (dateStr: string | undefined) => {
-    if (!dateStr) return '';
+    if (!dateStr) return "";
     const d = new Date(dateStr);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   };
 
   const toggleCompleted = async (task: Task) => {
@@ -106,7 +132,7 @@ export default function Tasks() {
       completed: !Boolean(task.completed),
       priority: task.priority || null,
       credit: task.credit ?? 0,
-      description: task.description ?? '',
+      description: task.description ?? "",
       dueAt: task.dueAt ? formatDate(task.dueAt) : undefined,
     };
     await updateTask(updatedTask);
@@ -116,50 +142,56 @@ export default function Tasks() {
   };
 
   function handleGenerateTasks() {
-    if (!habitName) return alert('Please enter a habit name.');
+    if (!habitName) return alert("Please enter a habit name.");
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Authorization", "Bearer " + process.env.EXPO_PUBLIC_OPENAI_API_KEY);
+    myHeaders.append(
+      "Authorization",
+      "Bearer " + process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+    );
 
     const raw = JSON.stringify({
-      "model": "gpt-4.1",
-      "messages": [
+      model: "gpt-4.1",
+      messages: [
         {
-          "role": "user",
-          "content": "In short sentences, break down this habit into a bulleted list of max. 6 tasks that are directly executable: '" + habitName + "'. Only respond with a bulleted list"
-        }
-      ]
+          role: "user",
+          content:
+            "In short sentences, break down this habit into a bulleted list of max. 6 tasks that are directly executable: '" +
+            habitName +
+            "'. Only respond with a bulleted list",
+        },
+      ],
     });
 
     const requestOptions: RequestInit = {
       method: "POST",
       headers: myHeaders,
       body: raw,
-      redirect: "follow"
+      redirect: "follow",
     };
 
     // setGeneratedTasks(["Find a private or comfortable space", "Acknowledge your emotions", "Allow your feelings to flow without holding back", "Breathe deeply and steadily", "Use tissues or a cloth if needed", "Take time afterwards to rest or reflect"]);
     setLoadingTasks(true);
     fetch("https://api.openai.com/v1/chat/completions", requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          console.log(result);
-          let newTasks = result.choices[0].message.content;
-          newTasks = newTasks.split("\n").map((t: string) => {
-            if (t.startsWith("- ")) {
-              return t.slice(2);
-            }
-            return t;
-          })
-          setFilteredTasks(newTasks);
-          console.log("set generated tasks", newTasks, "length", newTasks.length);
-          setLoadingTasks(false);
-          setShowEmptyPrompt(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setLoadingTasks(false);
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        let newTasks = result.choices[0].message.content;
+        newTasks = newTasks.split("\n").map((t: string) => {
+          if (t.startsWith("- ")) {
+            return t.slice(2);
+          }
+          return t;
         });
+        setFilteredTasks(newTasks);
+        console.log("set generated tasks", newTasks, "length", newTasks.length);
+        setLoadingTasks(false);
+        setShowEmptyPrompt(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoadingTasks(false);
+      });
   }
 
   const renderTask = ({ item, index }) => {
@@ -174,60 +206,73 @@ export default function Tasks() {
       }
     }
 
-
-
     return (
           <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}>
-            <View style={styles.flexOne}>
-              <TouchableOpacity disabled={!!item.completed}
-                                onPress={() => toggleCompleted(item)}>
-                <Ionicons
-                    name={!item.completed ? "ellipse-outline" : "checkmark-circle-outline"}
-                    size={24} color="black"/>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.flexTwo}>
-              <Text style={[styles.taskTitle, {textDecorationLine: item.completed ? 'line-through' : 'none'}]}>{item.title}</Text>
-              {item.description ? <Text style={styles.taskDescription}>{item.description}</Text> : null}
-              <View style={styles.metaRow}>
-                { item.dueAt ?
-                    <View style={styles.badge}>
-                      <Ionicons name="calendar-outline" size={16} color="#000" />
-                      <Text style={styles.badgeText}>
-                        {item.dueAt ? new Date(item.dueAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short' }) : ''}
-                      </Text>
-                    </View> : ""
-                }
-                { item.priority ?
-                    <View style={styles.badge}>
-                      <Ionicons name="flag-outline" size={16} color="#000"/>
-                      <Text style={styles.badgeText}>
-                        {item.priority
-                            ? `${item.priority.charAt(0).toUpperCase()}${item.priority.slice(1)} Priority`
-                            : 'No Priority'}
-                      </Text>
-                    </View>
-                    : ""
-                }
-                {/*<Swipeable*/}
-                {/*    friction={2}*/}
-                {/*    overshootFriction={8}*/}
-                {/*    leftThreshold={screenWidth*0.3}*/}
-                {/*    renderLeftActions={!item.completed ? LeftAction : null}*/}
-                {/*    onSwipeableWillOpen={async (direction: any) => {*/}
-                {/*      const i = item;*/}
-                {/*      i.completed = true;*/}
-                {/*      // await updateTask(i);*/}
-                {/*      // await loadTasks();*/}
-                {/*    }}*/}
-                {/*    onSwipeableOpenStartDrag={() => Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_End)}*/}
-                {/*    ref={swipeRef => row[index] = swipeRef}*/}
-                {/*    containerStyle={{ width: "100%", alignSelf: 'center', marginBottom: 12}}*/}
-                {/*>*/}
-
-                {/*</Swipeable>*/}
-              </View>
-            </View>
+                  <View
+                      style={[
+                          styles.taskCard,
+                          { backgroundColor: isCompleted ? "#e6e6e6" : "#DAB7FF" },
+                      ]}
+                  >
+                      <View style={styles.flexOne}>
+                          <Text style={styles.taskTitle}>{item.title}</Text>
+                          {item.description ? (
+                              <Text style={styles.taskDescription}>{item.description}</Text>
+                          ) : null}
+                          <View style={styles.metaRow}>
+                              {item.dueAt ? (
+                                  <View style={styles.badge}>
+                                      <Ionicons
+                                          name="calendar-outline"
+                                          size={16}
+                                          color="#000"
+                                      />
+                                      <Text style={styles.badgeText}>
+                                          {item.dueAt
+                                              ? new Date(item.dueAt).toLocaleDateString("en-US", {
+                                                  day: "2-digit",
+                                                  month: "short",
+                                              })
+                                              : ""}
+                                      </Text>
+                                  </View>
+                              ) : (
+                                  ""
+                              )}
+                              {item.priority ? (
+                                  <View style={styles.badge}>
+                                      <Ionicons name="flag-outline" size={16} color="#000" />
+                                      <Text style={styles.badgeText}>
+                                          {item.priority
+                                              ? `${item.priority.charAt(0).toUpperCase()}${item.priority.slice(1)} Priority`
+                                              : "No Priority"}
+                                      </Text>
+                                  </View>
+                              ) : (
+                                  ""
+                              )}
+                              <TouchableOpacity
+                                  style={[styles.pencil]}
+                                  onPress={() => handleEdit(item)}
+                              >
+                                  <Ionicons name="pencil" size={20} color="#333" />
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                  style={[
+                                      styles.tickBox,
+                                      isCompleted && styles.tickBoxCompleted,
+                                  ]}
+                                  onPress={() => toggleCompleted(item)}
+                              >
+                                  <Ionicons
+                                      name="checkmark"
+                                      size={16}
+                                      color={isCompleted ? "#000" : "#999"}
+                                  />
+                              </TouchableOpacity>
+                          </View>
+                      </View>
+                  </View>
           </Pressable>
     );
   }
@@ -288,7 +333,11 @@ export default function Tasks() {
       <View style={styles.topBar}>
         <TextInput
           style={styles.search}
-          placeholder={isHabitFilterLocked && numericHabitId ? `Tasks belonged to ${habitName}` : 'Search Taskname'}
+          placeholder={
+            isHabitFilterLocked && numericHabitId
+              ? `Tasks belonged to ${habitName}`
+              : "Search Taskname"
+          }
           placeholderTextColor="#999"
           value={searchText}
           onChangeText={(text) => {
@@ -305,23 +354,32 @@ export default function Tasks() {
         </TouchableOpacity>
       </View>
 
-      {showEmptyPrompt && (
-          loadingTasks ? <ActivityIndicator size={"large"}/> :
-              <View style={{alignItems: 'center', marginTop: 40}}>
-                <Text style={{textAlign: 'center', fontSize: 14, marginBottom: 20}}>
-                  You don’t have any task for the habit{"\n"}
-                  Generate tasks with just a click or use + to add your own !
-                </Text>
-                <TouchableOpacity style={styles.generateBtn} onPress={() => setModalVisible(true)}>
-                  <Text style={styles.generateText}>Generate Tasks</Text>
-                </TouchableOpacity>
-              </View>
-      )}
+      {showEmptyPrompt &&
+        (loadingTasks ? (
+          <ActivityIndicator size={"large"} />
+        ) : (
+          <View style={{ alignItems: "center", marginTop: 40 }}>
+            <Text
+              style={{ textAlign: "center", fontSize: 14, marginBottom: 20 }}
+            >
+              You don’t have any task for the habit{"\n"}
+              Generate tasks with just a click or use + to add your own !
+            </Text>
+            <TouchableOpacity
+              style={styles.generateBtn}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.generateText}>Generate Tasks</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
 
       <SwipeableFlatList
         data={filteredTasks}
         ref={flatListRef}
-        keyExtractor={(item: any) => item.userTaskId?.toString() || Math.random().toString()}
+        keyExtractor={(item) =>
+          item.userTaskId?.toString() || Math.random().toString()
+        }
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={renderTask}
         renderLeftActions={LeftActionNew}
@@ -352,36 +410,72 @@ export default function Tasks() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, paddingHorizontal: 0, backgroundColor: '#fff' },
-  topBar: { marginBottom: 16, paddingHorizontal: 24 },
-  search: { backgroundColor: '#F1F1F1', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: '#000' },
-  headerRow: { paddingHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  sectionTitle: { fontWeight: 'bold', fontSize: 20 },
-  taskCard: { flexDirection: 'row', padding: 16, borderRadius: 16, marginVertical: 6, marginHorizontal: 20, alignItems: 'center', justifyContent: 'flex-start' },
-  flexOne: { marginVertical: 8, paddingVertical: 8, borderColor: 'black'},
-  flexTwo: {flex: 2, marginLeft: 10, marginVertical: 'auto', paddingVertical: 0, textAlign: 'center', alignSelf: 'center'},
-  taskTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 4, color: '#000' },
-  taskDescription: { fontSize: 14, color: '#333', marginBottom: 6 },
-  metaRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  badge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20 },
-  badgeText: { fontSize: 14, marginLeft: 6, color: '#000' },
-  iconGroup: { flexDirection: 'column', alignItems: 'center', gap: 10 },
-  pencil: { position: 'absolute', right: 0, top: 4 },
-  tickBox: { padding: 6, backgroundColor: '#fff', borderRadius: 6 },
-  tickBoxCompleted: { backgroundColor: '#fff' },
-  generateBtn: { marginTop: 20, backgroundColor: '#DAB7FF', borderRadius: 40, paddingHorizontal: 40, paddingVertical: 12 },
-  generateText: { fontWeight: 'bold', fontSize: 16, color: '#000' },
-  leftAction: {
-    transform: [{ translateX: 0 }],
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    backgroundColor: '#1CC282',
+  container: { flex: 1, padding: 24, backgroundColor: "#fff" },
+  topBar: { marginBottom: 16 },
+  search: {
+    backgroundColor: "#F1F1F1",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: "#000",
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  sectionTitle: { fontWeight: "bold", fontSize: 20 },
+  taskCard: {
+    flexDirection: "row",
+    padding: 16,
     borderRadius: 16,
-    paddingHorizontal: 20,
     marginVertical: 6,
-    paddingRight: 40,
-    marginHorizontal: 20,
-    marginRight: -Dimensions.get('window').width + 80,
-    width: Dimensions.get('window').width - 40
-  }
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  flexOne: { flex: 1 },
+  taskTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 4,
+    color: "#000",
+  },
+  taskDescription: { fontSize: 14, color: "#333", marginBottom: 6 },
+  metaRow: { flexDirection: "row", gap: 12, marginTop: 4 },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  badgeText: { fontSize: 14, marginLeft: 6, color: "#000" },
+  iconGroup: { flexDirection: "column", alignItems: "center", gap: 10 },
+  pencil: { position: "absolute", right: 0, top: 4 },
+  tickBox: { padding: 6, backgroundColor: "#fff", borderRadius: 6 },
+  tickBoxCompleted: { backgroundColor: "#fff" },
+  generateBtn: {
+    marginTop: 20,
+    backgroundColor: "#DAB7FF",
+    borderRadius: 40,
+    paddingHorizontal: 40,
+    paddingVertical: 12,
+  },
+  generateText: { fontWeight: "bold", fontSize: 16, color: "#000" },
+    leftAction: {
+        transform: [{ translateX: 0 }],
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        backgroundColor: '#1CC282',
+        borderRadius: 16,
+        paddingHorizontal: 20,
+        marginVertical: 6,
+        paddingRight: 40,
+        marginHorizontal: 20,
+        marginRight: -Dimensions.get('window').width + 80,
+        width: Dimensions.get('window').width - 40
+    }
 });

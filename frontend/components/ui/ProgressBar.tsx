@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from "react";
+import { View, StyleSheet } from "react-native";
 
 const ProgressBar = ({ progress }: { progress: number }) => {
   return (
@@ -12,14 +12,14 @@ const ProgressBar = ({ progress }: { progress: number }) => {
 const styles = StyleSheet.create({
   container: {
     height: 10,
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
     borderRadius: 5,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginVertical: 6,
   },
   fill: {
-    height: '100%',
-    backgroundColor: '#DAB7FF',
+    height: "100%",
+    backgroundColor: "#DAB7FF",
   },
 });
 

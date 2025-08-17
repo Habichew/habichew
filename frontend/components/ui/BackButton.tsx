@@ -1,7 +1,7 @@
 // components/BackButton.tsx
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useNavigation } from 'expo-router';
+import React from "react";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { useNavigation } from "expo-router";
 
 export default function BackButton() {
   const navigation = useNavigation();
@@ -16,7 +16,7 @@ export default function BackButton() {
 
   return (
     <TouchableOpacity style={styles.button} onPress={handleGoBack}>
-      <Text style={styles.icon}>{'<'}</Text>
+      <Text style={styles.icon}>{"<"}</Text>
     </TouchableOpacity>
   );
 }
@@ -25,12 +25,12 @@ const styles = StyleSheet.create({
   button: {
     width: 40,
     height: 40,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
   },
 });

@@ -1,9 +1,9 @@
-const { getDefaultConfig } = require('expo/metro-config');
+const { getDefaultConfig } = require("expo/metro-config");
 
 const config = getDefaultConfig(__dirname);
 
 config.watchFolders = config.watchFolders.filter(
-  folder => !folder.includes('.gradle')
+  (folder) => !folder.includes(".gradle"),
 );
 
 module.exports = config;

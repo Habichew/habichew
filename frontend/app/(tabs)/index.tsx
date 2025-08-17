@@ -1,6 +1,6 @@
-import { useRouter, useRootNavigationState } from 'expo-router';
-import { useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { useRouter, useRootNavigationState } from "expo-router";
+import { useEffect } from "react";
+import { View, Text } from "react-native";
 
 export default function IndexRedirect() {
   const router = useRouter();
@@ -9,7 +9,7 @@ export default function IndexRedirect() {
   useEffect(() => {
     if (rootNavigationState?.key) {
       requestAnimationFrame(() => {
-        router.replace('/auth/sign-in');
+        router.replace("/auth/sign-in");
       });
     }
   }, [rootNavigationState]);

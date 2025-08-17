@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import * as React from "react";
+import { View, StyleSheet } from "react-native";
+import { TextInput } from "react-native-paper";
 
 export default function CustomInput({
   value,
   onChangeText,
   placeholder,
-  secureTextEntry = false, 
+  secureTextEntry = false,
 }: {
   value: string;
   onChangeText: (text: string) => void;
@@ -31,8 +31,8 @@ export default function CustomInput({
         secureTextEntry={secureTextEntry}
         theme={{
           colors: {
-            text: '#000',
-            placeholder: '#bbbbbb',
+            text: "#000",
+            placeholder: "#bbbbbb",
           },
         }}
       />
@@ -42,20 +42,20 @@ export default function CustomInput({
 
 const styles = StyleSheet.create({
   wrapper: {
-    width:'100%',
-    backgroundColor: '#fff',
+    width: "100%",
+    backgroundColor: "#fff",
     borderRadius: 24,
-    overflow: 'hidden', 
+    overflow: "hidden",
     marginBottom: 16,
-    height: 48,     
+    height: 48,
   },
   focused: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: "#f2f2f2",
   },
   input: {
     fontSize: 16,
     paddingHorizontal: 16,
-    backgroundColor: 'transparent', 
-    fontWeight:'bold',
+    backgroundColor: "transparent",
+    fontWeight: "bold",
   },
 });

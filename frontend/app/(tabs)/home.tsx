@@ -1,190 +1,237 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Dimensions, FlatList, Image, Pressable, Text, TextInput, TouchableOpacity, View} from 'react-native';
-import {useRouter} from 'expo-router';
-import {Ionicons} from '@expo/vector-icons';
-import {Habit, Task, useUser} from '../context/UserContext';
-import ItemModal from '@/components/ui/HabitModal';
-import Rive, {Fit, RiveRef} from "rive-react-native";
-import {ScaledSheet} from "react-native-size-matters";
-import {SystemBars} from "react-native-edge-to-edge";
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Animated, {Easing, SharedValue, useAnimatedStyle, withTiming,} from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
-import {AndroidHaptics} from 'expo-haptics';
-import {RefreshControl} from "react-native-gesture-handler";
-import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Vibration,
+  View,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Habit, Task, useUser } from "../context/UserContext";
+import ItemModal from "@/components/ui/HabitModal";
+import Rive, { Fit, RiveRef } from "rive-react-native";
+import { ScaledSheet } from "react-native-size-matters";
+import { SystemBars } from "react-native-edge-to-edge";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, {
+  Easing,
+  SharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
+import ReanimatedSwipeable from "react-native-gesture-handler/src/components/ReanimatedSwipeable";
+import * as Haptics from "expo-haptics";
+import { AndroidHaptics } from "expo-haptics";
+import { SwipeDirectionTypes } from "react-native-screens";
+import { SwipeableRef } from "react-native-gesture-handler/ReanimatedSwipeable";
 
-const screenWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get("window").width;
 const scale = (value: number) => (screenWidth / 375) * value;
 
 const Home = () => {
-    const {
-        user,
-        habits,
-        loadHabits,
-        addHabit,
-        updateHabit,
-        deleteHabit,
-        calculateHabitProgress,
-        addTask,
-        loadTasks
-    } = useUser();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filteredHabits, setFilteredHabits] = useState(habits);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [editHabit, setEditHabit] = useState<Partial<Habit> | null>(null);
-    const [toDeleteHabit, setToDeleteHabit] = useState<Partial<Habit> | null>(null);
-    const [showArchivedHabits, setShowArchivedHabits] = useState<boolean>(false);
-    const habitId = editHabit?.userHabitId; // number
-    const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const riveRef = useRef<RiveRef>(null);
-    const swipeRef = useRef<any>(null);
-    const [refreshing, setRefreshing] = useState(false);
-    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const {
+    user,
+    habits,
+    loadHabits,
+    addHabit,
+    updateHabit,
+    deleteHabit,
+    calculateHabitProgress,
+    addTask,
+    loadTasks,
+  } = useUser();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredHabits, setFilteredHabits] = useState(habits);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editHabit, setEditHabit] = useState<Partial<Habit> | null>(null);
+  const [toDeleteHabit, setToDeleteHabit] = useState<Partial<Habit> | null>(
+    null,
+  );
+  const [showArchivedHabits, setShowArchivedHabits] = useState<boolean>(false);
+  const habitId = editHabit?.userHabitId; // number
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const riveRef = useRef<RiveRef>(null);
+  const swipeRef = useRef<any>(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
-    let row: Array<any> = [];
-    let prevOpenedRow: any;
+  let row: Array<any> = [];
+  let prevOpenedRow: any;
 
-    useEffect(() => {
-        if (user) {
-            loadHabits();
-            loadTasks();
-            setRefreshing(true);
-            console.log("user", user);
-            const ONE_MINUTE = 60 * 1000;
+  useEffect(() => {
+    if (user) {
+      loadHabits();
+      loadTasks();
+        setRefreshing(true);
+        console.log("user", user);
+      const ONE_MINUTE = 60 * 1000;
 
-            if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 5 * ONE_MINUTE) {
-              riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-            } else {
-              riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-              riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
-            }
-            setRefreshing(false);
-            // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
-        }
-    }, [user]);
-    useEffect(() => {
-        const newHabits = habits.filter(h => h.habitTitle?.toLowerCase().includes(searchTerm.toLowerCase()));
-        // console.log("newHabits", newHabits);
-        setFilteredHabits(newHabits);
-    }, [searchTerm, habits]);
-
-    const handleAdd = () => {
-        setEditHabit(null);
-        setModalVisible(true);
-        Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
-    };
-    const handleSave = async (data: any) => {
-        if (editHabit) {
-            await updateHabit({...data, userHabitId: editHabit.userHabitId});
+        if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 5 * ONE_MINUTE) {
+            riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
         } else {
-            const addedHabit: any = await addHabit(user!.id.toString(), data);
-            const userHabitId = addedHabit.habit.userHabitId;
-            if (data.tasks && data.tasks.length > 0) {
-                for (let task of data.tasks) {
-                    let newTask: Task = {title: task, dueAt: data.dueAt || null, habitId: userHabitId}
-                    await addTask(newTask);
-                    console.log("added new task", newTask, "for habit with id", userHabitId);
-                }
-            }
+            riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+            riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
         }
-        await loadHabits();
-    };
-    const handleEdit = (habit: any) => {
-        setEditHabit(habit);
-        setModalVisible(true);
-    };
+        setRefreshing(false);
 
-    function handleShowConfirmDelete(habit: any) {
-        setToDeleteHabit(habit);
-        setShowConfirmDelete(true);
+      // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
+    }
+  }, [user]);
+  useEffect(() => {
+    const newHabits = habits.filter((h) =>
+      h.habitTitle?.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+    // console.log("newHabits", newHabits);
+    setFilteredHabits(newHabits);
+  }, [searchTerm, habits]);
+
+  const handleAdd = () => {
+    setEditHabit(null);
+    setModalVisible(true);
+    Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+  };
+  const handleSave = async (data: any) => {
+    if (editHabit) {
+      await updateHabit({ ...data, userHabitId: editHabit.userHabitId });
+    } else {
+      const addedHabit: any = await addHabit(user!.id.toString(), data);
+      const userHabitId = addedHabit.habit.userHabitId;
+      if (data.tasks && data.tasks.length > 0) {
+        for (let task of data.tasks) {
+          let newTask: Task = {
+            title: task,
+            dueAt: data.dueAt || null,
+            habitId: userHabitId,
+          };
+          await addTask(newTask);
+          console.log(
+            "added new task",
+            newTask,
+            "for habit with id",
+            userHabitId,
+          );
+        }
+      }
+    }
+    await loadHabits();
+  };
+  const handleEdit = (habit: any) => {
+    setEditHabit(habit);
+    setModalVisible(true);
+  };
+
+  function handleShowConfirmDelete(habit: any) {
+    setToDeleteHabit(habit);
+    setShowConfirmDelete(true);
+  }
+
+  const handlePressHabit = (habit: any) => {
+    router.push({
+      pathname: "./tasks",
+      params: { habitId: habit.userHabitId, habitName: habit.habitTitle },
+    });
+  };
+
+  //Add animation here
+  const handleTickHabit = async (habit: Habit) => {
+    if (!habit.userHabitId) return;
+    // await updateHabit({ ...habit, isCompleted: true });
+    habit.isArchived = 1;
+    await updateHabit({ ...habit });
+    console.log("trigger animation and complete habit");
+    riveRef.current?.setInputState("State Machine 1", "HabitTicked", true);
+    riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+    await loadHabits();
+  };
+
+  function feedPet() {
+    riveRef.current?.fireState("State Machine 1", "Feed");
+    riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+  }
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      const day = d.getUTCDate();
+      const month = d.toLocaleString("default", { month: "short" });
+      return `${day} ${month}`;
+    } catch {
+      return "";
+    }
+  };
+  const getPriorityLabel = (val: string | number) =>
+    val == 1 ? "High" : val == 2 ? "Medium" : val == 3 ? "Low" : "Priority";
+
+  const renderHabit = ({ item, index }) => {
+    const progressMap = calculateHabitProgress();
+    const percent = progressMap?.[item.userHabitId] ?? 0;
+    // console.log("percent", progressMap?.[item.userHabitId]);
+    console.log("habit", index);
+
+    function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
+      const styleAnimation = useAnimatedStyle(() => {
+        return {
+          transform: [{ translateX: 0 }],
+          alignItems: "center",
+          justifyContent: "center",
+          width: 90,
+          borderRadius: 20,
+          backgroundColor: "black",
+          marginRight: 10,
+          paddingRight: 10,
+          paddingLeft: 40,
+          marginLeft: -50,
+          marginBottom: 12,
+        };
+      });
+
+      return (
+        <Animated.View style={styleAnimation}>
+          <TouchableOpacity>
+            <Ionicons name="pencil-outline" size={20} color="#F8F0F0" />
+          </TouchableOpacity>
+        </Animated.View>
+      );
     }
 
-    const handlePressHabit = (habit: any) => {
-        router.push({pathname: './tasks', params: {habitId: habit.userHabitId, habitName: habit.habitTitle}});
-    };
+    function LeftAction(prog: SharedValue<number>, drag: SharedValue<number>) {
+      const styleAnimation = useAnimatedStyle(() => {
+        // console.log('showLeftProgress:', prog.value);
+        // console.log('appliedTranslation:', drag.value);
 
-    const handleSelectHabit = (habit: any) => {
+          return {
+              transform: [{ translateX: 0 }],
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              backgroundColor: '#1CC282',
+              width: screenWidth - (prog.value < 0.045 ? 20 : 0),
+              marginLeft: 10,
+              borderRadius: 16,
+              paddingLeft: 20
+          };
+      });
 
-    };
-
-    //Add animation here
-    const handleTickHabit = async (habit: Habit) => {
-        if (!habit.userHabitId) return;
-        // await updateHabit({ ...habit, isCompleted: true });
-        habit.isArchived = 1;
-        await updateHabit({...habit});
-        console.log('trigger animation and complete habit');
-        riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
-        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-        await loadHabits();
-    };
-
-    function feedPet() {
-        riveRef.current?.fireState('State Machine 1', 'Feed');
-        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+        return (
+            <Animated.View style={styleAnimation}>
+                <Ionicons name="checkmark-done-outline" size={24} color="black"/>
+            </Animated.View>
+        );
     }
 
-    const formatDate = (dateStr: string) => {
-        if (!dateStr) return '';
-        try {
-            const d = new Date(dateStr);
-            const day = d.getUTCDate();
-            const month = d.toLocaleString('default', {month: 'short'});
-            return `${day} ${month}`;
-        } catch {
-            return '';
-        }
-    };
-    const getPriorityLabel = (val: string | number) => val == 1 ? 'High' : val == 2 ? 'Medium' : val == 3 ? 'Low' : 'Priority';
-
-    const renderHabit = ({item, index}) => {
-        const progressMap = calculateHabitProgress();
-        const percent = progressMap?.[item.userHabitId] ?? 0;
-        // console.log("percent", progressMap?.[item.userHabitId]);
-        // console.log('filtered test habits', filteredHabits);
-        // console.log('habit', index, 'show archived habits', showArchivedHabits, 'item archived', item.isArchived);
-
-        function LeftAction(prog: SharedValue<number>, drag: SharedValue<number>) {
-            const styleAnimation = useAnimatedStyle(() => {
-                // console.log('showLeftProgress:', prog.value);
-                // console.log('appliedTranslation:', drag.value);
-                // console.log('click', prog.value < 0.5 ? 10 : 0);
-
-                return {
-                    transform: [{ translateX: 0 }],
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
-                    backgroundColor: '#1CC282',
-                    width: screenWidth - (prog.value < 0.045 ? 20 : 0),
-                    marginLeft: 10,
-                    borderRadius: 16,
-                    paddingLeft: 20
-                };
-            });
-
-            return (
-                <Animated.View style={styleAnimation}>
-                    <Ionicons name="checkmark-done-outline" size={24} color="black"/>
-                </Animated.View>
-            );
-        }
-
-        function handleSwipe( direction: any) {
-            console.log("vibrate");
-            Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
-            if (direction === 'left') {
-                // handleEdit(item);
-                handleTickHabit(item);
-            } else if (direction === 'right') {
-                // handleShowConfirmDelete(item);
-                // setShowConfirmDelete(true);
-                handleTickHabit(item);
-            }
-        }
-
-        console.log('exp', (showArchivedHabits && item.isArchived) || (!showArchivedHabits && ((item.isArchived === 0) || item.isArchived === null)));
+      function handleSwipe( direction: any) {
+          console.log("vibrate");
+          Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+          if (direction === 'left') {
+              handleTickHabit(item);
+          } else if (direction === 'right') {
+              handleTickHabit(item);
+          }
+      }
 
         return (
             <>
@@ -252,20 +299,20 @@ const Home = () => {
         );
     };
 
-    const handlePlay = (animationName: string) => {
-        riveRef.current?.play(animationName);
-    };
+  const handlePlay = (animationName: string) => {
+    riveRef.current?.play(animationName);
+  };
 
-    const config = {
-        duration: 500,
-        easing: Easing.bezier(0.5, 0.01, 0, 1),
-    };
+  const config = {
+    duration: 500,
+    easing: Easing.bezier(0.5, 0.01, 0, 1),
+  };
 
-    const style = useAnimatedStyle(() => {
-        return {
-            backgroundColor: withTiming('#000000aa', config),
-        };
-    });
+  const style = useAnimatedStyle(() => {
+    return {
+      backgroundColor: withTiming("#000000aa", config),
+    };
+  });
 
     async function handlePetInteraction() {
         if (await riveRef.current?.getBooleanState('HabitTicked') === true) {
@@ -277,18 +324,18 @@ const Home = () => {
         }
     }
 
-    function closeHabits() {
-        console.log('close all habits', row);
-        for(let h of row) {
-            h?.close();
-        }
-        // console.log('current', swipeRef.current);
-        // if (prevOpenedRow && prevOpenedRow !== row[index]) {
-        //     prevOpenedRow.close();
-        // }
-        // prevOpenedRow = row[index];
-        // swipeRef.current?.close();
+  function closeHabits() {
+    console.log("close all habits", row);
+    for (let h of row) {
+      h?.close();
     }
+    // console.log('current', swipeRef.current);
+    // if (prevOpenedRow && prevOpenedRow !== row[index]) {
+    //     prevOpenedRow.close();
+    // }
+    // prevOpenedRow = row[index];
+    // swipeRef.current?.close();
+  }
 
     return (
         <View style={{flex: 1, backgroundColor: '#DAB7FF', marginTop: -insets.top}}>

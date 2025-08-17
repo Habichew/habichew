@@ -1,8 +1,15 @@
 {
   "dependencies": {
-    "@react-native-community/datetimepicker": "^8.4.2"
+    "@react-native-community/datetimepicker": "8.4.1",
+    "react-native-android-widget": "^0.17.1"
   },
   "devDependencies": {
+    "@expo/config-plugins": "~10.1.1",
+    "@expo/prebuild-config": "~9.0.0",
+    "@types/react": "~19.0.10",
+    "eas-cli": "^16.17.4",
+    "expo": "^53.0.20",
+    "expo-dev-client": "^5.2.4",
     "gh-pages": "^6.3.0"
   }
 }

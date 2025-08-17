@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "0a62a2a0-16cd-4c29-aea8-2f64699c92a7"
+      }
+    },
+    "android": {
+      "package": "com.issy886.habichew"
+    }
+  }
+}
