@@ -48,6 +48,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: 16,
     height: 48,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   focused: {
     backgroundColor: "#f2f2f2",

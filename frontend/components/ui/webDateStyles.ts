@@ -4,6 +4,10 @@ export const webDateInputWrapper = {
   height: 50,
   paddingHorizontal: 16,
   justifyContent: "center",
+  elevation: 4,
+  shadowOffset: { width: 0, height: 5 },
+  shadowOpacity: 0.15,
+  shadowRadius: 4,
 } as const;
 
 export const webDateLabel = {

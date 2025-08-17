@@ -291,6 +291,8 @@ return (
                     placeholder="Select Frequency"
                     value={formData.frequency}
                     setValue={val => val && setFormData({ ...formData, frequency: val })}
+                    zIndex={10}
+                    zIndexInverse={9}
                   />
 
                   {/* Priority */}
@@ -303,6 +305,8 @@ return (
                     placeholder="Select Priority"
                     value={formData.priority}
                     setValue={val => val && setFormData({ ...formData, priority: val })}
+                    zIndex={9}
+                    zIndexInverse={8}
                   />
                 </View>
               </View>
@@ -390,12 +394,18 @@ const styles = ScaledSheet.create({
   /* HEADER */
   modalHeader: { padding: 24, paddingBottom: 16 },
   titleRow: {  flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'nowrap' }, // CHANGED: keep single row, consistent gap
-  title: {backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,fontWeight: 'bold',fontSize: 16, color: '#000',marginBottom: 15,}, // CHANGED: larger title, take remaining space
+  title: {    elevation: 4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,fontWeight: 'bold',fontSize: 16, color: '#000',marginBottom: 15,}, // CHANGED: larger title, take remaining space
   headerGrid: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 16}, // row for date & priority
   headerLeft: { flex: 1, gap: 12 }, // NEW
   headerRight: { width: 180 }, // NEW: keep priority width consistent on web & mobile
   chipRow: { flexDirection: 'row', gap: 16, alignItems: 'center' }, // NEW
-  dateInput: {backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between',},
+  dateInput: {    elevation: 4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between',},
   dateText: {fontSize: 16,fontWeight: 'bold',color: '#bbb',},
 
   /* BODY */

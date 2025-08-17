@@ -185,12 +185,11 @@ export default function TaskModal({
               />
             </View>
 
-            <View style={{ zIndex: 9 }}>{renderDateInput()}</View>
-
-            <View style={{ zIndex: 8, marginBottom: 6 }}>
+            {/* Priority */}
+            <View style={{ zIndex: 9, marginBottom: 6 }}>
               <CustomDropdown
-                zIndex={8}
-                zIndexInverse={7}
+                zIndex={9}
+                zIndexInverse={8}
                 items={[
                   { label: "Low", value: "Low" },
                   { label: "Medium", value: "Medium" },
@@ -201,6 +200,12 @@ export default function TaskModal({
                 placeholder="Priority"
               />
             </View>
+
+            {/* DatePicker after Priority ，higher zIndex  */}
+            <View style={{ zIndex: 10, marginBottom: 16 }}>
+              {renderDateInput()}
+            </View>
+
 
             <View style={styles.footerButtons}>
               <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
@@ -224,10 +229,16 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end", alignItems: "flex-end", overflow: 'hidden' },
   container: { backgroundColor: "#DAB7FF", borderRadius: 20, padding: 20, width: "100%", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
   rowEnd: { alignItems: "flex-end" },
-  input: { backgroundColor: "#fff", borderRadius: 16, padding: 12, marginTop: 12, fontSize: 16, color: "#000" },
+  input: {     elevation: 4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,backgroundColor: "#fff", borderRadius: 16, padding: 12, marginTop: 12, fontSize: 16, color: "#000" },
   textArea: { height: 100, textAlignVertical: "top" },
   rowGap: { flexDirection: "row", justifyContent: "space-between", marginTop: 12, gap: 8 },
-  dateInput: { marginBottom: 16, backgroundColor: '#fff', borderRadius: 24, paddingHorizontal: 16, minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  dateInput: {    elevation: 4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4, marginBottom: 16, backgroundColor: '#fff', borderRadius: 24, paddingHorizontal: 16, minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dateText: { fontSize: 16, fontWeight: 'bold', color: '#bbb' },
   priorityOption: { fontSize: 14, color: "#bbb", paddingVertical: 4 },
   selected: { color: "#000", fontWeight: "bold" },

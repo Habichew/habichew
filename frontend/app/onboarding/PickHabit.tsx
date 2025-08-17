@@ -104,7 +104,7 @@ export default function PickHabit() {
       </TouchableOpacity>
 
       <Image
-        source={require("../../assets/images/previouscat2.png")}
+        source={require("../../assets/images/fed.png")}
         style={styles.petImage}
       />
 
