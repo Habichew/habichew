@@ -119,23 +119,19 @@ export default function TaskModal({
     } else {
       return (
         <>
-          <TouchableOpacity
-            style={{ flexDirection: "row", alignItems: "center" }}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <TouchableOpacity style={[styles.tag, {
-              color: dueDate ? 'black' : '#bbbbbb',
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginBottom: 15,
-              paddingVertical: 15,
-              width: '100%'
-            }]} onPress={() => setShowDatePicker(true)}>
-              <Ionicons name="calendar-outline" size={24} color="#555"
-                        style={{marginRight: 5}}/>
-              <Text
-                  style={{fontWeight: 'bold', color: dueDate ? 'black' : '#bbbbbb', fontSize: 16,}}>{dueDate ? new Date(dueDate).toLocaleDateString() : "Due Date"}</Text></TouchableOpacity>
+
+          <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+            <Text
+              style={[
+                styles.dateText,
+                { color: dueDate ? '#000' : '#bbb' }
+              ]}
+            >
+              {dueDate ? new Date(dueDate).toDateString() : 'DDL'}
+            </Text>
+            <Ionicons name="calendar-outline" size={20} color={dueDate ? '#000' : '#bbb'} />
           </TouchableOpacity>
+
           {showDatePicker && (
             <DateTimePicker
               mode="date"
@@ -157,19 +153,18 @@ export default function TaskModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <TouchableOpacity activeOpacity={1} style={styles.overlay} onPressOut={() => {
-        onClose();
-      }}>
+  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={styles.overlay}>
         <TouchableWithoutFeedback>
-        <View style={styles.container}>
-          <View style={styles.rowEnd}>
-            {task && (
-              <TouchableOpacity onPress={handleDelete}>
-                <Ionicons name="trash-outline" size={20} color="#888" />
-              </TouchableOpacity>
-            )}
-          </View>
+          <View style={styles.container}>
+            <View style={styles.rowEnd}>
+              {task && (
+                <TouchableOpacity onPress={handleDelete}>
+                  <Ionicons name="trash-outline" size={20} color="#888" />
+                </TouchableOpacity>
+              )}
+            </View>
 
           <TextInput
             placeholder="Task Title"
@@ -179,25 +174,22 @@ export default function TaskModal({
             onChangeText={setTitle}
           />
 
-          <View style={{ marginBottom: 16 }}>
-            <TextInput
-              placeholder="Description"
-              placeholderTextColor="#bbbbbb"
-              style={[styles.input, styles.textArea]}
-              value={description ?? ''}
-              onChangeText={(val) => setDescription(val || null)}
-              multiline
-            />
-          </View>
+            <View style={{ marginBottom: 16 }}>
+              <TextInput
+                placeholder="Description"
+                placeholderTextColor="#bbbbbb"
+                style={[styles.input, styles.textArea]}
+                value={description ?? ""}
+                onChangeText={(val) => setDescription(val || null)}
+                multiline
+              />
+            </View>
 
-          <View style={{ zIndex: 9 }}>
-            {renderDateInput()}
-          </View>
-
-            <View style={{ zIndex: 8, marginBottom: 6 }}>
+            {/* Priority */}
+            <View style={{ zIndex: 9, marginBottom: 6 }}>
               <CustomDropdown
-                zIndex={8}
-                zIndexInverse={7}
+                zIndex={9}
+                zIndexInverse={8}
                 items={[
                   { label: "Low", value: "Low" },
                   { label: "Medium", value: "Medium" },
@@ -209,6 +201,12 @@ export default function TaskModal({
               />
             </View>
 
+            {/* DatePicker after Priority ，higher zIndex  */}
+            <View style={{ zIndex: 10, marginBottom: 16 }}>
+              {renderDateInput()}
+            </View>
+
+
             <View style={styles.footerButtons}>
               <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
                 <Text style={styles.cancelText}>Cancel</Text>
@@ -217,106 +215,36 @@ export default function TaskModal({
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
                 <Text style={styles.saveText}>{task ? "Save" : "Create"}</Text>
               </TouchableOpacity>
+            </View>
           </View>
-        </View>
         </TouchableWithoutFeedback>
-      </TouchableOpacity>
+      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    overflow: 'hidden',
-  },
-  container: {
-    backgroundColor: "#DAB7FF",
-    borderRadius: 20,
-    padding: 20,
-    width: "100%",
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  rowEnd: {
-    alignItems: "flex-end",
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 12,
-    marginTop: 12,
-    fontSize: 16,
-    color: "#000",
-    fontWeight: 'bold'
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  rowGap: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 12,
-    gap: 8,
-  },
-  dateInput: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    flex: 1,
-  },
-  dateText: {
-    color: "#666",
-    marginLeft: 6,
-  },
-  priorityOption: {
-    fontSize: 14,
-    color: "#bbb",
-    paddingVertical: 4,
-  },
-  selected: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  footerButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 24,
-    zIndex: 1,
-  },
-  cancelBtn: {
-    backgroundColor: "#000",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    zIndex: 1,
-  },
-  cancelText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-    zIndex: 1,
-  },
-  saveBtn: {
-    backgroundColor: "#1CC282",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    zIndex: 1,
-  },
-  saveText: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#000",
-    zIndex: 1,
-  },
-  tag: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000' },
-
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end", alignItems: "flex-end", overflow: 'hidden' },
+  container: { backgroundColor: "#DAB7FF", borderRadius: 20, padding: 20, width: "100%", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
+  rowEnd: { alignItems: "flex-end" },
+  input: {     elevation: 4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,backgroundColor: "#fff", borderRadius: 16, padding: 12, marginTop: 12, fontSize: 16, color: "#000" },
+  textArea: { height: 100, textAlignVertical: "top" },
+  rowGap: { flexDirection: "row", justifyContent: "space-between", marginTop: 12, gap: 8 },
+  dateInput: {    elevation: 4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4, marginBottom: 16, backgroundColor: '#fff', borderRadius: 24, paddingHorizontal: 16, minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  dateText: { fontSize: 16, fontWeight: 'bold', color: '#bbb' },
+  priorityOption: { fontSize: 14, color: "#bbb", paddingVertical: 4 },
+  selected: { color: "#000", fontWeight: "bold" },
+  footerButtons: { flexDirection: "row", justifyContent: "space-between", marginTop: 24, zIndex: 1 },
+  cancelBtn: { backgroundColor: "#000", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30, zIndex: 1 },
+  cancelText: { color: "#fff", fontWeight: "bold", fontSize: 16, zIndex: 1 },
+  saveBtn: { backgroundColor: "#1CC282", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30, zIndex: 1 },
+  saveText: { fontWeight: "bold", fontSize: 16, color: "#000", zIndex: 1 }
 });
+

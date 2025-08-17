@@ -122,7 +122,7 @@ export default function PickHabit() {
       </TouchableOpacity>
 
       <Image
-        source={require("../../assets/images/previouscat2.png")}
+        source={require("../../assets/images/fed.png")}
         style={styles.petImage}
       />
 
@@ -355,6 +355,7 @@ const styles = StyleSheet.create({
     top: 28,
     left: 24,
     zIndex: 10,
+    marginTop:20,
   },
 
   arrowText: {
