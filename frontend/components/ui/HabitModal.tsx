@@ -1,5 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {View,Text,TextInput,Modal,StyleSheet,Platform,FlatList,ActivityIndicator,TouchableWithoutFeedback,TouchableOpacity,ScrollView,Dimensions,Pressable
+import React, {useState, useEffect, useRef} from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    Modal,
+    StyleSheet,
+    Platform,
+    FlatList,
+    ActivityIndicator,
+    TouchableWithoutFeedback,
+    TouchableOpacity,
+    ScrollView,
+    Dimensions,
+    Pressable
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -97,9 +110,9 @@ const HabitModal: React.FC<Props> = ({ visible, initialData, onClose, onSave, on
         onClose();
     };
 
-  function addTaskInput() {
-    setGeneratedTasks([...generatedTasks, '']);
-  }
+    function addTaskInput() {
+        setGeneratedTasks([...generatedTasks, '']);
+    }
 
   function handleChangeTask(text: string, i: number) {
     console.log('changing text at index', i, ' to ', text);
@@ -184,8 +197,9 @@ const HabitModal: React.FC<Props> = ({ visible, initialData, onClose, onSave, on
 
         return (
             // <ReanimatedSwipeable>
-            <Pressable style={styles.task} onPress={setEditable(true)}>
-                <TextInput placeholderTextColor="gray" editable={editable} style={{backgroundColor: 'white', padding: 4, color: 'black'}}
+            <Pressable style={styles.task} onPress={() => setEditable(true)}>
+                <TextInput placeholderTextColor="gray" editable={editable}
+                           style={{backgroundColor: 'white', padding: 4, color: 'black'}}
                            placeholder={"Task name"} value={item} onChangeText={text => handleChangeTask(text, index)}>
                 </TextInput>
             </Pressable>
@@ -214,6 +228,7 @@ return (
     onRequestClose={() => {
       onClose();
       setGeneratedTasks([]);
+      setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
     }}
     visible={visible}
     transparent
@@ -225,6 +240,7 @@ return (
       onPressOut={() => {
         onClose();
         setGeneratedTasks([]);
+        setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
       }}
     >
       <View>
@@ -238,7 +254,7 @@ return (
                     ref={inputRef}
                     autoFocus
                     placeholder="Habit Title"
-                    placeholderTextColor="#bbb"  
+                    placeholderTextColor="#bbb"
                     style={styles.title}
                     value={formData.habitTitle}
                     onChangeText={text => setFormData({ ...formData, habitTitle: text })}
@@ -346,9 +362,9 @@ return (
 
                 {/* Create Button */}
                 <View style={styles.centeredButtons}>
-                  <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+                  <Pressable disabled={!formData.habitTitle} onPress={handleSave} style={styles.saveBtn}>
                     <Text style={styles.saveText}>{isEdit ? 'Save' : 'Create'}</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </View>
 

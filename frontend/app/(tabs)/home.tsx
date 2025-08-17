@@ -57,6 +57,7 @@ const Home = () => {
   const insets = useSafeAreaInsets();
   const riveRef = useRef<RiveRef>(null);
   const swipeRef = useRef<any>(null);
+    const tiRef = useRef<any>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
@@ -71,12 +72,25 @@ const Home = () => {
         console.log("user", user);
       const ONE_MINUTE = 60 * 1000;
 
-        if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 5 * ONE_MINUTE) {
+        if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
             riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
         } else {
             riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
             riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
         }
+
+
+        // switch (Math.floor(Math.random() * 3)) {
+        //     case 0:
+        //         riveRef.current?.play('Sleeping');
+        //         break;
+        //     case 1:
+        //         riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+        //         break;
+        //     case 2:
+        //         riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
+        //         break;
+        // }
         setRefreshing(false);
 
       // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
@@ -428,8 +442,8 @@ const Home = () => {
                         flexBasis: 200,
                         flexGrow: 1
                     }}>
-                        <Ionicons name='search-outline' size={20} style={{alignSelf: 'center'}}></Ionicons>
-                        <TextInput placeholder="Search habit" placeholderTextColor="#888" value={searchTerm}
+                        <Ionicons name='search-outline' size={20} style={{alignSelf: 'center'}} ></Ionicons>
+                        <TextInput ref={tiRef} placeholder="Search habit" placeholderTextColor="#888" value={searchTerm}
                                    onChangeText={setSearchTerm} style={{width: '100%'}}/>
                     </View>
                     <TouchableOpacity onPress={() => {
