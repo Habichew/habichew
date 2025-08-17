@@ -123,10 +123,18 @@ export default function TaskModal({
             style={{ flexDirection: "row", alignItems: "center" }}
             onPress={() => setShowDatePicker(true)}
           >
-            <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={{ marginLeft: 6, color: "#666" }}>
-              {dueDate ? new Date(dueDate).toDateString() : "DDL"}
-            </Text>
+            <TouchableOpacity style={[styles.tag, {
+              color: dueDate ? 'black' : '#bbbbbb',
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 15,
+              paddingVertical: 15,
+              width: '100%'
+            }]} onPress={() => setShowDatePicker(true)}>
+              <Ionicons name="calendar-outline" size={24} color="#555"
+                        style={{marginRight: 5}}/>
+              <Text
+                  style={{fontWeight: 'bold', color: dueDate ? 'black' : '#bbbbbb', fontSize: 16,}}>{dueDate ? new Date(dueDate).toLocaleDateString() : "Due Date"}</Text></TouchableOpacity>
           </TouchableOpacity>
           {showDatePicker && (
             <DateTimePicker
@@ -149,39 +157,42 @@ export default function TaskModal({
   };
 
   return (
-  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-    <TouchableWithoutFeedback onPress={onClose}>
-      <View style={styles.overlay}>
+    <Modal visible={visible} transparent animationType="fade">
+      <TouchableOpacity activeOpacity={1} style={styles.overlay} onPressOut={() => {
+        onClose();
+      }}>
         <TouchableWithoutFeedback>
-          <View style={styles.container}>
-            <View style={styles.rowEnd}>
-              {task && (
-                <TouchableOpacity onPress={handleDelete}>
-                  <Ionicons name="trash-outline" size={20} color="#888" />
-                </TouchableOpacity>
-              )}
-            </View>
+        <View style={styles.container}>
+          <View style={styles.rowEnd}>
+            {task && (
+              <TouchableOpacity onPress={handleDelete}>
+                <Ionicons name="trash-outline" size={20} color="#888" />
+              </TouchableOpacity>
+            )}
+          </View>
 
+          <TextInput
+            placeholder="Task Title"
+            placeholderTextColor="#bbbbbb"
+            style={styles.input}
+            value={title}
+            onChangeText={setTitle}
+          />
+
+          <View style={{ marginBottom: 16 }}>
             <TextInput
-              placeholder="Add Task"
+              placeholder="Description"
               placeholderTextColor="#bbbbbb"
-              style={styles.input}
-              value={title}
-              onChangeText={setTitle}
+              style={[styles.input, styles.textArea]}
+              value={description ?? ''}
+              onChangeText={(val) => setDescription(val || null)}
+              multiline
             />
+          </View>
 
-            <View style={{ marginBottom: 16 }}>
-              <TextInput
-                placeholder="Description"
-                placeholderTextColor="#bbbbbb"
-                style={[styles.input, styles.textArea]}
-                value={description ?? ""}
-                onChangeText={(val) => setDescription(val || null)}
-                multiline
-              />
-            </View>
-
-            <View style={{ zIndex: 9 }}>{renderDateInput()}</View>
+          <View style={{ zIndex: 9 }}>
+            {renderDateInput()}
+          </View>
 
             <View style={{ zIndex: 8, marginBottom: 6 }}>
               <CustomDropdown
@@ -206,14 +217,12 @@ export default function TaskModal({
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
                 <Text style={styles.saveText}>{task ? "Save" : "Create"}</Text>
               </TouchableOpacity>
-            </View>
           </View>
+        </View>
         </TouchableWithoutFeedback>
-      </View>
-    </TouchableWithoutFeedback>
-  </Modal>
-);
-
+      </TouchableOpacity>
+    </Modal>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -242,6 +251,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 16,
     color: "#000",
+    fontWeight: 'bold'
   },
   textArea: {
     height: 100,
@@ -307,4 +317,6 @@ const styles = StyleSheet.create({
     color: "#000",
     zIndex: 1,
   },
+  tag: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000' },
+
 });

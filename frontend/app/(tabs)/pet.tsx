@@ -83,39 +83,42 @@ export default function PetScreen(this: any) {
   const cardsStackedAnim = useRef(new Animated.Value(0)).current;
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const cardsPanResponder = PanResponder.create({
+  const cardsPanResponder = PanResponder.create( {
     onStartShouldSetPanResponder: () => true,
     onStartShouldSetPanResponderCapture: () => true,
     onMoveShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponderCapture: () => true,
-    onPanResponderMove: (event, gestureState) => {
-      cardsPan.setValue({ x: gestureState.dx, y: Number(cardsPan.y) });
+    onPanResponderMove: ( event, gestureState ) => {
+          cardsPan
+          .setValue(
+              { x: gestureState.dx, y: Number(cardsPan.y) }
+          );
     },
     onPanResponderTerminationRequest: () => false,
-    onPanResponderRelease: (event, gestureState) => {
+    onPanResponderRelease: ( event, gestureState ) => {
       // bring the translationX back to 0
-      Animated.timing(cardsPan, {
+      Animated.timing( cardsPan, {
         toValue: 0,
         duration: 300,
-        useNativeDriver: false,
-      }).start(); // will be used to interpolate values in each view
-      Animated.timing(cardsStackedAnim, {
+        useNativeDriver: false
+      } ).start();    // will be used to interpolate values in each view
+      Animated.timing( cardsStackedAnim, {
         toValue: 1,
         duration: 300,
-        useNativeDriver: false,
-      }).start(() => {
+        useNativeDriver: false
+      } ).start( () => {
         // reset cardsStackedAnim's value to 0 when animation ends
-        cardsStackedAnim.setValue(0); // increment card position when animation ends
-        setCurrentIndex((currentIndex + 1) % 3);
-        console.log("currentIndex", currentIndex);
-      });
+          cardsStackedAnim.setValue( 0 );      // increment card position when animation ends
+          setCurrentIndex((currentIndex + 1) % 3);
+          console.log("currentIndex", currentIndex);
+      } );
     },
-  });
+  } )
 
   useState(() => {
     console.log("load user pet");
     loadPet();
-    console.log("PetScreen", pet);
+    console.log('PetScreen', pet);
   });
 
   const ref = React.useRef<ICarouselInstance>(null);
@@ -125,17 +128,14 @@ export default function PetScreen(this: any) {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Pet Postcards</Text>
+        <Text style={styles.title}>{pet ? `${pet.name}'s` : 'Pet'} Journey</Text>
       </View>
 
-      <View style={styles.scrollContainer}>
+      <ScrollView style={styles.scrollContainer}>
         {/* Pet Info */}
         <View style={styles.petInfoContainer}>
           <View style={styles.petInfo}>
-            <Image
-              source={require("@/assets/images/pet profile.png")}
-              style={styles.avatar}
-            />
+            <Image source={require('@/assets/images/pet profile.png')} style={styles.avatar} />
             <View style={styles.avatarDescription}>
               <Text style={styles.petName}>{pet?.name}</Text>
               <Text style={styles.personality}>{pet?.personality}</Text>
@@ -157,100 +157,45 @@ export default function PetScreen(this: any) {
         {/*  </TouchableOpacity>*/}
         {/*</View>*/}
 
-        {/* Tip of the Day */}
-        {/*<View style={styles.sectionBox}>*/}
-        {/*  <Text style={styles.sectionTitle}>Tip of the day</Text>*/}
-        {/*</View>*/}
-
-        {/* Mood Tracker */}
-        {/*<View style={styles.sectionBox}>*/}
-        {/*  <Text style={styles.sectionTitle}>Mood Tracker</Text>*/}
-        {/*  <View style={styles.grid}>*/}
-        {/*    {Array.from({ length: 30 }).map((_, idx) => (*/}
-        {/*        <View key={idx} style={styles.dotBox}>*/}
-        {/*          <View style={styles.dot} />*/}
-        {/*        </View>*/}
-        {/*    ))}*/}
-        {/*  </View>*/}
-        {/*</View>*/}
-
-        {/* Travel Unlock */}
-        {/*<View style={styles.sectionBox}>*/}
-        {/*  <Text style={styles.sectionTitle}>Unlock something by travelling</Text>*/}
-        {/*  <TouchableOpacity style={styles.rowEnd} onPress={() => router.push('../Travel')}>*/}
-        {/*    <Text style={styles.linkText}>Travel</Text>*/}
-        {/*    <Ionicons name="arrow-forward" size={16} />*/}
-        {/*  </TouchableOpacity>*/}
-        {/*</View>*/}
-
         <View style={styles.postcards}>
           <Text style={styles.postcardsTitle}>Postcards</Text>
-          <Carousel
-            ref={ref}
-            width={width - 20}
-            data={postCardImgs}
-            autoPlayInterval={2000}
-            pagingEnabled={true}
-            snapEnabled={true}
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              paddingTop: 100,
-            }}
-            mode={"vertical-stack"}
-            modeConfig={{
-              snapDirection: "left",
-              stackInterval: -35,
-              opacityInterval: 0,
-            }}
-            customConfig={() => ({ type: "positive", viewCount: 5 })}
-            renderItem={({ index, item }) => (
-              <FlipCard
-                style={{ flexDirection: "row" }}
-                flipHorizontal={true}
-                flipVertical={false}
-                friction={8}
-                perspective={1000}
-                useNativeDriver={true}
-              >
-                {/* Face Side */}
-                <View style={styles.face}>
-                  <Image
-                    style={styles.faceImg}
-                    source={item.frontUrl}
-                    key={"postcard-" + index}
-                  ></Image>
-                </View>
-                {/* Back Side */}
-                <View style={styles.back}>
-                  <Image
-                    style={styles.backImg}
-                    source={item.backUrl}
-                    key={"postcard-" + index}
-                  />
-                </View>
-              </FlipCard>
-            )}
-            loop={false}
-          />
+
+          <View style={{marginBottom: 30}}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20, marginBottom: 10}}>
+              <Postcard source={postCardImgs[0].frontUrl} unlockScore={postCardImgs[0].unlockScore} />
+              <Postcard source={postCardImgs[1].frontUrl} unlockScore={postCardImgs[1].unlockScore} />
+              <Postcard source={postCardImgs[2].frontUrl} unlockScore={postCardImgs[2].unlockScore} />
+            </View>
+            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20, marginBottom: 10}}>
+              <Postcard source={postCardImgs[3].frontUrl} unlockScore={postCardImgs[3].unlockScore} />
+              <Postcard source={postCardImgs[4].frontUrl} unlockScore={postCardImgs[4].unlockScore} />
+              <Postcard source={postCardImgs[5].frontUrl} unlockScore={postCardImgs[5].unlockScore} />
+            </View>
+            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20}}>
+              <Postcard source={postCardImgs[6].frontUrl} unlockScore={postCardImgs[6].unlockScore} />
+              <Postcard source={postCardImgs[7].frontUrl} unlockScore={postCardImgs[7].unlockScore} />
+              <Postcard source={postCardImgs[8].frontUrl} unlockScore={postCardImgs[8].unlockScore} />
+            </View>
+          </View>
+
           <Carousel
               ref={ref}
               width={width - 20}
               data={postCardImgs}
-              autoPlayInterval={2000}
               pagingEnabled={true}
               snapEnabled={true}
               style={{
                 alignItems: "center",
                 justifyContent: "center",
                 width: "100%",
-                paddingTop: 100
+                paddingTop: 50,
+                top: 0,
+                marginBottom: Dimensions.get('window').height * 0.5
               }}
               mode={"vertical-stack"}
               modeConfig={{
                 snapDirection: "left",
-                stackInterval: -35,
+                stackInterval: -10,
                 opacityInterval: 0
               }}
               customConfig={() => ({ type: "positive", viewCount: 5 })}
@@ -268,28 +213,8 @@ export default function PetScreen(this: any) {
               )}
               loop={false}
           />
-          {/*<FlatList*/}
-          {/*    data={postCardImgs}*/}
-          {/*    renderItem={(item) => (*/}
-          {/*          <FlipCard style={{flexDirection: 'row'}} flipHorizontal={true} flipVertical={false} friction={8} perspective={1000} useNativeDriver={true}>*/}
-          {/*            /!* Face Side *!/*/}
-          {/*            <View style={{width: '100%'}}>*/}
-          {/*              <Image style={styles.faceImg} source={item.item.frontUrl} key={"postcard-"+item.index}></Image>*/}
-          {/*            </View>*/}
-          {/*            /!* Back Side *!/*/}
-          {/*            <View style={styles.back}>*/}
-          {/*              <Image style={styles.backImg} source={item.item.backUrl} key={"postcard-"+item.index}/>*/}
-          {/*              </View>*/}
-          {/*          </FlipCard>*/}
-          {/*        )*/}
-          {/*    }*/}
-          {/*    numColumns={1}*/}
-          {/*    keyExtractor={(item) => item.unlockScore.toString()}*/}
-          {/*    style={{margin: 10, marginBottom: Dimensions.get('window').height * 0.6}}*/}
-          {/*>*/}
-          {/*</FlatList>*/}
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }

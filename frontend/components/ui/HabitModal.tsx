@@ -11,6 +11,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import {Button} from "@react-navigation/elements";
 
 type Props = {
   visible: boolean;
@@ -417,7 +418,9 @@ const styles = ScaledSheet.create({
   tag: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000' },
 
   /* BODY */
-  modalBody: { padding: 24, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff' }, // CHANGED: soft divider line
+  modalBody: { padding: 24, paddingTop: 16, borderWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff', padding: 24,
+
+       }, // CHANGED: soft divider line
   sectionDivider: { height: StyleSheet.hairlineWidth, backgroundColor: '#DAB7FF', marginVertical: 12, borderRadius: 1 }, // NEW optional
   taskTitle: { fontWeight: '700', fontSize: 18, height: 30 },
   taskHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }, // NEW: Tasks title + plus icon on one line

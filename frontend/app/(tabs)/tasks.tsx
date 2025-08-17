@@ -1,26 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
+import {Dimensions, View, Text, StyleSheet, Image, Pressable, TouchableOpacity, TextInput, ActivityIndicator, FlatList} from 'react-native';
 import { useUser, Task } from "../context/UserContext";
-import TaskModal from "../../components/ui/TaskModal";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import { RiveRef } from "rive-react-native";
-import React, {useEffect, useRef, useState} from 'react';
-import {Dimensions, View, Text, StyleSheet, Image, Pressable, TouchableOpacity, TextInput, ActivityIndicator, FlatList} from 'react-native';
-import { useUser, Task } from '../context/UserContext';
 import TaskModal from '../../components/ui/TaskModal';
-import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
 import Rive, {Fit, RiveRef} from "rive-react-native";
 import {AndroidHaptics} from 'expo-haptics';
 import Animated, {Easing, SharedValue, useAnimatedStyle, withTiming,} from 'react-native-reanimated';
@@ -208,71 +192,56 @@ export default function Tasks() {
 
     return (
           <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}>
-                  <View
-                      style={[
-                          styles.taskCard,
-                          { backgroundColor: isCompleted ? "#e6e6e6" : "#DAB7FF" },
-                      ]}
-                  >
-                      <View style={styles.flexOne}>
-                          <Text style={styles.taskTitle}>{item.title}</Text>
-                          {item.description ? (
-                              <Text style={styles.taskDescription}>{item.description}</Text>
-                          ) : null}
-                          <View style={styles.metaRow}>
-                              {item.dueAt ? (
-                                  <View style={styles.badge}>
-                                      <Ionicons
-                                          name="calendar-outline"
-                                          size={16}
-                                          color="#000"
-                                      />
-                                      <Text style={styles.badgeText}>
-                                          {item.dueAt
-                                              ? new Date(item.dueAt).toLocaleDateString("en-US", {
-                                                  day: "2-digit",
-                                                  month: "short",
-                                              })
-                                              : ""}
-                                      </Text>
-                                  </View>
-                              ) : (
-                                  ""
-                              )}
-                              {item.priority ? (
-                                  <View style={styles.badge}>
-                                      <Ionicons name="flag-outline" size={16} color="#000" />
-                                      <Text style={styles.badgeText}>
-                                          {item.priority
-                                              ? `${item.priority.charAt(0).toUpperCase()}${item.priority.slice(1)} Priority`
-                                              : "No Priority"}
-                                      </Text>
-                                  </View>
-                              ) : (
-                                  ""
-                              )}
-                              <TouchableOpacity
-                                  style={[styles.pencil]}
-                                  onPress={() => handleEdit(item)}
-                              >
-                                  <Ionicons name="pencil" size={20} color="#333" />
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                  style={[
-                                      styles.tickBox,
-                                      isCompleted && styles.tickBoxCompleted,
-                                  ]}
-                                  onPress={() => toggleCompleted(item)}
-                              >
-                                  <Ionicons
-                                      name="checkmark"
-                                      size={16}
-                                      color={isCompleted ? "#000" : "#999"}
-                                  />
-                              </TouchableOpacity>
-                          </View>
-                      </View>
-                  </View>
+            <View style={styles.flexOne}>
+              <TouchableOpacity disabled={!!item.completed}
+                                onPress={() => toggleCompleted(item)}>
+                <Ionicons
+                    name={!item.completed ? "ellipse-outline" : "checkmark-circle-outline"}
+                    size={24} color="blacfk"/>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.flexTwo}>
+              <Text style={[styles.taskTitle, {textDecorationLine: item.completed ? 'line-through' : 'none'}]}>{item.title}</Text>
+              {item.description ? <Text style={styles.taskDescription}>{item.description}</Text> : null}
+              <View style={styles.metaRow}>
+                { item.dueAt ?
+                    <View style={styles.badge}>
+                      <Ionicons name="calendar-outline" size={16} color="#000" />
+                      <Text style={styles.badgeText}>
+                        {item.dueAt ? new Date(item.dueAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short' }) : ''}
+                      </Text>
+                    </View> : ""
+                }
+                { item.priority ?
+                    <View style={styles.badge}>
+                      <Ionicons name="flag-outline" size={16} color="#000"/>
+                      <Text style={styles.badgeText}>
+                        {item.priority
+                            ? `${item.priority.charAt(0).toUpperCase()}${item.priority.slice(1)}`
+                            : 'No Priority'}
+                      </Text>
+                    </View>
+                    : ""
+                }
+                {/*<Swipeable*/}
+                {/*    friction={2}*/}
+                {/*    overshootFriction={8}*/}
+                {/*    leftThreshold={screenWidth*0.3}*/}
+                {/*    renderLeftActions={!item.completed ? LeftAction : null}*/}
+                {/*    onSwipeableWillOpen={async (direction: any) => {*/}
+                {/*      const i = item;*/}
+                {/*      i.completed = true;*/}
+                {/*      // await updateTask(i);*/}
+                {/*      // await loadTasks();*/}
+                {/*    }}*/}
+                {/*    onSwipeableOpenStartDrag={() => Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_End)}*/}
+                {/*    ref={swipeRef => row[index] = swipeRef}*/}
+                {/*    containerStyle={{ width: "100%", alignSelf: 'center', marginBottom: 12}}*/}
+                {/*>*/}
+
+                {/*</Swipeable>*/}
+              </View>
+            </View>
           </Pressable>
     );
   }
@@ -435,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  flexOne: { flex: 1 },
+  flexTwo: {flex: 2, marginLeft: 15, marginVertical: 'auto', paddingVertical: 0, textAlign: 'center', alignSelf: 'center'},
   taskTitle: {
     fontWeight: "bold",
     fontSize: 16,

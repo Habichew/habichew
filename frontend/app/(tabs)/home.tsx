@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  Image,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Vibration,
-  View,
+    Dimensions,
+    FlatList,
+    Image, Pressable, RefreshControl,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    Vibration,
+    View,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,7 +27,7 @@ import ReanimatedSwipeable from "react-native-gesture-handler/src/components/Rea
 import * as Haptics from "expo-haptics";
 import { AndroidHaptics } from "expo-haptics";
 import { SwipeDirectionTypes } from "react-native-screens";
-import { SwipeableRef } from "react-native-gesture-handler/ReanimatedSwipeable";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 const screenWidth = Dimensions.get("window").width;
 const scale = (value: number) => (screenWidth / 375) * value;
@@ -57,7 +57,8 @@ const Home = () => {
   const insets = useSafeAreaInsets();
   const riveRef = useRef<RiveRef>(null);
   const swipeRef = useRef<any>(null);
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   let row: Array<any> = [];
   let prevOpenedRow: any;
@@ -244,7 +245,7 @@ const Home = () => {
                     renderLeftActions={!item.isArchived ? LeftAction : null}
                     onSwipeableWillOpen={handleSwipe}
                     onSwipeableOpenStartDrag={() => Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_End)}
-                    ref={swipeRef => row[index] = swipeRef}
+                    ref={(swipeRef: any) => row[index] = swipeRef}
                     containerStyle={{ width: "100%", alignSelf: 'center', marginBottom: 12}}
                     >
                         <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10}}>
@@ -375,7 +376,6 @@ const Home = () => {
                             marginTop: "auto",
                             flexDirection: "row",
                             justifyContent: 'space-between',
-                            flexShrink: "auto",
                             marginHorizontal: 20,
                             marginVertical: 10,
                             height: "auto",
@@ -511,12 +511,11 @@ const styles = ScaledSheet.create({
         backgroundColor: '#DCDCDC',
         borderRadius: scale(8),
         marginTop: scale(8),
-        marginBottom: scale(12),
         overflow: 'hidden',
         width: '100%'
     },
     progressBarFill: {height: '100%', width: screenWidth * 0.6, backgroundColor: '#1CC282', borderRadius: scale(8)},
-    tagRow: {flexDirection: 'row', flexWrap: 'wrap', gap: scale(8)},
+    tagRow: {flexDirection: 'row', flexWrap: 'wrap', gap: scale(8), marginTop: scale(12)},
     tag: {
         flexDirection: 'row',
         alignItems: 'center',
