@@ -1,19 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Modal,
-  StyleSheet,
-  Platform,
-  FlatList,
-  ActivityIndicator,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
-    Pressable
+import {View,Text,TextInput,Modal,StyleSheet,Platform,FlatList,ActivityIndicator,TouchableWithoutFeedback,TouchableOpacity,ScrollView,Dimensions,Pressable
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomDropdown from './select';
@@ -23,14 +11,6 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import {webDateInputWrapper, webDateInput} from './webDateStyles';
-import {useFocusEffect} from "@react-navigation/native";
-import {ScaledSheet} from "react-native-size-matters";
-import Reanimated, {
-    SharedValue,
-    useAnimatedStyle,
-} from 'react-native-reanimated';
-import {Button} from "@react-navigation/elements";
 
 type Props = {
   visible: boolean;
@@ -424,21 +404,21 @@ export default HabitModal;
 
 const styles = ScaledSheet.create({
   overlay: { flexDirection: 'row', flex: 1, alignItems: 'flex-end', overflow: 'hidden', marginTop: 'auto' },
-  modal: { backgroundColor: '#dab7ff', borderTopLeftRadius: 24, borderTopRightRadius: 24, position: 'relative' },
+  modal: { backgroundColor: '#DAB7FF', borderTopLeftRadius: 24, borderTopRightRadius: 24, position: 'relative' },
 
   /* HEADER */
-  modalHeader: { padding: 24, paddingBottom: 12 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'nowrap' }, // CHANGED: keep single row, consistent gap
-  title: {fontSize: '22@ms', fontWeight: '700', marginBottom: 0, marginRight: 12, flex: 1 }, // CHANGED: larger title, take remaining space
-  headerGrid: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 14, marginBottom: 8 }, // NEW: row for date & priority
+  modalHeader: { padding: 24, paddingBottom: 16 },
+  titleRow: {  flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'nowrap' }, // CHANGED: keep single row, consistent gap
+  title: {backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,fontWeight: 'bold',fontSize: 16, color: '#000',marginBottom: 15,}, // CHANGED: larger title, take remaining space
+  headerGrid: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 16}, // row for date & priority
   headerLeft: { flex: 1, gap: 12 }, // NEW
   headerRight: { width: 180 }, // NEW: keep priority width consistent on web & mobile
   chipRow: { flexDirection: 'row', gap: 16, alignItems: 'center' }, // NEW
-  tag: { backgroundColor: '#fff', borderRadius: 24, paddingHorizontal: 16, height: 36, minWidth: 140, fontWeight: 'bold', fontSize: '13@ms', textAlignVertical: 'center', textAlign: 'left', justifyContent: 'center' },
+  tag: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000' },
 
   /* BODY */
   modalBody: { padding: 24, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff' }, // CHANGED: soft divider line
-  sectionDivider: { height: StyleSheet.hairlineWidth, backgroundColor: '#cda6ff', marginVertical: 12, borderRadius: 1 }, // NEW optional
+  sectionDivider: { height: StyleSheet.hairlineWidth, backgroundColor: '#DAB7FF', marginVertical: 12, borderRadius: 1 }, // NEW optional
   taskTitle: { fontWeight: '700', fontSize: 18, height: 30 },
   taskHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }, // NEW: Tasks title + plus icon on one line
   taskList: { maxHeight: 320 }, // CHANGED: stable height across devices
@@ -452,9 +432,9 @@ const styles = ScaledSheet.create({
   /* FOOTER BUTTONS */
   buttons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 },
   cancelBtn: { backgroundColor: '#000', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24 },
-  cancelText: { fontSize: 18, color: '#dab7ff', fontWeight: 'bold' },
-  saveBtn: { backgroundColor: '#EDE2FF', borderColor: '#2b2140', borderWidth: 1, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 24 }, // CHANGED: closer to your preview style
-  saveText: { fontSize: 18, color: '#2b2140', fontWeight: '700', marginRight: 6 },
+  cancelText: { fontSize: 18, color: '#DAB7FF', fontWeight: 'bold' },
+  saveBtn: { backgroundColor: '#000',  borderWidth: 1, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 24 }, // CHANGED: closer to your preview style
+  saveText: { fontSize: 18, color: '#fff', fontWeight: '700', marginRight: 6 },
 
   /* CONFIRM DELETE */
   deleteIcon: { position: 'absolute', top: 16, right: 16 },
@@ -464,7 +444,11 @@ const styles = ScaledSheet.create({
   confirmButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
 
   /* INPUTS */
-  input: { backgroundColor: '#fff', paddingHorizontal: 16, borderRadius: 24, fontWeight: 'bold', fontSize: 16, color: '#000', marginBottom: 16 },
   description: { fontWeight: 'normal', fontSize: '13@ms' },
+  habitSection: { backgroundColor: '#cda6ff', padding: 10, borderRadius: 16 },
+  inputGroup: { marginBottom: 16 },
+  dropdownLabel: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+  picker: { backgroundColor: '#fff', borderRadius: 10, height: 40 },
+  centeredButtons: { alignItems: 'center', marginTop: 24 },
 });
 

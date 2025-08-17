@@ -1,8 +1,7 @@
 export const webDateInputWrapper = {
-  marginBottom: 16,
   borderRadius: 24,
   backgroundColor: "#ffffff",
-  height: 48,
+  height: 50,
   paddingHorizontal: 16,
   justifyContent: "center",
 } as const;
