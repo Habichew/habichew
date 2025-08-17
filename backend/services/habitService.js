@@ -1,18 +1,16 @@
 import pool from "../config/db.js";
 
 export async function getHabitCategories() {
-  const [rows] = await pool.query(`
+  return await pool.query(`
     SELECT * FROM habitCategories`);
-  return rows;
 }
 
 export async function getPresetHabits(categoryId) {
-  const [rows] = await pool.query(`
+  return await pool.query(`
     SELECT h.id as habitId, h.title, c.id, c.name AS categoryName
     FROM habits h
            LEFT JOIN habitCategories c ON h.categoryId = c.id
     WHERE h.categoryId = ?;`,[categoryId]);
-  return rows;
 }
 
 export async function getUserHabitList(userId) {
