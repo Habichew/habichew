@@ -124,26 +124,32 @@ export default function InsightsScreen() {
     }
     return habitTasks;
   }
+  let currentIndex = 0;
 
   while (i < habits.length) {
-    if (i > 0 && i % 4 === 0) {
-      j++;
-    }
-    if (habitGroups[j] === undefined) habitGroups[j] = [];
     // get all habit's tasks
     const habitTasks = getHabitTasks(habits[i]);
-    // get all completed tasks
-    let completedTasks = [];
-    for (let hTask of habitTasks) {
-      if (hTask.completed) {
-        completedTasks.push(hTask);
+    if (habitTasks.length > 0) {
+      // get all completed tasks
+      let completedTasks = [];
+      for (let hTask of habitTasks) {
+        if (hTask.completed) {
+          completedTasks.push(hTask);
+        }
       }
+      if (currentIndex > 0 && currentIndex % 4 === 0) {
+        j++;
+      }
+      if (habitGroups[j] === undefined) habitGroups[j] = [];
+      habitGroups[j].push({
+        label: habits[i].habitTitle,
+        completedTasks: completedTasks.length,
+        allTasks: habitTasks.length,
+      });
+      currentIndex++;
+
     }
-    habitGroups[j].push({
-      label: habits[i].habitTitle,
-      completedTasks: completedTasks.length,
-      allTasks: habitTasks.length,
-    });
+
     i++;
   }
 
