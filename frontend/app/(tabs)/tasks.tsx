@@ -358,6 +358,7 @@ export default function Tasks() {
           overshootFriction: 8,
           onSwipeableOpen: async (direction, swipeable) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
         }}
+        style={{marginHorizontal: -25, paddingHorizontal: 25}}
       />
 
       <TaskModal
