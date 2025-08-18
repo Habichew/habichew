@@ -318,9 +318,9 @@ export default function Tasks() {
 
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Task List</Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
+        {habitId ? <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Ionicons name="add" size={24} color="#000" />
-        </TouchableOpacity>
+        </TouchableOpacity> : null}
       </View>
 
       {showEmptyPrompt &&
