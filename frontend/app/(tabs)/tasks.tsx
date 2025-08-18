@@ -443,8 +443,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         marginVertical: 6,
         paddingRight: 40,
-        marginHorizontal: 20,
-        marginRight: -Dimensions.get('window').width + 80,
-        width: Dimensions.get('window').width - 40
+        marginRight: -Dimensions.get('window').width + 70,
+        width: Dimensions.get('window').width
     }
 });
