@@ -197,10 +197,11 @@ const HabitModal: React.FC<Props> = ({ visible, initialData, onClose, onSave, on
 
         return (
             // <ReanimatedSwipeable>
-            <Pressable style={styles.task} onPress={() => setEditable(true)}>
+            <Pressable style={styles.task} onPress={() => {setEditable(true)}}>
                 <TextInput placeholderTextColor="gray" editable={editable}
                            style={{backgroundColor: 'white', padding: 4, color: 'black'}}
-                           placeholder={"Task name"} value={item} onChangeText={text => handleChangeTask(text, index)}>
+                           placeholder={"Task name"} value={item} onChangeText={text => handleChangeTask(text, index)}
+                >
                 </TextInput>
             </Pressable>
             // </ReanimatedSwipeable>
@@ -248,18 +249,19 @@ return (
           <View style={{ maxHeight: Dimensions.get('window').height, width: Dimensions.get('window').width }}>
             <View style={styles.modal}>
               <View style={styles.modalHeader}>
+                  <View style={{borderBottomWidth: StyleSheet.hairlineWidth, borderColor: '#cda6ff', marginHorizontal: -25, paddingHorizontal: 25, marginBottom: 10}}>
+                      <TextInput
+                      ref={inputRef}
+                      autoFocus
+                      placeholder="* Habit Title"
+                      placeholderTextColor="#bbb"
+                      style={styles.title}
+                      value={formData.habitTitle}
+                      onChangeText={text => setFormData({...formData, habitTitle: text})}
+                        />
+                  </View>
 
                 <View style={styles.habitSection}>  {/* habit section */}
-                  <TextInput
-                    ref={inputRef}
-                    autoFocus
-                    placeholder="Habit Title"
-                    placeholderTextColor="#bbb"
-                    style={styles.title}
-                    value={formData.habitTitle}
-                    onChangeText={text => setFormData({ ...formData, habitTitle: text })}
-                  />
-
                   {/* date */}
                   <View style={styles.inputGroup}>
                     {Platform.OS === 'web' ? (
@@ -272,14 +274,18 @@ return (
                         />
                       </View>
                     ) : (
-                      <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
-                        <Text style={styles.dateText}>
-                          {formData.goalDate
-                            ? new Date(formData.goalDate).toLocaleDateString()
-                            : 'Due Date'}
-                        </Text>
-                        <Ionicons name="calendar-outline" size={24} color="#bbb" />
-                      </TouchableOpacity>
+                        <View style={{borderRadius: 30, zIndex: 3, overflow: 'hidden'}}>
+                            <Pressable android_ripple={{color: '#00000010', borderless: false, radius: 300}} style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+                                <Ionicons name="calendar-outline" size={24} color="#bbb" />
+
+                                <Text style={styles.dateText}>
+                                    {formData.goalDate
+                                        ? new Date(formData.goalDate).toLocaleDateString()
+                                        : 'Due Date'}
+                                </Text>
+                            </Pressable>
+                        </View>
+
 
                     )}
                     {showDatePicker && (
@@ -336,9 +342,17 @@ return (
                 {/* Tasks Header */}
                 <View style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }}>
                   <Text style={styles.taskTitle}>Tasks</Text>
-                  <TouchableOpacity style={{ marginLeft: 'auto', width: 30, height: 30 }} onPress={addTaskInput}>
-                    <Ionicons name="add" size={24} color="#000" />
-                  </TouchableOpacity>
+                    <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
+                        <TouchableOpacity
+                            style={{marginRight: 20, marginVertical: "auto", justifyContent: 'center', alignItems: 'center', backgroundColor: editable ? '#00000010' : 'transparent', borderRadius: 10, padding: 5}}
+                            onPress={() => setEditable(!editable)}>
+                            <Ionicons name="pencil-outline" size={18} color="#000"/>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ marginLeft: 'auto', padding: 5 }} onPress={addTaskInput}>
+                            <Ionicons name="add" size={24} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
 
                 {/* Tasks Content */}
@@ -346,22 +360,30 @@ return (
                   <ActivityIndicator size="large" />
                 ) : generatedTasks.length === 0 ? (
                   <>
-                    <Text style={{ marginHorizontal: 'auto', marginVertical: 20 }}>No tasks created.</Text>
-                    <TouchableOpacity style={styles.generateTextBtn} onPress={handleGenerateTasks}>
-                      <Text style={styles.generateText}>Generate Tasks</Text>
-                    </TouchableOpacity>
+                    <Text style={{ marginHorizontal: 'auto', marginVertical: 20 }}>No tasks.</Text>
                   </>
                 ) : (
-                  <FlatList
-                    data={generatedTasks}
-                    keyExtractor={(item, index) => index}
-                    renderItem={({ item, index }) => renderTask(item, index)}
-                    style={styles.taskList}
-                  />
+                    <FlatList data={generatedTasks} keyExtractor={(item, index) => index}
+                              onContentSizeChange={() => flatListRef?.current.scrollToEnd({animated: true})}
+                              ref={flatListRef}
+                              renderItem={({
+                                               item,
+                                               index,
+                                               separators
+                                           }) => renderTask(item, index)}
+                              style={{
+                                  maxHeight: windowHeight / 3,
+                                  marginVertical: 30
+                              }}></FlatList>
                 )}
 
                 {/* Create Button */}
                 <View style={styles.centeredButtons}>
+                    <TouchableOpacity style={styles.generateTextBtn} onPress={handleGenerateTasks}>
+                        {/*<Text style={styles.generateText}>Generate</Text>*/}
+                        <Ionicons name={'hammer'} style={{marginVertical: 'auto'}}/>
+                        <Text style={styles.generateText}>Generate</Text>
+                    </TouchableOpacity>
                   <Pressable disabled={!formData.habitTitle} onPress={handleSave} style={styles.saveBtn}>
                     <Text style={styles.saveText}>{isEdit ? 'Save' : 'Create'}</Text>
                   </Pressable>
@@ -417,7 +439,7 @@ const styles = ScaledSheet.create({
   title: {    elevation: 4,
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.15,
-    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,fontWeight: 'bold',fontSize: 16, color: '#000',marginBottom: 15,}, // CHANGED: larger title, take remaining space
+    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,fontWeight: 'bold',fontSize: "16@ms", color: '#000',marginBottom: 15,}, // CHANGED: larger title, take remaining space
   headerGrid: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginTop: 16}, // row for date & priority
   headerLeft: { flex: 1, gap: 12 }, // NEW
   headerRight: { width: 180 }, // NEW: keep priority width consistent on web & mobile
@@ -425,11 +447,11 @@ const styles = ScaledSheet.create({
   dateInput: {    elevation: 4,
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.15,
-    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: 50,flexDirection: 'row',alignItems: 'center',justifyContent: 'space-between',},
-  dateText: {fontSize: 16,fontWeight: 'bold',color: '#bbb',},
+    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: "40@ms",flexDirection: 'row',alignItems: 'center',justifyContent: 'center',},
+  dateText: {fontSize: "14@s",fontWeight: 'bold',color: '#bbb', marginLeft: 4},
 
   /* BODY */
-  modalBody: { padding: 24, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff' }, // CHANGED: soft divider line
+  modalBody: { padding: 24, paddingTop: 16, paddingBottom: 4,borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff' }, // CHANGED: soft divider line
   sectionDivider: { height: StyleSheet.hairlineWidth, backgroundColor: '#DAB7FF', marginVertical: 12, borderRadius: 1 }, // NEW optional
   taskTitle: { fontWeight: '700', fontSize: 18, height: 30 },
   taskHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }, // NEW: Tasks title + plus icon on one line
@@ -438,15 +460,15 @@ const styles = ScaledSheet.create({
 
   /* EMPTY STATE + GENERATE BUTTON */
   emptyWrap: { alignItems: 'center', justifyContent: 'center', paddingVertical: 12, gap: 16 }, // NEW: center empty text & button
-  generateTextBtn: { alignSelf: 'center', width:'50%', backgroundColor: '#1CC282', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24 },
-  generateText: { alignSelf: 'center', fontSize: 16, color: '#000', fontWeight: 'bold' },
+  generateTextBtn: { alignSelf: 'center', backgroundColor: '#1CC282', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 24, flexDirection: 'row' },
+  generateText: { alignSelf: 'center', fontSize: "16@ms", color: '#000', fontWeight: 'bold', marginLeft: 6 },
 
   /* FOOTER BUTTONS */
   buttons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 },
   cancelBtn: { backgroundColor: '#000', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24 },
   cancelText: { fontSize: 18, color: '#DAB7FF', fontWeight: 'bold' },
-  saveBtn: { backgroundColor: '#000',  borderWidth: 1, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 24 }, // CHANGED: closer to your preview style
-  saveText: { fontSize: 18, color: '#fff', fontWeight: '700', marginRight: 6 },
+  saveBtn: { backgroundColor: '#000',  borderWidth: 1, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 24, marginLeft: 'auto' }, // CHANGED: closer to your preview style
+  saveText: { fontSize: "16@ms", color: '#fff', fontWeight: '700', marginRight: 6 },
 
   /* CONFIRM DELETE */
   deleteIcon: { position: 'absolute', top: 16, right: 16 },
@@ -461,6 +483,6 @@ const styles = ScaledSheet.create({
   inputGroup: { marginBottom: 16 },
   dropdownLabel: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
   picker: { backgroundColor: '#fff', borderRadius: 10, height: 40 },
-  centeredButtons: { alignItems: 'center', marginTop: 24 },
+  centeredButtons: { alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', paddingVertical: 8, marginHorizontal: -25, paddingHorizontal: 25, borderColor: '#cda6ff' },
 });
 

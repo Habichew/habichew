@@ -309,7 +309,7 @@ export default function InsightsScreen() {
                 ))}
               </View>
             )}
-            style={{ minHeight: "100%", marginBottom: 10 }}
+            style={{ minHeight: "100%", marginBottom: 40 }}
             loop={false}
           />
         </View>
@@ -377,7 +377,7 @@ export default function InsightsScreen() {
 }
 
 const styles = ScaledSheet.create({
-  container: { flex: 1, backgroundColor: "#DAB7FF", paddingBottom: 20 },
+  container: { flex: 1, backgroundColor: "#DAB7FF", paddingBottom: 40 },
   headerContainer: { backgroundColor: "white", paddingTop: 20 },
   calendarContainer: {
     width: "100%",
@@ -389,7 +389,7 @@ const styles = ScaledSheet.create({
   completedTasksContainer: {
     paddingTop: 30,
     alignSelf: "center",
-    paddingBottom: 30,
+    paddingBottom: 30
   },
   moodsContainer: {
     paddingTop: 30,
@@ -473,7 +473,7 @@ const styles = ScaledSheet.create({
   },
   habitCard: {
     width: "48%",
-    height: "48%",
+    minHeight: "48%",
     backgroundColor: "#f5f5f5",
     padding: 12,
     borderRadius: 6,

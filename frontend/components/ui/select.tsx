@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
-import { StyleSheet, View, ViewStyle, TextStyle } from "react-native";
+import { Text, StyleSheet, View, ViewStyle, TextStyle, Pressable } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 
 type Option = {
@@ -53,6 +53,7 @@ export default function CustomDropdown({
         placeholderStyle={styles.placeholder}
         showArrowIcon={true}
         zIndex={zIndex}
+        props={{activeOpacity: 0.8}}
         zIndexInverse={zIndexInverse}
       />
     </View>
@@ -66,7 +67,7 @@ const styles = ScaledSheet.create({
     borderWidth: 0,
     backgroundColor: "#fff",
     shadowColor: "#000",
-    minHeight: 50,
+    minHeight: "40@ms",
     marginBottom: 15,
     elevation: 4,
     shadowOffset: { width: 0, height: 5 },
@@ -84,7 +85,7 @@ const styles = ScaledSheet.create({
   shadowRadius: 4,
   },
   text: {
-    fontSize: "13@ms",
+    fontSize: "16@s",
     fontWeight: "bold",
     color: "#000",
   },
@@ -92,7 +93,8 @@ const styles = ScaledSheet.create({
     // textAlign:'center',
     fontWeight: "bold",
     color: "#bbb",
-    fontSize: 16,
+    fontSize: "14@s",
+    paddingLeft: 8
   },
   arrow: {
     tintColor: "#DAB7FF",
