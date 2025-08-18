@@ -289,11 +289,13 @@ export default function InsightsScreen() {
               <View style={styles.habitGrid}>
                 {item.map((habit, hIndex) => (
                   <View key={hIndex} style={styles.habitCard}>
-                    <Text>
-                      <Text style={styles.habitText}>
-                        {habit.label}
-                        {"\n"}
-                      </Text>
+                    <Text style={{flexDirection: 'row'}}>
+                      <View style={{width: '100%'}}>
+                        <Text style={styles.habitText} numberOfLines={1}>
+                          {habit.label}
+                        </Text>
+                      </View>
+
                       <Text style={{ textAlign: "right" }}>
                         <Text style={styles.habitCompletedCount}>
                           {habit.completedTasks}
@@ -483,6 +485,8 @@ const styles = ScaledSheet.create({
     fontSize: "15@ms",
     fontFamily: "Poppins",
     fontWeight: "bold",
+    flexWrap: 'wrap',
+    flexShrink: 1,
   },
   habitCompletedCount: {
     fontSize: "48@ms",
