@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { useState } from "react";
+import React, { useState } from "react";
 import CustomDropdown from "@/components/ui/select";
 import CustomInput from "@/components/ui/input";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
+import {Ionicons} from "@expo/vector-icons";
 
 export default function InfoScreen1() {
   const router = useRouter();
@@ -47,7 +48,8 @@ export default function InfoScreen1() {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.arrowText}>{"<"}</Text>
+        {/*<Text style={styles.arrowText}>{"<"}</Text>*/}
+        <Ionicons name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
 
       <Image

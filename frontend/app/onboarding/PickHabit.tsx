@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import CustomDropdown from "../../components/ui/select";
 import { useUser } from "../context/UserContext";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
+import {Ionicons} from "@expo/vector-icons";
 
 export default function PickHabit() {
   const router = useRouter();
@@ -118,7 +119,8 @@ export default function PickHabit() {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.arrowText}>{"<"}</Text>
+        {/*<Text style={styles.arrowText}>{"<"}</Text>*/}
+        <Ionicons name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
 
       <Image

@@ -82,7 +82,8 @@ export default function PickTasks() {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.arrowText}>{"<"}</Text>
+        {/*<Text style={styles.arrowText}>{"<"}</Text>*/}
+        <Ionicons name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
 
       <Text style={styles.habitText}>{habit}</Text>

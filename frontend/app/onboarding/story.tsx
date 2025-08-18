@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import React, { useState } from "react";
 import ProgressIndicator from "@/components/ui/StoryIndicator";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
+import BackButton from "@/components/ui/BackButton";
+import {Ionicons} from "@expo/vector-icons";
 
 const storyImages = [
   require("../../assets/story/P1.jpg"),
@@ -104,8 +106,10 @@ export default function StoryScreen() {
       </View>
 
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.arrowText}>{"<"}</Text>
+        {/*<Text style={styles.arrowText}>{"<"}</Text>*/}
+        <Ionicons name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
+      {/*<BackButton></BackButton>*/}
 
       <View style={styles.progressWrap}>
         <Text style={styles.pageText}>
