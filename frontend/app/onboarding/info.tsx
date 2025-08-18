@@ -56,8 +56,8 @@ export default function InfoScreen1() {
         resizeMode="contain"
       />
       <View style={{ marginVertical: "auto" }}>
-        <Text style={styles.heading}>Let’s get to know you!</Text>
-
+        <Text style={styles.heading}>I used to travel with my kind, but I got separated… now I’m on my own, too.”</Text>
+        <Text style={styles.subheading}>You can call me..</Text>
         <CustomDropdown
           items={paceOptions}
           value={pace}
@@ -105,10 +105,17 @@ const styles = StyleSheet.create({
   },
   heading: {
     alignSelf: "center",
-    fontSize: 30,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 50,
+    marginTop: 250,
+    color: "#000",
+  },
+  subheading:{
+    alignSelf: "flex-start",
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 20,
-    marginTop: 250,
     color: "#000",
   },
   button: {
