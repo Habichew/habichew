@@ -326,7 +326,7 @@ return (
                   <ActivityIndicator size="large" />
                 ) : generatedTasks.length === 0 ? (
                   <>
-                    <Text style={{ marginHorizontal: 'auto', marginVertical: 20 }}>No tasks created.</Text>
+                    <Text style={{ marginHorizontal: 'auto', marginVertical: 20 }}></Text>
                     <TouchableOpacity style={styles.generateTextBtn} onPress={handleGenerateTasks}>
                       <Text style={styles.generateText}>Generate Tasks</Text>
                     </TouchableOpacity>
@@ -349,7 +349,7 @@ return (
               </View>
 
               {/* Confirm delete */}
-              {showConfirmDelete && (
+              {showConfirmDelete ? (
                 <View style={styles.confirmOverlay}>
                   <View style={styles.confirmBox}>
                     <Text style={styles.confirmText}>
@@ -374,7 +374,7 @@ return (
                     </View>
                   </View>
                 </View>
-              )}
+              ) : null}
             </View>
           </View>
         </TouchableWithoutFeedback>
