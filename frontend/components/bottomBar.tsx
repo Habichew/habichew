@@ -96,7 +96,7 @@ export default function BottomBar() {
   );
 }
 const styles = StyleSheet.create({
-  container: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", height: 80, backgroundColor: "#fff", paddingBottom: Platform.OS === "ios" ? 24 : 12, position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 10 },
+  container: { borderWidth:1, borderColor:'#eee', flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", height: 80, backgroundColor: "#fff", paddingBottom: Platform.OS === "ios" ? 24 : 12, position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 10 },
   sideGroup: { flexDirection: "row", width: "40%", justifyContent: "space-around" },
   tabItem: { alignItems: "center", justifyContent: "flex-end", height: 60, width: 60 },
   icon: { width: 24, height: 24, resizeMode: "contain", opacity: 0.6 },

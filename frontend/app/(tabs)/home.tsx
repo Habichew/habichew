@@ -7,7 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     Vibration,
-    View,
+    View,Linking
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -238,7 +238,6 @@ const Home = () => {
       const styleAnimation = useAnimatedStyle(() => {
         // console.log('showLeftProgress:', prog.value);
         // console.log('appliedTranslation:', drag.value);
-
           return {
               transform: [{ translateX: 0 }],
               alignItems: 'flex-start',
@@ -418,6 +417,12 @@ const Home = () => {
                     stateMachineName={"State Machine 1"}
                     style={styles.pet}
                 >
+                  <Pressable
+                    onPress={() => Linking.openURL("https://rare-colors-993141.framer.app/")}
+                    style={styles.helpButton}
+                  >
+                    <Text style={styles.helpText}>?</Text>
+                  </Pressable>
                   <Pressable onPress={handlePetInteraction} style={{width: "100%", height: "100%", zIndex: 1, position: 'absolute'}} android_ripple={{color: '#ffffff20', borderless: true, foreground: true, radius: 300}}/>
                         <View style={{
                             marginTop: "auto",
@@ -476,8 +481,7 @@ const Home = () => {
                         flexGrow: 1
                     }}>
                         <Ionicons name='search-outline' size={20} style={{alignSelf: 'center'}} ></Ionicons>
-                        <TextInput ref={tiRef} placeholder="Search habit" placeholderTextColor="#888" value={searchTerm}
-                                   onChangeText={setSearchTerm} style={{width: '100%'}}/>
+                        <TextInput ref={tiRef} placeholder="Search habit" placeholderTextColor="#888" value={searchTerm}onChangeText={setSearchTerm} style={{width: '100%'}}/>
                     </View>
                     <TouchableOpacity onPress={() => {
                         console.log("set showArchivedHabits to", !showArchivedHabits);
@@ -491,21 +495,19 @@ const Home = () => {
                     </TouchableOpacity>
                 </View>
                 <FlatList style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
-                          initialNumToRender={50}
-                          data={filteredHabits}
-                          refreshControl={
-                              <RefreshControl refreshing={refreshing} onRefresh={async () => { console.log("refresh"); await loadHabits()}} />
-                          }
-                          keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
-                          renderItem={renderHabit}/>
+                  initialNumToRender={50}
+                  data={filteredHabits}
+                  refreshControl={
+                      <RefreshControl refreshing={refreshing} onRefresh={async () => { console.log("refresh"); await loadHabits()}} />
+                  }
+                  keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
+                  renderItem={renderHabit}/>
             </View>
             <ItemModal visible={modalVisible} initialData={editHabit ?? undefined}
-                       onClose={() => {setModalVisible(false); closeHabits()}} onSave={handleSave} onDelete={deleteHabit}
-                       habitId={habitId}/>
-
+              onClose={() => {setModalVisible(false); closeHabits()}} onSave={handleSave} onDelete={deleteHabit}
+              habitId={habitId}/>
         </View>
     );
-
 };
 
 const styles = ScaledSheet.create({
@@ -592,7 +594,28 @@ const styles = ScaledSheet.create({
     cancelText: {fontSize: 20, color: '#dab7ff', fontWeight: 'bold'},
     saveBtn: {backgroundColor: '#1CC282', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24},
     saveText: {fontSize: 20, color: '#000', fontWeight: 'bold', marginRight: 5},
-
+    helpButton: {
+    position: "absolute",
+    top: 70,
+    right: 20,
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 50,
+    elevation: 5, 
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+  },
+  helpText: {
+    color: "#000",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
 });
 
 export default Home;

@@ -33,7 +33,6 @@ export default function RootLayout() {
 
     const insets = useSafeAreaInsets();
 
-
     return (
     <GestureHandlerRootView>
       <UserProvider>
