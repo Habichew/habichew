@@ -7,6 +7,7 @@ import { UserProvider } from "./context/UserContext";
 import { Platform } from "react-native";
 import * as NavigationBar from "expo-navigation-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -30,7 +31,10 @@ export default function RootLayout() {
     return null;
   }
 
-  return (
+    const insets = useSafeAreaInsets();
+
+
+    return (
     <GestureHandlerRootView>
       <UserProvider>
         <Slot
@@ -45,6 +49,9 @@ export default function RootLayout() {
             headerBackVisible: true,
             headerShown: true,
             headerTitleAlign: "center",
+              paddingTop: insets.top,
+              marginBottom: insets.bottom,
+              backgroundColor: "white",
           }}
         />
       </UserProvider>
