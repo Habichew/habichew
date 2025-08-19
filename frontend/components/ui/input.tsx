@@ -59,6 +59,8 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 16,
     paddingHorizontal: 16,
+    paddingVertical: 'auto',
+    height: '100%',
     backgroundColor: "transparent",
     fontWeight: "bold",
   },

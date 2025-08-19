@@ -48,8 +48,8 @@ export default function TaskModal({
       setDescription(task.description ?? null);
       setDueDate(task.dueAt?.substring(0, 10) ?? null);
       if (
-        task.priority &&
-        ["low", "medium", "high"].includes(task.priority.toLowerCase())
+        task.priority ?
+        ["low", "medium", "high"].includes(task.priority.toLowerCase()) : null
       ) {
         const capitalized =
           task.priority.charAt(0).toUpperCase() +
@@ -132,7 +132,7 @@ export default function TaskModal({
             </Text>
           </TouchableOpacity>
 
-          {showDatePicker && (
+          {showDatePicker ? (
             <DateTimePicker
               mode="date"
               value={dueDate ? new Date(dueDate) : new Date()}
@@ -146,7 +146,7 @@ export default function TaskModal({
                 }
               }}
             />
-          )}
+          ) : null }
         </>
       );
     }
@@ -154,16 +154,18 @@ export default function TaskModal({
 
   return (
   <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-    <TouchableWithoutFeedback onPress={onClose}>
+    <TouchableOpacity onPress={onClose}
+                              activeOpacity={1}
+                              style={styles.overlay}>
       <View>
         <TouchableWithoutFeedback>
           <View style={styles.container}>
             <View style={styles.rowEnd}>
-              {task && (
+              {task ? (
                 <TouchableOpacity onPress={handleDelete}>
                   <Ionicons name="trash-outline" size={20} color="#888" />
                 </TouchableOpacity>
-              )}
+              ) : null }
             </View>
 
           <TextInput
@@ -220,12 +222,21 @@ export default function TaskModal({
           </View>
         </TouchableWithoutFeedback>
       </View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
     </Modal>
   );
 }
 
 const styles = ScaledSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    position: "absolute",
+    height: "100%",
+    width: "100%",
+    zIndex: 2,
+  },
   container: { backgroundColor: "#DAB7FF", borderRadius: 20, padding: 20, width: "100%", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
   rowEnd: { alignItems: "flex-end" },
   input: {     elevation: 4,
