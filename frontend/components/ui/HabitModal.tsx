@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
+import {TabletWidth, BigPhoneWidth} from "@/app/(tabs)/_layout";
 import {
     View,
     Text,
@@ -65,6 +66,7 @@ const HabitModal: React.FC<Props> = ({ visible, initialData, onClose, onSave, on
   const [savingOrCreating, setSavingOrCreating] = useState<boolean>(false);
   const [editable, setEditable] = useState(false);
     const windowHeight = Dimensions.get('window').height;
+    const windowWidth = Dimensions.get('window').width;
 
   const inputRef = useRef(null); // Attach a ref to the TextInput
 
@@ -145,7 +147,7 @@ const HabitModal: React.FC<Props> = ({ visible, initialData, onClose, onSave, on
       ],
     });
 
-    const requestOptions = {
+    const requestOptions: RequestInit = {
       method: 'POST',
       headers: myHeaders,
       body: raw,
@@ -261,9 +263,26 @@ return (
                         />
                   </View>
 
-                <View style={styles.habitSection}>  {/* habit section */}
-                  {/* date */}
-                  <View style={styles.inputGroup}>
+                  {/* habit section */}
+                <View style={styles.habitSection}>
+
+                    {/* Priority */}
+                    <CustomDropdown
+                        items={[
+                            { label: 'Low', value: 'Low' },
+                            { label: 'Medium', value: 'Medium' },
+                            { label: 'High', value: 'High' },
+                        ]}
+                        placeholder="Select Priority"
+                        value={formData.priority}
+                        setValue={val => val && setFormData({ ...formData, priority: val })}
+                        zIndex={9}
+                        zIndexInverse={8}
+                        style={{width: windowWidth > TabletWidth ? '32%' : windowWidth > BigPhoneWidth ? '50%' : '100%'}}
+                    />
+
+                  {/* Date */}
+                  <View style={[styles.inputGroup, {width: windowWidth > TabletWidth ? '32%' : windowWidth > BigPhoneWidth ? '50%' : '100%'}]}>
                     {Platform.OS === 'web' ? (
                       <View style={webDateInputWrapper}>
                         <input
@@ -274,11 +293,15 @@ return (
                         />
                       </View>
                     ) : (
-                        <View style={{borderRadius: 30, zIndex: 3, overflow: 'hidden'}}>
+                        <View style={{borderRadius: 30, zIndex: 3, overflow: 'hidden', shadowColor: "#000",
+                            elevation: 4,
+                            shadowOffset: { width: 3, height: -5 },
+                            shadowOpacity: 0.15,
+                            shadowRadius: 4,}}>
                             <Pressable android_ripple={{color: '#00000010', borderless: false, radius: 300}} style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
-                                <Ionicons name="calendar-outline" size={24} color="#bbb" />
+                                <Ionicons name="calendar-outline" size={24} color="black" />
 
-                                <Text style={styles.dateText}>
+                                <Text style={[styles.dateText, {color: formData.goalDate ? 'black' : '#bbb' }]}>
                                     {formData.goalDate
                                         ? new Date(formData.goalDate).toLocaleDateString()
                                         : 'Due Date'}
@@ -307,6 +330,7 @@ return (
                     )}
                   </View>
 
+
                   {/* Frequency */}
                   <CustomDropdown
                     items={[
@@ -319,28 +343,17 @@ return (
                     setValue={val => val && setFormData({ ...formData, frequency: val })}
                     zIndex={10}
                     zIndexInverse={9}
+                    style={{width: windowWidth > 768 ? '32%' : windowWidth > 360 ? '50%' : '100%'}}
                   />
 
-                  {/* Priority */}
-                  <CustomDropdown
-                    items={[
-                      { label: 'Low', value: 'Low' },
-                      { label: 'Medium', value: 'Medium' },
-                      { label: 'High', value: 'High' },
-                    ]}
-                    placeholder="Select Priority"
-                    value={formData.priority}
-                    setValue={val => val && setFormData({ ...formData, priority: val })}
-                    zIndex={9}
-                    zIndexInverse={8}
-                  />
+
                 </View>
               </View>
 
               {/* Tasks section*/}
               <View style={styles.modalBody}>
                 {/* Tasks Header */}
-                <View style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingHorizontal: 10 }}>
                   <Text style={styles.taskTitle}>Tasks</Text>
                     <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
                         <TouchableOpacity
@@ -373,8 +386,9 @@ return (
                                            }) => renderTask(item, index)}
                               style={{
                                   maxHeight: windowHeight / 3,
-                                  marginVertical: 30
-                              }}></FlatList>
+                                  marginVertical: 10,
+                                  marginBottom: 0
+                              }}/>
                 )}
 
                 {/* Create Button */}
@@ -431,7 +445,7 @@ export default HabitModal;
 
 const styles = ScaledSheet.create({
   overlay: { flexDirection: 'row', flex: 1, alignItems: 'flex-end', overflow: 'hidden', marginTop: 'auto' },
-  modal: { backgroundColor: '#DAB7FF', borderTopLeftRadius: 24, borderTopRightRadius: 24, position: 'relative' },
+  modal: { backgroundColor: '#DAB7FF', borderTopLeftRadius: 24, borderTopRightRadius: 24, position: 'relative'},
 
   /* HEADER */
   modalHeader: { padding: 24, paddingBottom: 16 },
@@ -447,8 +461,8 @@ const styles = ScaledSheet.create({
   dateInput: {    elevation: 4,
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.15,
-    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16,minHeight: "40@ms",flexDirection: 'row',alignItems: 'center',justifyContent: 'center',},
-  dateText: {fontSize: "14@s",fontWeight: 'bold',color: '#bbb', marginLeft: 4},
+    shadowRadius: 4,backgroundColor: '#fff',borderRadius: 24,paddingHorizontal: 16, paddingLeft: 18, minHeight: "40@ms0.3",flexDirection: 'row',alignItems: 'center',justifyContent: 'start',},
+  dateText: {fontSize: "13@ms0.3",fontWeight: 'bold',marginLeft: "6@ms0.5"},
 
   /* BODY */
   modalBody: { padding: 24, paddingTop: 16, paddingBottom: 4,borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#cda6ff' }, // CHANGED: soft divider line
@@ -479,7 +493,7 @@ const styles = ScaledSheet.create({
 
   /* INPUTS */
   description: { fontWeight: 'normal', fontSize: '13@ms' },
-  habitSection: { backgroundColor: '#cda6ff', padding: 10, borderRadius: 16 },
+  habitSection: { backgroundColor: '#cda6ff', padding: 10, borderRadius: 16, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 20, flexWrap: 'wrap'},
   inputGroup: { marginBottom: 16 },
   dropdownLabel: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
   picker: { backgroundColor: '#fff', borderRadius: 10, height: 40 },
