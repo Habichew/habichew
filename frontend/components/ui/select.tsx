@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {Ref, RefObject, useRef, useState} from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import { Text, StyleSheet, View, ViewStyle, TextStyle, Pressable } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
@@ -18,6 +18,8 @@ export default function CustomDropdown({
   zIndexInverse = 1,
   style = {},
   loading,
+    ref,
+    iconName
 }: {
   items: Option[];
   value: string | null;
@@ -30,6 +32,8 @@ export default function CustomDropdown({
   placeholderColor?: string;
   style?: ViewStyle;
   loading?: boolean;
+  ref?: RefObject<any>;
+  iconName?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -49,11 +53,10 @@ export default function CustomDropdown({
           }
         }}
         // placeholder={placeholder || "Select an option"}
-        placeholder={ placeholder ?
-          <View style={{flexDirection: 'row', paddingLeft: 2}}>
-            { placeholder.toLowerCase().includes('priority') ? <Ionicons name={'flag-outline'} size={24} color="black" style={{ width: 24, marginVertical: 'auto'}}/> : 
-            placeholder.toLowerCase().includes('frequency') ? <Ionicons name={'time-outline'} size={24} color="black"  style={{ width: 24, marginVertical: 'auto'}}/> : null}
-            <Text style={styles.placeholder}>{placeholder}</Text>
+        placeholder={ placeholder || iconName ?
+          <View style={{flexDirection: 'row'}}>
+          <Ionicons name={iconName} size={24} color="black" style={{ marginVertical: 'auto'}}/> :
+            {placeholder ? <Text style={styles.placeholder}>{placeholder}</Text> : null}
           </View> : placeholder || "Select an option"
         }
         style={styles.dropdown}
@@ -66,6 +69,7 @@ export default function CustomDropdown({
         props={{activeOpacity: 0.8}}
         zIndexInverse={zIndexInverse}
         loading={loading}
+        controller={(instance:any) => {if (ref) ref.current = instance}}
       />
     </View>
   );
@@ -96,7 +100,7 @@ const styles = ScaledSheet.create({
   shadowRadius: 4,
   },
   text: {
-    fontSize: "13@ms0.3",
+    fontSize: "13@ms0.2",
     fontWeight: "bold",
     color: "#000",
   },
@@ -104,9 +108,10 @@ const styles = ScaledSheet.create({
     // textAlign:'center',
     fontWeight: "bold",
     color: "#bbb",
-    fontSize: "13@ms0.3",
-    paddingLeft: '6@ms0.5',
+    fontSize: "13@ms0.2",
+    paddingLeft: '3@ms0.5',
     alignSelf: "center",
+    width: 'auto'
   },
   arrow: {
     tintColor: "#DAB7FF",

@@ -83,7 +83,7 @@ export default function BottomBar() {
         >
           <Image
             source={require("@/assets/images/profile.png")}
-            style={[styles.icon, isActive("/Profile") && styles.activeIcon, {width: 25, height: 'auto', aspectRatio: 1, margin: -0}]}
+            style={[styles.icon, isActive("/Profile") && styles.activeIcon, {width: 25, height: 'auto', aspectRatio: 1}]}
           />
           <Text style={styles.label}>Profile</Text>
         </TouchableOpacity>

@@ -33,7 +33,7 @@ export default function Postcard(props: PostcardProps) {
 }
 
 const styles = ScaledSheet.create({
-    postcard: { position: 'absolute', marginVertical: -500, backgroundColor: 'white',  borderRadius: 20},
+    postcard: { position: 'absolute', marginVertical: -500, backgroundColor: 'white',  borderRadius: 20 },
     cardHeader: {},
     cardTitle: {},
     story: {color: 'black', fontSize: 16, height: 100},

@@ -39,6 +39,7 @@ const Home = () => {
     loadHabits,
     addHabit,
     updateHabit,
+    completeHabitTasks,
     deleteHabit,
     calculateHabitProgress,
     addTask,
@@ -52,6 +53,7 @@ const Home = () => {
     null,
   );
   const [showArchivedHabits, setShowArchivedHabits] = useState<boolean>(false);
+  const [artboardName, setArboardName] = useState<string>("Indoor");
   const habitId = editHabit?.userHabitId; // number
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -72,25 +74,38 @@ const Home = () => {
         console.log("user", user);
       const ONE_MINUTE = 60 * 1000;
 
-        if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
-            riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-        } else {
-            riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-            riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
-        }
-
-
-        // switch (Math.floor(Math.random() * 3)) {
-        //     case 0:
-        //         riveRef.current?.play('Sleeping');
-        //         break;
-        //     case 1:
-        //         riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-        //         break;
-        //     case 2:
-        //         riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
-        //         break;
+        // if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
+        //     riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+        // } else {
+        //     riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+        //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
         // }
+
+        let rng = Math.random() * 3;
+        console.log('rng', rng);
+        switch (Math.floor(rng)) {
+            case 0:
+                // Sleeping
+                console.log('trigger sleeping animation');
+                riveRef.current?.setInputState('State Machine 1', 'NightTime', true);
+                riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                break;
+            case 1:
+                // Hungry
+                console.log('trigger hungry animation');
+                riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                break;
+            case 2:
+                // Travel
+                console.log('trigger travel animation');
+                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', true);
+                riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+
+        }
         setRefreshing(false);
 
       // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
@@ -157,15 +172,20 @@ const Home = () => {
     // await updateHabit({ ...habit, isCompleted: true });
     habit.isArchived = 1;
     await updateHabit({ ...habit });
+    // completeHabitTasks(habit);
     console.log("trigger animation and complete habit");
     riveRef.current?.setInputState("State Machine 1", "HabitTicked", true);
-    riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+      // riveRef.current?.setInputState("State Machine 1", "NightTime", false);
+      riveRef.current?.setInputState(
+        "State Machine 1", "Overdue", false);
     await loadHabits();
   };
 
   function feedPet() {
     riveRef.current?.fireState("State Machine 1", "Feed");
-    riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+      riveRef.current?.setInputState("State Machine 1", "HabitTicked", false);
+      riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+
   }
 
   const formatDate = (dateStr: string) => {
@@ -186,7 +206,7 @@ const Home = () => {
     const progressMap = calculateHabitProgress();
     const percent = progressMap?.[item.userHabitId] ?? 0;
     // console.log("percent", progressMap?.[item.userHabitId]);
-    console.log("habit", index);
+    // console.log("habit", index);
 
     function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
       const styleAnimation = useAnimatedStyle(() => {
@@ -330,13 +350,26 @@ const Home = () => {
   });
 
     async function handlePetInteraction() {
-        if (await riveRef.current?.getBooleanState('HabitTicked') === true) {
-            console.log('feed pet');
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            feedPet();
+        console.log('NightTime', await riveRef.current?.getBooleanState('NightTime'), 'HabitTicked', await riveRef.current?.getBooleanState('HabitTicked'));
+
+        const nightTime: boolean | null | undefined = await riveRef.current?.getBooleanState('NightTime');
+        const shouldTravel: boolean | null | undefined = await riveRef.current?.getBooleanState('ShouldTravel');
+
+        if (nightTime) {
+            riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+        } else if (shouldTravel) {
+            riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
         } else {
-            Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+            if (await riveRef.current?.getBooleanState('HabitTicked') === true) {
+                console.log('feed pet');
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                feedPet();
+                // setArboardName('Indoor 2');
+            } else {
+                Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+            }
         }
+
     }
 
   function closeHabits() {
@@ -355,7 +388,7 @@ const Home = () => {
     return (
         <View style={{flex: 1, backgroundColor: '#DAB7FF', marginTop: -insets.top}}>
             {modalVisible ? <Animated.View style={[styles.overlay, style]}/> : null}
-            {showConfirmDelete && (
+            {showConfirmDelete ? (
                 <View style={styles.confirmOverlay}>
                     <View style={styles.confirmBox}>
                         <Text style={styles.confirmText}>Are you sure you want to delete this
@@ -374,11 +407,11 @@ const Home = () => {
                         </View>
                     </View>
                 </View>
-            )}
+            ) : null}
             <SystemBars style={'dark'}/>
               {/*<TouchableOpacity onPress={() => handlePetInteraction()}>*/}
                 <Rive
-                    artboardName={'Pet'}
+                    artboardName={artboardName}
                     resourceName='pet'
                     fit={Fit.Cover}
                     ref={riveRef}
@@ -529,7 +562,7 @@ const styles = ScaledSheet.create({
         width: '100%'
     },
     progressBarFill: {height: '100%', width: screenWidth * 0.6, backgroundColor: '#1CC282', borderRadius: scale(8)},
-    tagRow: {flexDirection: 'row', flexWrap: 'wrap', gap: scale(8), marginTop: scale(12)},
+    tagRow: {flexDirection: 'row', flexWrap: 'wrap', gap: scale(8), marginTop: 8},
     tag: {
         flexDirection: 'row',
         alignItems: 'center',

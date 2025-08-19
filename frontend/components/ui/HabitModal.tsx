@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {TabletWidth, BigPhoneWidth} from "@/app/(tabs)/_layout";
+import {TabletWidth, BigPhoneWidth, ScreenWidth, ScreenHeight} from "@/app/(tabs)/_layout";
 import {
     View,
     Text,
@@ -13,7 +13,8 @@ import {
     TouchableOpacity,
     ScrollView,
     Dimensions,
-    Pressable
+    Pressable,
+    Keyboard
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {Ionicons} from '@expo/vector-icons';
@@ -65,6 +66,8 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
     const [loadingTasks, setLoadingTasks] = useState<boolean>(false);
     const [savingOrCreating, setSavingOrCreating] = useState<boolean>(false);
     const [editable, setEditable] = useState(false);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
     const windowHeight = Dimensions.get('window').height;
     const windowWidth = Dimensions.get('window').width;
 
@@ -78,6 +81,26 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
         //   inputRef.current?.focus()
         // }, 50)  // Delay the focus by 50ms to allow modal to complete its render
     });
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setKeyboardVisible(true);
+            },
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setKeyboardVisible(false);
+            },
+        );
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
 
     useEffect(() => {
         if (initialData) {
@@ -286,19 +309,20 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                     {label: 'Medium', value: 'Medium'},
                                                     {label: 'High', value: 'High'},
                                                 ]}
-                                                placeholder="Priority"
+                                                placeholder={ScreenWidth > BigPhoneWidth ? "Priority" : "Prio"}
                                                 value={formData.priority}
                                                 setValue={val => val && setFormData({...formData, priority: val})}
                                                 zIndex={4}
                                                 zIndexInverse={8}
-                                                style={{width: windowWidth > TabletWidth ? '32%' : windowWidth > BigPhoneWidth ? '50%' : '100%'}}
+                                                style={{flex: 1}}
                                                 ref={prioDropDownRef}
+                                                iconName={'flag-outline'}
                                             />
                                         </TouchableWithoutFeedback>
 
                                         {/* Date */}
                                         <View
-                                            style={[styles.inputGroup, {width: windowWidth > TabletWidth ? '32%' : windowWidth > BigPhoneWidth ? '50%' : '100%'}]}>
+                                            style={[styles.inputGroup, {flex: 1}]}>
                                             {Platform.OS === 'web' ? (
                                                 <View style={webDateInputWrapper}>
                                                     <input
@@ -331,12 +355,11 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                         radius: 300
                                                     }} style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
                                                         <Ionicons name="calendar-outline" size={24} color="black"/>
-
                                                         <Text
                                                             style={[styles.dateText, {color: formData.goalDate ? 'black' : '#bbb'}]}>
                                                             {formData.goalDate
                                                                 ? new Date(formData.goalDate).toLocaleDateString()
-                                                                : 'Due Date'}
+                                                                : ScreenWidth > BigPhoneWidth ? 'Due Date' : 'Date'}
                                                         </Text>
                                                     </Pressable>
                                                 </View>
@@ -371,13 +394,14 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                     {label: 'Weekly', value: 'Weekly'},
                                                     {label: 'Monthly', value: 'Monthly'},
                                                 ]}
-                                                placeholder="Frequency"
+                                                placeholder={ScreenWidth > BigPhoneWidth ? "Frequency" : 'Freq'}
                                                 value={formData.frequency}
                                                 setValue={val => val && setFormData({...formData, frequency: val})}
                                                 zIndex={3}
                                                 zIndexInverse={9}
-                                                style={{width: windowWidth > 768 ? '32%' : windowWidth > 360 ? '50%' : '100%'}}
+                                                style={{flex: 1}}
                                                 ref={freqDropDownRef}
+                                                iconName={'time-outline'}
                                             />
                                         </TouchableWithoutFeedback>
                                     </View>
@@ -388,7 +412,6 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                     {/* Tasks Header */}
                                     <View style={{
                                         flexDirection: 'row',
-                                        minHeight: 50,
                                         alignItems: 'center',
                                         paddingHorizontal: 10
                                     }}>
@@ -420,8 +443,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                         <ActivityIndicator size="large"/>
                                     ) : generatedTasks.length === 0 ? (
                                         <>
-                                            <Text style={{marginHorizontal: 'auto', marginVertical: 20}}>No
-                                                tasks.</Text>
+                                            {/*<Text style={{marginHorizontal: 'auto', marginVertical: 20}}>No tasks.</Text>*/}
                                             <Pressable
                                                 style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
                                                 onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
@@ -440,23 +462,25 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                                    separators
                                                                }) => renderTask(item, index)}
                                                   style={{
-                                                      maxHeight: windowHeight / 3,
+                                                      maxHeight: ScreenHeight > 1000 || !isKeyboardVisible ? (windowHeight / 3) : (windowHeight / 12) ,
                                                       marginVertical: 10,
                                                       marginBottom: 0
                                                   }}/>
                                     )}
 
-                                    {/* Create Button */}
-                                    <View style={styles.centeredButtons}>
-                                        <Pressable disabled={!formData.habitTitle} onPress={handleSave}
-                                                   style={[styles.saveBtn, {
-                                                       backgroundColor: !formData.habitTitle ? '#454545' : 'black',
-                                                       borderWidth: 0
-                                                   }]}>
-                                            {/*<Ionicons name={'arrow-forward-outline'} color={'white'} size={20}/>*/}
-                                            <Text style={styles.saveText}>Done</Text>
-                                        </Pressable>
-                                    </View>
+
+                                </View>
+
+                                {/* Create Button */}
+                                <View style={styles.centeredButtons}>
+                                    <Pressable disabled={!formData.habitTitle} onPress={handleSave}
+                                               style={[styles.saveBtn, {
+                                                   backgroundColor: !formData.habitTitle ? '#454545' : 'black',
+                                                   borderWidth: 0
+                                               }]}>
+                                        {/*<Ionicons name={'arrow-forward-outline'} color={'white'} size={20}/>*/}
+                                        <Text style={styles.saveText}>Done</Text>
+                                    </Pressable>
                                 </View>
 
                                 {/* Confirm delete */}
@@ -539,21 +563,23 @@ const styles = ScaledSheet.create({
         backgroundColor: '#fff',
         borderRadius: 24,
         paddingHorizontal: 16,
-        paddingLeft: 18,
+        paddingLeft: '16@ms0.2',
         minHeight: "40@ms0.3",
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'start',
     },
-    dateText: {fontSize: "13@ms0.2", fontWeight: 'bold', marginLeft: "6@ms0.5"},
+    dateText: {fontSize: "13@ms0.2", fontWeight: 'bold', marginLeft: "3@ms0.5"},
 
     /* BODY */
     modalBody: {
+        backgroundColor: '#ECECEC',
         padding: 24,
         paddingTop: 16,
         paddingBottom: 4,
         borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: '#cda6ff'
+        borderTopColor: '#cda6ff',
+        marginTop: -18
     }, // CHANGED: soft divider line
     sectionDivider: {height: StyleSheet.hairlineWidth, backgroundColor: '#DAB7FF', marginVertical: 12, borderRadius: 1}, // NEW optional
     taskTitle: {fontWeight: '700', fontSize: 18, height: 30},
@@ -583,7 +609,7 @@ const styles = ScaledSheet.create({
         paddingVertical: 10,
         borderRadius: 24,
         flexDirection: 'row',
-        marginBottom: 30
+        marginVertical: 10
     },
     generateText: {alignSelf: 'center', fontSize: "14@ms0.2", color: '#000', fontWeight: 'bold', marginLeft: 6},
 
@@ -595,7 +621,7 @@ const styles = ScaledSheet.create({
         backgroundColor: '#000',
         borderWidth: 1,
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingVertical: "10@ms0.2",
         borderRadius: 24,
         marginLeft: 'auto',
         flexDirection: 'row'
@@ -622,16 +648,18 @@ const styles = ScaledSheet.create({
     /* INPUTS */
     description: {fontWeight: 'normal', fontSize: '13@ms'},
     habitSection: {
-        backgroundColor: '#cda6ff',
-        padding: 10,
+        // backgroundColor: '#cda6ff',
+        // padding: 10,
         borderRadius: 16,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingTop: 20,
-        flexWrap: 'wrap'
+        // paddingHorizontal: 16,
+        // paddingTop: 20,
+        flexWrap: 'wrap',
+        gap: 5,
+        marginBottom: 0
     },
-    inputGroup: {marginBottom: 16},
+    inputGroup: {marginBottom: 0},
     dropdownLabel: {fontSize: 16, fontWeight: 'bold', marginBottom: 4},
     picker: {backgroundColor: '#fff', borderRadius: 10, height: 40},
     centeredButtons: {
@@ -640,8 +668,8 @@ const styles = ScaledSheet.create({
         flexDirection: 'row',
         paddingVertical: 8,
         marginHorizontal: -25,
-        paddingHorizontal: 25,
-        borderColor: '#cda6ff'
+        paddingHorizontal: 50,
+        borderColor: '#cda6ff',
     },
 });
 
