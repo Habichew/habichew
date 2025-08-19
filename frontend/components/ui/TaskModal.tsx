@@ -5,6 +5,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useUser, Task } from "../../app/context/UserContext";
 import { webDateInputWrapper, webDateInput } from "./webDateStyles";
 import CustomDropdown from "./select";
+import {ScaledSheet} from "react-native-size-matters";
 
 interface TaskModalProps {
   visible: boolean;
@@ -41,7 +42,6 @@ export default function TaskModal({
   const [priority, setPriority] = useState<"Low" | "Medium" | "High" | null>(
     null,
   );
-
   useEffect(() => {
     if (task) {
       setTitle(task.title || "");
@@ -121,15 +121,15 @@ export default function TaskModal({
         <>
 
           <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+            <Ionicons name="calendar-outline" size={20} color={'#000'} />
             <Text
               style={[
                 styles.dateText,
                 { color: dueDate ? '#000' : '#bbb' }
               ]}
             >
-              {dueDate ? new Date(dueDate).toDateString() : 'DDL'}
+              {dueDate ? new Date(dueDate).toDateString() : 'Due Date'}
             </Text>
-            <Ionicons name="calendar-outline" size={20} color={dueDate ? '#000' : '#bbb'} />
           </TouchableOpacity>
 
           {showDatePicker && (
@@ -155,7 +155,7 @@ export default function TaskModal({
   return (
   <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
     <TouchableWithoutFeedback onPress={onClose}>
-      <View style={styles.overlay}>
+      <View>
         <TouchableWithoutFeedback>
           <View style={styles.container}>
             <View style={styles.rowEnd}>
@@ -169,7 +169,7 @@ export default function TaskModal({
           <TextInput
             placeholder="Task Title"
             placeholderTextColor="#bbbbbb"
-            style={styles.input}
+            style={[styles.input, styles.titleInput]}
             value={title}
             onChangeText={setTitle}
           />
@@ -186,7 +186,7 @@ export default function TaskModal({
             </View>
 
             {/* Priority */}
-            <View style={{ zIndex: 9, marginBottom: 6 }}>
+            <View style={{ zIndex: 11, marginBottom: 6 }}>
               <CustomDropdown
                 zIndex={9}
                 zIndexInverse={8}
@@ -198,6 +198,7 @@ export default function TaskModal({
                 value={priority}
                 setValue={(val) => setPriority(val as "Low" | "Medium" | "High")}
                 placeholder="Priority"
+                style={{marginBottom: -10, }}
               />
             </View>
 
@@ -224,27 +225,37 @@ export default function TaskModal({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end", alignItems: "flex-end", overflow: 'hidden' },
+const styles = ScaledSheet.create({
   container: { backgroundColor: "#DAB7FF", borderRadius: 20, padding: 20, width: "100%", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
   rowEnd: { alignItems: "flex-end" },
   input: {     elevation: 4,
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.15,
-    shadowRadius: 4,backgroundColor: "#fff", borderRadius: 16, padding: 12, marginTop: 12, fontSize: 16, color: "#000" },
-  textArea: { height: 100, textAlignVertical: "top" },
+    shadowRadius: 4,backgroundColor: "#fff", borderRadius: 16, padding: 12, marginTop: 12, fontSize: "13@ms0.2", color: "#000", fontWeight: 'bold' },
+  textArea: { height: 100, textAlignVertical: "top", fontSize: "13@ms0.2" },
   rowGap: { flexDirection: "row", justifyContent: "space-between", marginTop: 12, gap: 8 },
-  dateInput: {    elevation: 4,
-    shadowOffset: { width: 0, height: 5 },
+  dateInput: {
+    elevation: 4,
+    shadowOffset: {width: 0, height: 5},
     shadowOpacity: 0.15,
-    shadowRadius: 4, marginBottom: 16, backgroundColor: '#fff', borderRadius: 24, paddingHorizontal: 16, minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  dateText: { fontSize: 16, fontWeight: 'bold', color: '#bbb' },
+    shadowRadius: 4,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingLeft: 18,
+    minHeight: "40@ms0.3",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'start',
+  },
+  dateText: { fontSize: "13@ms0.2", fontWeight: 'bold', color: '#bbb', fontSize: "13@ms0.2", marginLeft: "10@ms0.5"},
   priorityOption: { fontSize: 14, color: "#bbb", paddingVertical: 4 },
   selected: { color: "#000", fontWeight: "bold" },
   footerButtons: { flexDirection: "row", justifyContent: "space-between", marginTop: 24, zIndex: 1 },
   cancelBtn: { backgroundColor: "#000", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30, zIndex: 1 },
   cancelText: { color: "#fff", fontWeight: "bold", fontSize: 16, zIndex: 1 },
   saveBtn: { backgroundColor: "#1CC282", paddingVertical: 12, paddingHorizontal: 30, borderRadius: 30, zIndex: 1 },
-  saveText: { fontWeight: "bold", fontSize: 16, color: "#000", zIndex: 1 }
+  saveText: { fontWeight: "bold", fontSize: 16, color: "#000", zIndex: 1 },
+  titleInput: {minHeight: "50@ms0.3", paddingLeft: "16@ms0.5", fontSize: "16@ms0.2", fontWeight: 'bold'}
 });
 
