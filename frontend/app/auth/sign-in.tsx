@@ -142,20 +142,20 @@ export default function SignInScreen() {
         )}
       </TouchableOpacity>
 
-      <Text style={styles.orText}>OR LOG IN WITH</Text>
+      {/*<Text style={styles.orText}>OR LOG IN WITH</Text>*/}
 
-      <View style={styles.iconRow}>
-        <FontAwesome name="google" size={24} color="#555" />
-        <FontAwesome name="apple" size={24} color="#555" style={styles.icon} />
-        <FontAwesome
-          name="facebook"
-          size={24}
-          color="#555"
-          style={styles.icon}
-        />
-      </View>
+      {/*<View style={styles.iconRow}>*/}
+      {/*  <FontAwesome name="google" size={24} color="#555" />*/}
+      {/*  <FontAwesome name="apple" size={24} color="#555" style={styles.icon} />*/}
+      {/*  <FontAwesome*/}
+      {/*    name="facebook"*/}
+      {/*    size={24}*/}
+      {/*    color="#555"*/}
+      {/*    style={styles.icon}*/}
+      {/*  />*/}
+      {/*</View>*/}
 
-      <TouchableOpacity onPress={() => router.push("/auth/sign-up")}>
+      <TouchableOpacity onPress={() => router.push("/auth/sign-up")} style={{marginTop: 20}}>
         <Text style={styles.link}>
           Don't have an account?{" "}
           <Text style={{ fontWeight: "bold" }}>Sign up</Text>
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 60,
     borderRadius: 25,
-    marginTop: 20,
+    marginTop: 40,
   },
   signInText: {
     color: "#000",
