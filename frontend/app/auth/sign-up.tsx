@@ -48,7 +48,7 @@ export default function SignUpScreen() {
       if (response.ok) {
         setUser(data.user);
 
-        alert("Registration successful!");
+        // alert("Registration successful!");
         router.replace("../onboarding/launch");
       } else {
         alert(`Registration failed: ${data.error || "Unknown error"}`);
