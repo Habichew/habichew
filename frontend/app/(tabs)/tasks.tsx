@@ -11,6 +11,7 @@ import Animated, {Easing, SharedValue, useAnimatedStyle, withTiming,} from 'reac
 import * as Haptics from 'expo-haptics';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import SwipeableFlatList, {SwipeableFlatListRef} from 'rn-gesture-swipeable-flatlist';
+import {ScaledSheet} from "react-native-size-matters";
 
 export default function Tasks() {
   const screenWidth = Dimensions.get('window').width;
@@ -194,10 +195,11 @@ export default function Tasks() {
           <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}>
             <View style={styles.flexOne}>
               <TouchableOpacity disabled={!!item.completed}
-                                onPress={() => toggleCompleted(item)}>
+                                onPress={() => toggleCompleted(item)}
+                                style={{ padding: 5, margin: -5}}>
                 <Ionicons
                     name={!item.completed ? "ellipse-outline" : "checkmark-circle-outline"}
-                    size={24} color="blacfk"/>
+                    size={24} color="black"/>
               </TouchableOpacity>
             </View>
             <View style={styles.flexTwo}>
@@ -223,23 +225,6 @@ export default function Tasks() {
                     </View>
                     : ""
                 }
-                {/*<Swipeable*/}
-                {/*    friction={2}*/}
-                {/*    overshootFriction={8}*/}
-                {/*    leftThreshold={screenWidth*0.3}*/}
-                {/*    renderLeftActions={!item.completed ? LeftAction : null}*/}
-                {/*    onSwipeableWillOpen={async (direction: any) => {*/}
-                {/*      const i = item;*/}
-                {/*      i.completed = true;*/}
-                {/*      // await updateTask(i);*/}
-                {/*      // await loadTasks();*/}
-                {/*    }}*/}
-                {/*    onSwipeableOpenStartDrag={() => Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_End)}*/}
-                {/*    ref={swipeRef => row[index] = swipeRef}*/}
-                {/*    containerStyle={{ width: "100%", alignSelf: 'center', marginBottom: 12}}*/}
-                {/*>*/}
-
-                {/*</Swipeable>*/}
               </View>
             </View>
           </Pressable>
@@ -250,55 +235,13 @@ export default function Tasks() {
     console.log("vibrate");
     await Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
     if (direction === 'right') {
-      console.log('toggle compe')
       await toggleCompleted(swipeable);
     }
   }
 
-  function LeftActionNew(item: any) {
-      // console.log('showLeftProgress:', prog.value);
-      // console.log('appliedTranslation:', drag.value);
-      // console.log('click', prog.value < 0.5 ? 10 : 0);
-
-    return (
-        <>
-          {!item.completed ? <Animated.View style={styles.leftAction}>
-            <Pressable onPress={() => toggleCompleted(item)}>
-              <Ionicons name="checkmark-done-outline" size={24} color="black"/>
-            </Pressable>
-          </Animated.View> : null}
-        </>
-
-    );
-  }
-
-  function LeftAction(prog: SharedValue<number>, drag: SharedValue<number>) {
-    const styleAnimation = useAnimatedStyle(() => {
-      // console.log('showLeftProgress:', prog.value);
-      // console.log('appliedTranslation:', drag.value);
-      // console.log('click', prog.value < 0.5 ? 10 : 0);
-
-      return {
-        transform: [{ translateX: 0 }],
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        backgroundColor: '#1CC282',
-        width: screenWidth - (prog.value < 0.045 ? 20 : 0),
-        marginLeft: 10,
-        borderRadius: 16,
-        paddingLeft: 20
-      };
-    });
-
-    return (
-        <Animated.View style={styleAnimation}>
-          <Ionicons name="checkmark-done-outline" size={24} color="black"/>
-        </Animated.View>
-    );
-  }
-
   return (
     <View style={styles.container}>
+
       <View style={styles.topBar}>
         <TextInput
           style={styles.search}
@@ -343,7 +286,7 @@ export default function Tasks() {
           </View>
         ))}
 
-      <SwipeableFlatList
+      <FlatList
         data={filteredTasks}
         ref={flatListRef}
         keyExtractor={(item) =>
@@ -351,7 +294,6 @@ export default function Tasks() {
         }
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={renderTask}
-        renderLeftActions={LeftActionNew}
         enableOpenMultipleRows={false}
         swipeableProps={{
           friction: 2,
@@ -361,6 +303,7 @@ export default function Tasks() {
         style={{marginHorizontal: -25, paddingHorizontal: 25}}
       />
 
+      {modalVisible ? <Animated.View style={[styles.overlay]}/> : null}
       <TaskModal
         visible={modalVisible}
         onClose={() => {
@@ -379,7 +322,17 @@ export default function Tasks() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: '#000000aa',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    position: "absolute",
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width,
+    zIndex: 2
+  },
   container: { flex: 1, padding: 24, backgroundColor: "#fff" },
   topBar: { marginBottom: 16 },
   search: {
@@ -407,13 +360,13 @@ const styles = StyleSheet.create({
   },
   flexTwo: {flex: 2, marginLeft: 15, marginVertical: 'auto', paddingVertical: 0, textAlign: 'center', alignSelf: 'center'},
   taskTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 4,
-    color: "#000",
+    fontWeight: "normal",
+    fontSize: "13@ms0.2",
+    // marginBottom: 4,
+    color: "#000"
   },
   taskDescription: { fontSize: 14, color: "#333", marginBottom: 6 },
-  metaRow: { flexDirection: "row", gap: 12, marginTop: 4 },
+  metaRow: { flexDirection: "row", gap: 12, marginTop: 8 },
   badge: {
     flexDirection: "row",
     alignItems: "center",
