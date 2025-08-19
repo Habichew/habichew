@@ -192,7 +192,8 @@ export default function Tasks() {
     }
 
     return (
-          <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}>
+        <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginBottom: 10}}>
+        <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}  android_ripple={{color: '#00000020', borderless: true, foreground: false, radius: 300}}>
             <View style={styles.flexOne}>
               <TouchableOpacity disabled={!!item.completed}
                                 onPress={() => toggleCompleted(item)}
@@ -228,6 +229,7 @@ export default function Tasks() {
               </View>
             </View>
           </Pressable>
+        </View>
     );
   }
 
@@ -300,7 +302,7 @@ export default function Tasks() {
           overshootFriction: 8,
           onSwipeableOpen: async (direction, swipeable) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
         }}
-        style={{marginHorizontal: -25, paddingHorizontal: 25}}
+        style={{marginHorizontal: -40, paddingHorizontal: 25}}
       />
 
       {modalVisible ? <Animated.View style={[styles.overlay]}/> : null}
@@ -354,7 +356,7 @@ const styles = ScaledSheet.create({
     flexDirection: "row",
     padding: 16,
     borderRadius: 16,
-    marginVertical: 6,
+    // marginVertical: 6,
     alignItems: "center",
     justifyContent: "space-between",
   },
