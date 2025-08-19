@@ -1,8 +1,6 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-// import mariadb from "mariadb";
-import multer from "multer";
 import dotenv from "dotenv";
 import path from "path";
 
@@ -20,41 +18,6 @@ const app = express();
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix =
-      Date.now() +
-      "-" +
-      Math.round(Math.random() * 1e9) +
-      path.extname(file.originalname);
-    const filename = file.fieldname + "-" + uniqueSuffix;
-    req.body.file = filename;
-    cb(null, filename);
-  },
-});
-
-export const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (
-        file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/jpg' ||
-        file.mimetype === 'image/png'
-    ) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-      const err = new Error('Only .jpg .jpeg .png images are supported!');
-      err.name = 'ExtensionError';
-      return cb(err);
-    }
-  },
-  limits: { fileSize: 5 * 1000 * 1000 },
-});
 
 // Configuration
 const PORT = process.env.BACKEND_PORT || 3000;
@@ -151,23 +114,6 @@ app.use("/userHabits", userHabitRouter);
 app.get("/uploads/:image", function (req, res) {
   res.sendFile(path.join(__dirname, "/uploads/", req.params.image)); // find out the filePath based on given fileName
 });*/
-
-/*
-app.post("/create-post", upload.array("postImages", 5), (req, res) => {
-  console.log("req.body", req.body);
-  console.log("req.files", req.files);
-  if (req.file) console.log("req.file", req.file);
-
-  if (req.files ) { // && req.file.path
-    connect((conn) => postController.createPost(conn, req, res));
-    // res.status(200).send(req.files);
-  } else {
-    res
-        .status(400)
-        .send({ error: "no file was uploaded", "request-body": req.body });
-  }
-});
- */
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running at http://10.22.198.190:${PORT}/`);

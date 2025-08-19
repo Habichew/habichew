@@ -569,7 +569,7 @@ const styles = ScaledSheet.create({
         alignItems: 'center',
         justifyContent: 'start',
     },
-    dateText: {fontSize: "13@ms0.2", fontWeight: 'bold', marginLeft: "3@ms0.5"},
+    dateText: {fontSize: "8@ms0.2", fontWeight: 'bold', marginLeft: "3@ms0.5"},
 
     /* BODY */
     modalBody: {

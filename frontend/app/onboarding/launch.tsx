@@ -55,6 +55,7 @@ export default function LaunchScreen() {
             resizeMode="contain"
           />
         </TouchableOpacity>
+        <Text style={styles.hintText}>Click "Habichew" to continue</Text>
       </View>
     </View>
   );
@@ -84,6 +85,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     color: "#444",
+  },
+  hintText:{
+    fontSize: 14,
+    fontWeight: "300",
+    color: '#9e9e9e'
   },
   logo: {
     width: 300,
