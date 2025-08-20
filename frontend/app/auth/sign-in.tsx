@@ -13,6 +13,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import CustomInput from "@/components/ui/input";
 import { useUser } from "../../context/UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function SignInScreen() {
   );
   const [loading, setLoading] = useState<boolean>(false);
   const isFormValid = email && password;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     async function login() {
@@ -108,7 +110,7 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, {marginTop: -insets.top}]}>
       <View style={styles.purpleBackground}>
         <Text style={styles.title}>Welcome back,{"\n"}ready to continue?</Text>
         <CustomInput
