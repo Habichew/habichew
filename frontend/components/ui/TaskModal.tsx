@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {Modal,View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,TouchableWithoutFeedback} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useUser, Task } from "../../app/context/UserContext";
+import { useUser, Task } from "@/context/UserContext";
 import { webDateInputWrapper, webDateInput } from "./webDateStyles";
 import CustomDropdown from "./select";
 import {ScaledSheet} from "react-native-size-matters";

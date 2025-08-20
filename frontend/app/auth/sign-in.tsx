@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import CustomInput from "@/components/ui/input";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../../context/UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignInScreen() {

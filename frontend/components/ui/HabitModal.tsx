@@ -393,6 +393,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                     {label: 'Daily', value: 'Daily'},
                                                     {label: 'Weekly', value: 'Weekly'},
                                                     {label: 'Monthly', value: 'Monthly'},
+                                                    {label: 'Once', value: 'Once'},
                                                 ]}
                                                 placeholder={ScreenWidth > BigPhoneWidth ? "Frequency" : 'Freq'}
                                                 value={formData.frequency}

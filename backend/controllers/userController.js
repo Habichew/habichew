@@ -5,18 +5,16 @@ import bcrypt from "bcrypt";
 
 export async function getAllUsers(req, res) {
   try {
-    console.log("###### /users: Getting all users ######");
     const users = await userService.getAllUsers();
     if (!users || users.length === 0) {
       return res.status(404).json({ message: 'No users found.' });
     }
-    res.status(200).json(users);
+    return res.status(200).json(users);
   } catch (err) {
     console.error('getAllUsers failed:', err);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error' });
   }
 }
-
 
 export async function signUp(req, res) {
   try {
@@ -29,13 +27,13 @@ export async function signUp(req, res) {
     const user = await userService.createUser(username, email, password);
 
     if (user) {
-      res.status(201).json({ message: 'User created successfully', user });
+      return res.status(201).json({ message: 'User created successfully', user });
     } else {
-      res.status(409).json({ error: 'User already exists' });
+      return res.status(409).json({ error: 'User already exists' });
     }
   } catch (err) {
     console.error('Signup failed:', err);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ message: 'Internal server error', error: err.message });
   }
 }
 
@@ -44,31 +42,22 @@ export async function findUser(req, res) {
     const {email, password} = req.body;
     const result = await userService.findUserByEmail(email);
     if(result.length > 0) {
-    console.log("###### /users/login: find user by email result ######", result);
         bcrypt.compare(
           password,
           result[0].password,
           function (err, compResult) {
             if (compResult) {
-              console.log("Password match");
-              res.status(200);
-              res.send(result);
+              res.status(200).send(result);
             } else {
-              console.log("Password does not match");
-              console.log("password", password);
-              console.log("hash", result[0].password);
-              res.status(401);
-              res.send({ error: "Incorrect password" });
+              res.status(401).send({ error: "Incorrect password" });
             }
           }
         );
       } else {
-        res.status(404);
-        res.send({ error: "Incorrect user" });
+        res.status(404).send({ error: "Incorrect user" });
       }
-  } catch (code) {
-    res.status(code);
-    res.send();
+  } catch (err) {
+    res.status(500).send({message:"Internal Server Error", error: err.message});
   }
 }
 
@@ -76,17 +65,14 @@ export async function findUserById(req, res) {
   try {
     const {userId} = req.params;
     const result = await userService.findUserById(userId);
-    console.log("###### /users/", userId, ": find user by ID ######", result);
     if (result.length === 1) {
-      res.status(200);
+      return res.status(200).send(result);
     } else if (result.length === 0) {
-      res.send({error: "User does not exist."})
-      res.status(404);
+      return res.status(404).send({error: "User does not exist."});
     }
-    res.send(result);
-  } catch (code) {
-    res.status(code);
-    res.send();
+
+  } catch (err) {
+    return res.status(500).send({message: "Internal Server Error", error: err.message});
   }
 }
 
@@ -96,16 +82,15 @@ export async function updateEmailById(req, res) {
   try {
     // Check if the email is occupied
     const existing = await userService.findUserByEmail(newEmail);
-    console.log(existing);
 
     if (existing.length!==0 && existing.id !== parseInt(userId)) {
       return res.status(409).json({ message: 'Email already registered.' });
     }
 
     const result = await userService.updateUserById(userId, 'email', newEmail);
-    res.status(200).send(result);
+    return res.status(200).send(result);
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    return res.status(500).send({ error: err.message });
   }
 }
 
@@ -113,9 +98,9 @@ export async function findEmailById(req, res) {
   const { userId } = req.params;
   try {
     const email = await userService.getUserById(userId, 'email');
-    res.status(200).send({ email });
+    return res.status(200).send({ email });
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    return res.status(500).send({ error: err.message });
   }
 }
 
@@ -140,7 +125,7 @@ export async function updatePasswordById(req, res) {
       return res.status(200).send(result);
       });
     } catch (err) {
-    res.status(500).send({ error: err.message });
+    return res.status(500).send({ error: err.message });
   }
 }
 
@@ -148,9 +133,9 @@ export async function findPasswordById(req, res) {
   const { userId } = req.params;
   try {
     const password = await userService.getUserById(userId, 'password');
-    res.status(200).send({ password });
+    return res.status(200).send({ password });
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    return res.status(500).send({ error: err.message });
   }
 }
 
@@ -159,9 +144,9 @@ export async function updateUsernameById(req, res) {
   const { newUsername } = req.body;
   try {
     const result = await userService.updateUserById(userId, 'username', newUsername);
-    res.status(200).send(result);
+    return res.status(200).send(result);
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    return res.status(500).send({ error: err.message });
   }
 }
 
@@ -169,9 +154,9 @@ export async function findUsernameById(req, res) {
   const { userId } = req.params;
   try {
     const username = await userService.getUserById(userId, 'username');
-    res.status(200).send({ username });
+    return res.status(200).send({ username });
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    return res.status(500).send({ error: err.message });
   }
 }
 
@@ -179,9 +164,9 @@ export async function findProfileImageById(req, res) {
   const { userId } = req.params;
   try {
     const profileImage = await userService.getUserById(userId, 'profileImage');
-    res.status(200).send({ profileImage });
+    return res.status(200).send({ profileImage });
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    return res.status(500).send({ error: err.message });
   }
 }
 

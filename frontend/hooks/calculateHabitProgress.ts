@@ -1,4 +1,4 @@
-import { Task } from "../app/context/UserContext";
+import { Task } from "@/context/UserContext";
 
 export const calculateHabitProgress = (habitId: string, tasks: Task[]) => {
   const related = tasks.filter((t) => t.habitId === habitId);

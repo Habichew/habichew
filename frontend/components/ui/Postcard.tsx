@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Text } from 'react-native-paper';
 import {ScaledSheet} from 'react-native-size-matters';
 import {Animated, Dimensions, Image, View} from 'react-native';
-import {useUser} from "@/app/context/UserContext";
+import {useUser} from "@/context/UserContext";
 import {ImageBackground, useImage} from "expo-image";
 
 type PostcardProps = {

@@ -22,7 +22,7 @@ import Carousel, {
 } from "react-native-reanimated-carousel";
 import { ScaledSheet } from "react-native-size-matters";
 import PieChart, { dataItem } from "react-native-expo-pie-chart";
-import { Habit, Task, useUser } from "../context/UserContext";
+import { Habit, Task, useUser } from "../../context/UserContext";
 
 export default function InsightsScreen() {
   const [selectedTab, setSelectedTab] = useState<

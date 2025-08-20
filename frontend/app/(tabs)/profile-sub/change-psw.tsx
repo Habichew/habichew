@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();

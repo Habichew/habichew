@@ -5,7 +5,7 @@ import {
   ScrollView,
   Dimensions,
 } from "react-native";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 import { ScaledSheet } from "react-native-size-matters";
 
 import FlipCard from "react-native-flip-card";

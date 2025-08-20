@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {Dimensions, View, Text, StyleSheet, Image, Pressable, TouchableOpacity, TextInput, ActivityIndicator, FlatList} from 'react-native';
-import { useUser, Task } from "../context/UserContext";
+import { useUser, Task } from "../../context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Habit, Task, useUser } from "../context/UserContext";
+import { Habit, Task, useUser } from "@/context/UserContext";
 import ItemModal from "@/components/ui/HabitModal";
 import Rive, { Fit, RiveRef } from "rive-react-native";
 import { ScaledSheet } from "react-native-size-matters";

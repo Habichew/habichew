@@ -1,4 +1,4 @@
-import { Task } from "../app/context/UserContext";
+import { Task } from "@/context/UserContext";
 
 export const filterTasksByHabit = (tasks: Task[], habitId: string | null) => {
   if (!habitId) return tasks;

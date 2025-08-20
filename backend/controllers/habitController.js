@@ -1,5 +1,5 @@
 import * as habitService from "../services/habitService.js";
-import {sendNotImplementedError} from "../app.js";
+import {sendNotImplementedError} from "../index.js";
 
 export async function getHabitCategories(req, res) {
     try {
@@ -38,9 +38,9 @@ export async function getHabitByUser(req, res) {
     try {
         const {userId, userHabitId} = req.params;
         const habit = await habitService.getUserHabit(userId, userHabitId);
-        res.status(200).json(habit);
+        return res.status(200).json(habit);
     } catch (err) {
-        res.status(500).json({message: 'Failed to fetch the habit', error: err.message});
+        return res.status(500).json({message: 'Failed to fetch the habit', error: err.message});
     }
 }
 
@@ -83,9 +83,9 @@ export async function updateHabitByUser(req, res) {
         }
 
         const habit = await habitService.updateHabitByUser(userId, userHabitId, customTitle, priority, startDate, goalDate, frequency, isArchived);
-        res.status(200).json({ message: 'User habit updated successfully' , habit });
+        return res.status(200).json({ message: 'User habit updated successfully' , habit });
     } catch (err) {
-        res.status(500).json({ message: 'Failed to update habit', error: err.message });
+        return res.status(500).json({ message: 'Failed to update habit', error: err.message });
     }
 }
 
