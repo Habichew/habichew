@@ -163,7 +163,7 @@ export default function TaskModal({
             <View style={styles.rowEnd}>
               {task ? (
                 <TouchableOpacity onPress={handleDelete}>
-                  <Ionicons name="trash-outline" size={20} color="#888" />
+                  <Text><Ionicons name="trash-outline" size={20} color="#888" /></Text>
                 </TouchableOpacity>
               ) : null }
             </View>
