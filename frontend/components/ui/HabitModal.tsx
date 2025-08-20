@@ -437,6 +437,24 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                             </TouchableOpacity>
                                         </View>
 
+                {/* Tasks Content */}
+                {loadingTasks ? (
+                  <ActivityIndicator size="large" />
+                ) : generatedTasks.length === 0 ? (
+                  <>
+                    <Text style={{ marginHorizontal: 'auto', marginVertical: 20 }}></Text>
+                    <TouchableOpacity style={styles.generateTextBtn} onPress={handleGenerateTasks}>
+                      <Text style={styles.generateText}>Generate Tasks</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <FlatList
+                    data={generatedTasks}
+                    keyExtractor={(item, index) => index}
+                    renderItem={({ item, index }) => renderTask(item, index)}
+                    style={styles.taskList}
+                  />
+                )}
                                     </View>
 
                                     {/* Tasks Content */}
@@ -484,6 +502,40 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                     </Pressable>
                                 </View>
 
+              {/* Confirm delete */}
+              {showConfirmDelete ? (
+                <View style={styles.confirmOverlay}>
+                  <View style={styles.confirmBox}>
+                    <Text style={styles.confirmText}>
+                      Are you sure you want to delete this habit?{'\n'}All related tasks will be deleted.
+                    </Text>
+                    <View style={styles.confirmButtons}>
+                      <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowConfirmDelete(false)}>
+                        <Text style={styles.cancelText}>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.saveBtn}
+                        onPress={() => {
+                          if (onDelete && habitId) {
+                            onDelete(habitId);
+                            setShowConfirmDelete(false);
+                            onClose();
+                          }
+                        }}
+                      >
+                        <Text style={styles.saveText}>Delete</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+    </TouchableOpacity>
+  </Modal>
+);
                                 {/* Confirm delete */}
                                 {showConfirmDelete && (
                                     <View style={styles.confirmOverlay}>
