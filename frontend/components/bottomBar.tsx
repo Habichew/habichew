@@ -49,7 +49,7 @@ export default function BottomBar() {
             isActive("/pet") ? styles.activeCatShadow : styles.inactiveCatShadow,
           ]}
           onPress={() => router.push("/(tabs)/pet")}
-          android_ripple={{color: '#00000020', borderless: false, foreground: true, radius: 35}}
+          android_ripple={{color: '#00000020', borderless: false, foreground: true, radius: 33}}
         >
           <Image
             source={require("@/assets/images/catWhiteCircle.png")}
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   justifyContent: "center",
   alignItems: "center",
   elevation: 6, },
-  centerIcon: { width: 68, height: 68, resizeMode: "contain", position: 'absolute', zIndex: 10 },
+  centerIcon: { width: 68, height: 68, resizeMode: "contain", position: 'absolute', zIndex: 10, borderWidth: StyleSheet.hairlineWidth, borderRadius: 90, borderColor: '#00000010' },
   inactiveCatShadow: {
   shadowColor: "#fff",
   shadowOffset: { width: 0, height: 2 },

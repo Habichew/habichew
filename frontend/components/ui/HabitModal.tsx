@@ -356,6 +356,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                     }} style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
                                                         <Ionicons name="calendar-outline" size={24} color="black"/>
                                                         <Text
+                                                            numberOfLines={1} ellipsizeMode={'tail'}
                                                             style={[styles.dateText, {color: formData.goalDate ? 'black' : '#bbb'}]}>
                                                             {formData.goalDate
                                                                 ? new Date(formData.goalDate).toLocaleDateString()
@@ -436,7 +437,6 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                 <Ionicons name="add" size={24} color="#000"/>
                                             </TouchableOpacity>
                                         </View>
-
                                     </View>
 
                                     {/* Tasks Content */}
@@ -449,12 +449,11 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                 style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
                                                 onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
                                                 {/*<Text style={styles.generateText}>Generate</Text>*/}
-                                                <Ionicons name={'hammer'} style={{marginVertical: 'auto'}} size={16}/>
-                                                <Text style={styles.generateText}>Generate</Text>
+                                                <Text style={styles.generateText}>Generate Tasks</Text>
                                             </Pressable>
                                         </>
                                     ) : (
-                                        <FlatList data={generatedTasks} keyExtractor={(item, index) => index}
+                                        <FlatList data={generatedTasks} keyExtractor={(item, index) => index.toString()}
                                                   onContentSizeChange={() => flatListRef?.current.scrollToEnd({animated: true})}
                                                   ref={flatListRef}
                                                   renderItem={({
@@ -463,7 +462,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                                    separators
                                                                }) => renderTask(item, index)}
                                                   style={{
-                                                      maxHeight: ScreenHeight > 1000 || !isKeyboardVisible ? (windowHeight / 3) : (windowHeight / 12) ,
+                                                      maxHeight: ScreenHeight > 1000 || !isKeyboardVisible ? (windowHeight / 3) : (windowHeight / 12),
                                                       marginVertical: 10,
                                                       marginBottom: 0
                                                   }}/>
@@ -485,7 +484,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                 </View>
 
                                 {/* Confirm delete */}
-                                {showConfirmDelete && (
+                                {showConfirmDelete ? (
                                     <View style={styles.confirmOverlay}>
                                         <View style={styles.confirmBox}>
                                             <Text style={styles.confirmText}>
@@ -512,7 +511,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                             </View>
                                         </View>
                                     </View>
-                                )}
+                                ) : null}
                             </View>
                         </View>
                     </TouchableWithoutFeedback>
@@ -520,7 +519,6 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
             </TouchableOpacity>
         </Modal>
     );
-
 };
 
 export default HabitModal;
@@ -570,7 +568,7 @@ const styles = ScaledSheet.create({
         alignItems: 'center',
         justifyContent: 'start',
     },
-    dateText: {fontSize: "8@ms0.2", fontWeight: 'bold', marginLeft: "3@ms0.5"},
+    dateText: {fontSize: "13@ms0.2", fontWeight: 'bold', marginLeft: "3@ms0.5"},
 
     /* BODY */
     modalBody: {
@@ -612,7 +610,7 @@ const styles = ScaledSheet.create({
         flexDirection: 'row',
         marginVertical: 10
     },
-    generateText: {alignSelf: 'center', fontSize: "14@ms0.2", color: '#000', fontWeight: 'bold', marginLeft: 6},
+    generateText: {alignSelf: 'center', fontSize: "14@ms0.2", color: '#000', fontWeight: 'bold'},
 
     /* FOOTER BUTTONS */
     buttons: {flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16},
@@ -670,7 +668,8 @@ const styles = ScaledSheet.create({
         paddingVertical: 8,
         marginHorizontal: -25,
         paddingHorizontal: 50,
-        borderColor: '#cda6ff',
+        borderColor: '#00000015',
+        backgroundColor: '#ECECEC'
     },
 });
 

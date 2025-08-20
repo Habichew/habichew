@@ -353,13 +353,16 @@ const Home = () => {
 
         const nightTime: boolean | null | undefined = await riveRef.current?.getBooleanState('NightTime');
         const shouldTravel: boolean | null | undefined = await riveRef.current?.getBooleanState('ShouldTravel');
+        const habitTicked: boolean | null | undefined = await riveRef.current?.getBooleanState('HabitTicked');
 
         if (nightTime) {
             riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         } else if (shouldTravel) {
             riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         } else {
-            if (await riveRef.current?.getBooleanState('HabitTicked') === true) {
+            if (habitTicked) {
                 console.log('feed pet');
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 feedPet();
