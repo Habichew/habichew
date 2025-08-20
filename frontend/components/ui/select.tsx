@@ -56,7 +56,7 @@ export default function CustomDropdown({
         placeholder={ placeholder || iconName ?
           <View style={{flexDirection: 'row'}}>
           <Ionicons name={iconName} size={24} color="black" style={{ marginVertical: 'auto'}}/> :
-            {placeholder ? <Text style={styles.placeholder}>{placeholder}</Text> : null}
+            {placeholder ? <Text style={styles.placeholder} numberOfLines={1} ellipsizeMode={'tail'}>{placeholder}</Text> : null}
           </View> : placeholder || "Select an option"
         }
         style={styles.dropdown}
