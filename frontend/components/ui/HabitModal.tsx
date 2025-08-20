@@ -420,80 +420,82 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                 </View>
 
                                 {/* Tasks section*/}
-                                <View style={styles.modalBody}>
-                                    {/* Tasks Header */}
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        paddingHorizontal: 10
-                                    }}>
-                                        <Text style={styles.taskTitle}>Tasks</Text>
-                                        <View style={{marginLeft: 30, flexDirection: 'row', flexGrow: 1}}>
-                                            <TouchableOpacity
-                                                style={{
-                                                    marginRight: 'auto',
-                                                    marginVertical: "auto",
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    backgroundColor: editable ? '#00000010' : 'transparent',
-                                                    borderRadius: 10,
-                                                    padding: 5
-                                                }}
-                                                onPress={() => setEditable(!editable)}>
-                                                <Ionicons name="pencil-outline" size={18} color="#000"/>
-                                            </TouchableOpacity>
-                                            <Pressable
-                                                style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
-                                                onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
-                                                {/*<Text style={styles.generateText}>Generate</Text>*/}
-                                                <Text style={styles.generateText}>Generate Tasks</Text>
+                                {
+                                    isEdit ?
+                                        null
+                                        : <View style={styles.modalBody}>
+                                            {/* Tasks Header */}
+                                            <View style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                paddingHorizontal: 10
+                                            }}>
+                                                <Text style={styles.taskTitle}>Tasks</Text>
+                                                <View style={{marginLeft: 30, flexDirection: 'row', flexGrow: 1}}>
+                                                    <TouchableOpacity
+                                                        style={{
+                                                            marginRight: 'auto',
+                                                            marginVertical: "auto",
+                                                            justifyContent: 'center',
+                                                            alignItems: 'center',
+                                                            backgroundColor: editable ? '#00000010' : 'transparent',
+                                                            borderRadius: 10,
+                                                            padding: 5
+                                                        }}
+                                                        onPress={() => setEditable(!editable)}>
+                                                        <Ionicons name="pencil-outline" size={18} color="#000"/>
+                                                    </TouchableOpacity>
+                                                    <Pressable
+                                                        style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
+                                                        onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
+                                                        {/*<Text style={styles.generateText}>Generate</Text>*/}
+                                                        <Text style={styles.generateText}>Generate Tasks</Text>
+                                                    </Pressable>
+                                                </View>
+                                            </View>
+
+                                            {/* Tasks Content */}
+                                            {loadingTasks ? (
+                                                <ActivityIndicator size="large"/>
+                                            ) : generatedTasks.length > 0 ? (
+                                                <FlatList data={generatedTasks} keyExtractor={(item, index) => index.toString()}
+                                                          onContentSizeChange={() => flatListRef?.current.scrollToEnd({animated: true})}
+                                                          ref={flatListRef}
+                                                          renderItem={({
+                                                                           item,
+                                                                           index,
+                                                                           separators
+                                                                       }) => renderTask(item, index)}
+                                                          style={{
+                                                              maxHeight: ScreenHeight > 1000 || !isKeyboardVisible ? (windowHeight / 3) : (windowHeight / 12),
+                                                              marginVertical: 10,
+                                                              marginBottom: 0
+                                                          }}/>
+                                            ) : null}
+                                            <Pressable style={[{flexDirection: 'row'}]} onPress={() => {
+                                                setEditable(true);
+                                                // addTaskInput();
+                                            }}
+                                            >
+                                                <TouchableOpacity style={{marginVertical: 'auto', padding: 5}} disabled={taskInput.length === 0} onPress={() => {addTaskInput(taskInput); setTaskInput('')}}>
+                                                    <Ionicons name="add" size={24} color="#000"/>
+                                                </TouchableOpacity>
+                                                <TextInput ref={taskInputRef} placeholderTextColor="gray" editable={editable}
+                                                           style={{padding: 4, color: 'black', width: '100%'}}
+                                                           placeholder={"Add task"}
+                                                           value={taskInput}
+                                                           onChangeText={(input) => setTaskInput(input)}
+                                                           onEndEditing={(e) => {
+                                                               if (taskInput.length > 0) {
+                                                                   setTaskInput('');
+                                                                   addTaskInput(taskInput);
+                                                               }
+                                                           }}
+                                                >
+                                                </TextInput>
                                             </Pressable>
                                         </View>
-                                    </View>
-
-                                    {/* Tasks Content */}
-                                    {loadingTasks ? (
-                                        <ActivityIndicator size="large"/>
-                                    ) : generatedTasks.length > 0 ? (
-                                        <FlatList data={generatedTasks} keyExtractor={(item, index) => index.toString()}
-                                                  onContentSizeChange={() => flatListRef?.current.scrollToEnd({animated: true})}
-                                                  ref={flatListRef}
-                                                  renderItem={({
-                                                                   item,
-                                                                   index,
-                                                                   separators
-                                                               }) => renderTask(item, index)}
-                                                  style={{
-                                                      maxHeight: ScreenHeight > 1000 || !isKeyboardVisible ? (windowHeight / 3) : (windowHeight / 12),
-                                                      marginVertical: 10,
-                                                      marginBottom: 0
-                                                  }}/>
-                                    ) : null}
-                                    <Pressable style={[{flexDirection: 'row'}]} onPress={() => {
-                                        setEditable(true);
-                                        // addTaskInput();
-                                    }}
-                                    >
-                                        <TouchableOpacity style={{marginVertical: 'auto', padding: 5}} disabled={taskInput.length === 0} onPress={() => {addTaskInput(taskInput); setTaskInput('')}}>
-                                            <Ionicons name="add" size={24} color="#000"/>
-                                        </TouchableOpacity>
-                                        <TextInput ref={taskInputRef} placeholderTextColor="gray" editable={editable}
-                                                   style={{padding: 4, color: 'black', width: '100%'}}
-                                                   placeholder={"Add task"}
-                                                   value={taskInput}
-                                                   onChangeText={(input) => setTaskInput(input)}
-                                                   onEndEditing={(e) => {
-                                                       if (taskInput.length > 0) {
-                                                           setTaskInput('');
-                                                           addTaskInput(taskInput);
-                                                       }
-                                                   }}
-                                        >
-                                        </TextInput>
-                                    </Pressable>
-                                </View>
-
-
+                                }
 
                                 {/* Create Button */}
                                 <View style={styles.centeredButtons}>

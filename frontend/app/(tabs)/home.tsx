@@ -155,6 +155,11 @@ const Home = () => {
     setModalVisible(true);
   };
 
+  const handleUnarchiveHabit = async (habit: Habit) => {
+      habit.isArchived = 0;
+      await updateHabit(habit);
+  };
+
   function handleShowConfirmDelete(habit: any) {
     setToDeleteHabit(habit);
     setShowConfirmDelete(true);
@@ -213,29 +218,31 @@ const Home = () => {
     // console.log("habit", index);
 
     function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
-      const styleAnimation = useAnimatedStyle(() => {
+        const isArchived = item.isArchived;
+
+        const styleAnimation = useAnimatedStyle(() => {
         return {
           transform: [{ translateX: 0 }],
           alignItems: "center",
           justifyContent: "center",
-          width: 90,
+          width: 180,
           borderRadius: 20,
           backgroundColor: "black",
           marginRight: 10,
           paddingRight: 10,
-          paddingLeft: 40,
-          marginLeft: -50,
+          paddingLeft: 130,
+          marginLeft: -140,
             height: '100%'
         };
       });
 
-      return (
-        <Animated.View style={styleAnimation}>
-          <TouchableOpacity>
-            <Ionicons name="pencil-outline" size={20} color="#F8F0F0" />
-          </TouchableOpacity>
-        </Animated.View>
-      );
+        return (
+            <Animated.View style={styleAnimation}>
+                <TouchableOpacity>
+                    <Ionicons name={item.isArchived ? "folder-open-outline" : "pencil-outline"} size={20} color="#F8F0F0"/>
+                </TouchableOpacity>
+            </Animated.View>
+        );
     }
 
     function LeftAction(prog: SharedValue<number>, drag: SharedValue<number>) {
@@ -265,7 +272,11 @@ const Home = () => {
           console.log("vibrate");
           Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
           if (direction === 'left') {
-              handleEdit(item);
+              if (item.isArchived) {
+                  handleUnarchiveHabit(item);
+              } else {
+                  handleEdit(item);
+              }
           } else if (direction === 'right') {
               console.log('ticking habit');
               handleTickHabit(item);
@@ -490,10 +501,8 @@ const Home = () => {
                         Haptics.performAndroidHapticsAsync(showArchivedHabits ? AndroidHaptics.Toggle_On : AndroidHaptics.Toggle_Off).then(r => setShowArchivedHabits(!showArchivedHabits)
                         );
                     }} style={{padding: 2, paddingVertical: 8, marginHorizontal: 4, borderRadius: 20}}>
-                        {showArchivedHabits ?
-                            <Ionicons name='archive' size={20} style={{alignSelf: 'center', paddingHorizontal: 12}}/>
-                            : <Ionicons name='archive-outline' size={20}
-                                        style={{alignSelf: 'center', paddingHorizontal: 12}}/>}
+                            <Ionicons name={showArchivedHabits ? 'archive' : 'archive-outline'} size={20} style={{alignSelf: 'center', paddingHorizontal: 12}}/>
+                        {/*<Text>Completed</Text>*/}
                     </TouchableOpacity>
                 </View>
                 <FlatList style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
