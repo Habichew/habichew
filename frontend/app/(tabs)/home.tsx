@@ -179,7 +179,10 @@ const Home = () => {
       // riveRef.current?.setInputState("State Machine 1", "NightTime", false);
       riveRef.current?.setInputState(
         "State Machine 1", "Overdue", false);
-    await loadHabits();
+      console.log('mission start');
+      await completeHabitTasks(habit);
+      console.log('mission complete');
+      await loadHabits();
   };
 
   function feedPet() {
@@ -264,6 +267,7 @@ const Home = () => {
           if (direction === 'left') {
               handleEdit(item);
           } else if (direction === 'right') {
+              console.log('ticking habit');
               handleTickHabit(item);
           }
       }
@@ -376,16 +380,10 @@ const Home = () => {
     }
 
   function closeHabits() {
-    console.log("close all habits", row);
+    // console.log("close all habits", row);
     for (let h of row) {
       h?.close();
     }
-    // console.log('current', swipeRef.current);
-    // if (prevOpenedRow && prevOpenedRow !== row[index]) {
-    //     prevOpenedRow.close();
-    // }
-    // prevOpenedRow = row[index];
-    // swipeRef.current?.close();
   }
 
     return (

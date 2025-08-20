@@ -124,23 +124,30 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
 
     const handleSave = () => {
         // if (!formData.habitTitle) return alert('Please enter a habit name.');
+        let newTasks: string[] = [];
+        if (taskInput.length > 0) {
+            newTasks.push(taskInput);
+        }
         const today = new Date().toISOString().split('T')[0];
         setSavingOrCreating(true);
+        console.log('these are the generated tasks', generatedTasks);
         onSave({
             habitTitle: formData.habitTitle,
             goalDate: formData.goalDate || null,
             startDate: today,
             priority: formData.priority ? priorityMap[formData.priority] : null,
             frequency: formData.frequency || null,
-            tasks: generatedTasks || null
+            tasks: taskInput.length > 0 ? newTasks : (generatedTasks || null)
         });
         setSavingOrCreating(false);
         setGeneratedTasks([]);
         setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
+        setTaskInput('');
         onClose();
     };
 
     function addTaskInput(input: string) {
+        console.log('add input', input);
         setGeneratedTasks([...generatedTasks, input]);
     }
 
@@ -273,6 +280,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                 onPressOut={() => {
                     onClose();
                     setGeneratedTasks([]);
+                    setTaskInput('');
                     setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
                 }}
             >
@@ -475,8 +483,10 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                    value={taskInput}
                                                    onChangeText={(input) => setTaskInput(input)}
                                                    onEndEditing={(e) => {
-                                                       addTaskInput(e.nativeEvent.text);
-                                                       setTaskInput('');
+                                                       if (taskInput.length > 0) {
+                                                           setTaskInput('');
+                                                           addTaskInput(taskInput);
+                                                       }
                                                    }}
                                         >
                                         </TextInput>

@@ -204,36 +204,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const completeHabitTasks = async (habit: Habit) => {
     if (!user || !habit.userHabitId) return;
 
-    try {
-      const response = await fetch(
-          `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${habit.userHabitId}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              customTitle: habit.habitTitle,
-              priority: habit.priority,
-              startDate: habit.startDate.slice(0, 10),
-              goalDate: habit.goalDate?.slice(0, 10),
-              frequency: habit.frequency,
-              isArchived: habit.isArchived,
-            }),
-          },
-      );
+    const habitTasks = tasks.filter(
+        (t) => t.habitId === habit.userHabitId
+    );
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Failed to update habit");
-      }
-
-      const data = await response.json();
-      console.log("Habit updated successfully:", data);
-
-      // reload habit table
-      await loadHabits();
-    } catch (error) {
-      console.error("Failed to update habit:", error);
+    for (let task of habitTasks) {
+      task.completed = true;
+      await updateTask(task);
     }
+
+    console.log('completed all tasks of habit', habit.userHabitId);
   };
 
   const deleteHabit = async (userHabitId: number) => {
@@ -514,6 +494,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         loadMoodTypes,
         addHabit,
         updateHabit,
+        completeHabitTasks,
         deleteHabit,
         addTask,
         updateTask,
