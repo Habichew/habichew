@@ -67,6 +67,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
     const [savingOrCreating, setSavingOrCreating] = useState<boolean>(false);
     const [editable, setEditable] = useState(false);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [taskInput, setTaskInput] = useState<string>('');
 
     const windowHeight = Dimensions.get('window').height;
     const windowWidth = Dimensions.get('window').width;
@@ -75,6 +76,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
     const prioDropDownRef = useRef<any>();
 
     const inputRef = useRef(null); // Attach a ref to the TextInput
+    const taskInputRef = useRef(null); // Attach a ref to the TextInput
 
     useFocusEffect(() => {
         // setTimeout(() => {
@@ -138,8 +140,8 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
         onClose();
     };
 
-    function addTaskInput() {
-        setGeneratedTasks([...generatedTasks, '']);
+    function addTaskInput(input: string) {
+        setGeneratedTasks([...generatedTasks, input]);
     }
 
     function handleChangeTask(text: string, i: number) {
@@ -418,10 +420,10 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                         paddingHorizontal: 10
                                     }}>
                                         <Text style={styles.taskTitle}>Tasks</Text>
-                                        <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
+                                        <View style={{marginLeft: 30, flexDirection: 'row', flexGrow: 1}}>
                                             <TouchableOpacity
                                                 style={{
-                                                    marginRight: 20,
+                                                    marginRight: 'auto',
                                                     marginVertical: "auto",
                                                     justifyContent: 'center',
                                                     alignItems: 'center',
@@ -432,27 +434,19 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                 onPress={() => setEditable(!editable)}>
                                                 <Ionicons name="pencil-outline" size={18} color="#000"/>
                                             </TouchableOpacity>
-                                            <TouchableOpacity style={{marginLeft: 'auto', padding: 5}}
-                                                              onPress={addTaskInput}>
-                                                <Ionicons name="add" size={24} color="#000"/>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-
-                                    {/* Tasks Content */}
-                                    {loadingTasks ? (
-                                        <ActivityIndicator size="large"/>
-                                    ) : generatedTasks.length === 0 ? (
-                                        <>
-                                            {/*<Text style={{marginHorizontal: 'auto', marginVertical: 20}}>No tasks.</Text>*/}
                                             <Pressable
                                                 style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
                                                 onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
                                                 {/*<Text style={styles.generateText}>Generate</Text>*/}
                                                 <Text style={styles.generateText}>Generate Tasks</Text>
                                             </Pressable>
-                                        </>
-                                    ) : (
+                                        </View>
+                                    </View>
+
+                                    {/* Tasks Content */}
+                                    {loadingTasks ? (
+                                        <ActivityIndicator size="large"/>
+                                    ) : generatedTasks.length > 0 ? (
                                         <FlatList data={generatedTasks} keyExtractor={(item, index) => index.toString()}
                                                   onContentSizeChange={() => flatListRef?.current.scrollToEnd({animated: true})}
                                                   ref={flatListRef}
@@ -466,10 +460,30 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                       marginVertical: 10,
                                                       marginBottom: 0
                                                   }}/>
-                                    )}
-
-
+                                    ) : null}
+                                    <Pressable style={[{flexDirection: 'row'}]} onPress={() => {
+                                        setEditable(true);
+                                        // addTaskInput();
+                                    }}
+                                    >
+                                        <TouchableOpacity style={{marginVertical: 'auto', padding: 5}} disabled={taskInput.length === 0} onPress={() => {addTaskInput(taskInput); setTaskInput('')}}>
+                                            <Ionicons name="add" size={24} color="#000"/>
+                                        </TouchableOpacity>
+                                        <TextInput ref={taskInputRef} placeholderTextColor="gray" editable={editable}
+                                                   style={{padding: 4, color: 'black', width: '100%'}}
+                                                   placeholder={"Add task"}
+                                                   value={taskInput}
+                                                   onChangeText={(input) => setTaskInput(input)}
+                                                   onEndEditing={(e) => {
+                                                       addTaskInput(e.nativeEvent.text);
+                                                       setTaskInput('');
+                                                   }}
+                                        >
+                                        </TextInput>
+                                    </Pressable>
                                 </View>
+
+
 
                                 {/* Create Button */}
                                 <View style={styles.centeredButtons}>
@@ -581,7 +595,7 @@ const styles = ScaledSheet.create({
         marginTop: -18
     }, // CHANGED: soft divider line
     sectionDivider: {height: StyleSheet.hairlineWidth, backgroundColor: '#DAB7FF', marginVertical: 12, borderRadius: 1}, // NEW optional
-    taskTitle: {fontWeight: '700', fontSize: 18, height: 30},
+    taskTitle: {fontWeight: '700', fontSize: 18,  marginVertical: 'auto'},
     taskHeaderRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8}, // NEW: Tasks title + plus icon on one line
     taskList: {maxHeight: 320}, // CHANGED: stable height across devices
     task: {

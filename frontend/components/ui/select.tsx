@@ -60,7 +60,7 @@ export default function CustomDropdown({
                     name={iconName}
                     size={24}
                     color="black"
-                    style={{ marginRight: 8 }}
+                    style={{ marginRight: "8@ms0.2" }}
                 />
             )}
             <Text style={styles.placeholder}>
