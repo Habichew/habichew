@@ -264,7 +264,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const res = await fetch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks`,
       );
-      console.log("tasks", res);
       const data = await res.json();
       const mapped = data.map((t: any) => {
         const habit = habits.find((h) => h.userHabitId === t.userHabitId);

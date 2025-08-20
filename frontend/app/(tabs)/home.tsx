@@ -111,6 +111,7 @@ const Home = () => {
       // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
     }
   }, [user]);
+
   useEffect(() => {
     const newHabits = habits.filter((h) =>
       h.habitTitle?.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -221,7 +222,7 @@ const Home = () => {
           paddingRight: 10,
           paddingLeft: 40,
           marginLeft: -50,
-          marginBottom: 12,
+            height: '100%'
         };
       });
 
@@ -261,7 +262,7 @@ const Home = () => {
           console.log("vibrate");
           Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
           if (direction === 'left') {
-              handleTickHabit(item);
+              handleEdit(item);
           } else if (direction === 'right') {
               handleTickHabit(item);
           }
@@ -274,15 +275,15 @@ const Home = () => {
                     friction={2}
                     overshootFriction={8}
                     leftThreshold={screenWidth*0.3}
-                    // renderRightActions={RightAction}
-                    renderLeftActions={!item.isArchived ? LeftAction : null}
+                    renderRightActions={RightAction}
+                    renderLeftActions={!item.isArchived ? LeftAction : undefined}
                     onSwipeableWillOpen={handleSwipe}
                     onSwipeableOpenStartDrag={() => Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_End)}
                     ref={(swipeRef: any) => row[index] = swipeRef}
                     containerStyle={{ width: "100%", alignSelf: 'center', marginBottom: 12}}
                     >
                         <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10}}>
-                            <Pressable style={styles.card} onPress={() => handlePressHabit(item)} onLongPress={() => {Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); handleEdit(item);}} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
+                            <Pressable style={styles.card} onPress={() => handlePressHabit(item)} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
                                 <View style={styles.headerRow}>
                                     <Text style={styles.title}>{item.habitTitle}</Text>
                                     {progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0 ? (
@@ -499,7 +500,9 @@ const Home = () => {
                 </View>
                 <FlatList style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
                   initialNumToRender={50}
-                  data={filteredHabits}
+                  data={filteredHabits.filter((h) =>
+                      (showArchivedHabits && h.isArchived) || (!showArchivedHabits && ((h.isArchived === 0) || h.isArchived === null)))
+                  }
                   refreshControl={
                       <RefreshControl refreshing={refreshing} onRefresh={async () => { console.log("refresh"); await loadHabits()}} />
                   }

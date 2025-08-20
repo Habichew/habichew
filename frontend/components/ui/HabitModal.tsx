@@ -123,7 +123,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
     const priorityMap: Record<string, number> = {Low: 3, Medium: 2, High: 1};
 
     const handleSave = () => {
-        if (!formData.habitTitle) return alert('Please enter a habit name.');
+        // if (!formData.habitTitle) return alert('Please enter a habit name.');
         const today = new Date().toISOString().split('T')[0];
         setSavingOrCreating(true);
         onSave({
