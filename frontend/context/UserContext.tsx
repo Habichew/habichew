@@ -352,7 +352,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const completeTask = async (t: Task) => {
     if (!user || !t.userTaskId) return;
 
-    const payload = {};
 
     try {
       const res = await fetch(
