@@ -225,9 +225,9 @@ const Home = () => {
 
   const renderHabit = ({ item, index }: {item: any, index: any}) => {
     const progressMap: Record <number, any> = calculateHabitProgress();
-    const percent = progressMap?.[item.userHabitId].percent ?? 0;
-    const allTasks = progressMap?.[item.userHabitId].all ?? 0;
-    const completedTasks = progressMap?.[item.userHabitId].done ?? 0;
+    const percent = progressMap?.[item.userHabitId]?.percent ?? 0;
+    const allTasks = progressMap?.[item.userHabitId]?.all ?? 0;
+    const completedTasks = progressMap?.[item.userHabitId]?.done ?? 0;
       // console.log("percent", progressMap?.[item.userHabitId]);
     // console.log("habit", index);
 
