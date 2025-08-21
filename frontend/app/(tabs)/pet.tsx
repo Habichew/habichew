@@ -10,9 +10,10 @@ import { ScaledSheet } from "react-native-size-matters";
 
 import FlipCard from "react-native-flip-card";
 import Postcard from "@/components/ui/Postcard";
-import Carousel, {
+import {postcardImgs} from "@/constants/PostcardData"
+/*import Carousel, {
   ICarouselInstance,
-} from "react-native-reanimated-carousel";
+} from "react-native-reanimated-carousel";*/
 import { Image } from 'expo-image';
 import {Ionicons} from "@expo/vector-icons";
 
@@ -25,54 +26,6 @@ export default function PetScreen(this: any) {
   } | null>(null);
 
   const [modalVisible, setModalVisible] = useState(false);
-
-  const postCardImgs = [
-    {
-      unlockScore: 20,
-      frontUrl: require("@/assets/images/postcard 1.png"),
-      backUrl: require("@/assets/images/postcard 1 back.png"),
-    },
-    {
-      unlockScore: 50,
-      frontUrl: require("@/assets/images/postcard 2.png"),
-      backUrl: require("@/assets/images/postcard 2 back.png"),
-    },
-    {
-      unlockScore: 100,
-      frontUrl: require("@/assets/images/postcard 3.png"),
-      backUrl: require("@/assets/images/postcard 3 back.png"),
-    },
-    {
-      unlockScore: 180,
-      frontUrl: require("@/assets/images/postcard 4.png"),
-      backUrl: require("@/assets/images/postcard 4 back.png"),
-    },
-    {
-      unlockScore: 280,
-      frontUrl: require("@/assets/images/postcard 5.png"),
-      backUrl: require("@/assets/images/postcard 5 back.png"),
-    },
-    {
-      unlockScore: 400,
-      frontUrl: require("@/assets/images/postcard 6.png"),
-      backUrl: require("@/assets/images/postcard 6 back.png"),
-    },
-    {
-      unlockScore: 650,
-      frontUrl: require("@/assets/images/postcard 7.png"),
-      backUrl: require("@/assets/images/postcard 7 back.png"),
-    },
-    {
-      unlockScore: 850,
-      frontUrl: require("@/assets/images/postcard 8.png"),
-      backUrl: require("@/assets/images/postcard 8 back.png"),
-    },
-    {
-      unlockScore: 1200,
-      frontUrl: require("@/assets/images/postcard 9.png"),
-      backUrl: require("@/assets/images/postcard 9 back.png"),
-    },
-  ];
 
   useState(() => {
     console.log("load user pet");
@@ -101,7 +54,7 @@ export default function PetScreen(this: any) {
               <Text style={styles.level}>Level: {pet?.level}</Text>
               <View style={styles.creditContainer}>
                 <Ionicons name="star" size={20} color="#1CC282"/>
-                <Text style={{ lineHeight:20 }}> {user?.credits}</Text>
+                <Text style={{ lineHeight:20 }}> {user?.credits|0}</Text>
               </View>
             </View>
           </View>
@@ -111,7 +64,7 @@ export default function PetScreen(this: any) {
           <Text style={styles.postcardsTitle}>Postcards</Text>
 
           <View style={{ marginBottom: 30 }}>
-            {postCardImgs.reduce((rows, current, index) => {
+            {postcardImgs.reduce((rows, current, index) => {
               if (index % 3 === 0) rows.push([]);
               rows[rows.length - 1].push(current);
               return rows;

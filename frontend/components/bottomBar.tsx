@@ -8,12 +8,34 @@ import {
 } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import { Image } from 'expo-image';
+import {postcardImgs} from "@/constants/PostcardData";
 import PieChart from "react-native-expo-pie-chart";
+import {useUser} from "@/context/UserContext";
 
 export default function BottomBar() {
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (name: string) => pathname.includes(name);
+  const {user} = useUser();
+  const userCredits = user?.credits
+
+  // 在组件内部处理 unlock 阈值逻辑
+  const sortedPostcards = [...postcardImgs].sort((a, b) => a.unlockScore - b.unlockScore);
+
+// 找到当前 unlocked 的最后一个和下一个
+  const lastPostcard = [...sortedPostcards].reverse().find(p => p.unlockScore <= userCredits) ?? sortedPostcards[0];
+  const nextPostcard = sortedPostcards.find(p => p.unlockScore > lastPostcard.unlockScore) ?? null;
+
+// 边界保护
+  const lowerBound = lastPostcard.unlockScore;
+  const upperBound = nextPostcard?.unlockScore ?? lowerBound + 100; // fallback
+
+  const totalNeededInStage = upperBound - lowerBound;
+  const progressInThisStage = Math.max(userCredits - lowerBound, 0);
+  const remaining = totalNeededInStage - progressInThisStage;
+
+  console.log('[bottomBar.tsx] Progress in the stage: ',progressInThisStage);
+  console.log('[bottomBar.tsx] Remaining credits in the stage: ',remaining);
 
   return (
     <View style={styles.container}>
@@ -55,16 +77,24 @@ export default function BottomBar() {
             source={require("@/assets/images/catWhiteCircle.png")}
             style={styles.centerIcon}
           />
-            <PieChart rotation={-90} zeroTotalCircleColor={'#ECECEC'} style={styles.creditChart} data={[{
-                color: '#1CC282',
-                count: 750,
-                key: 'creditsCollected'
-            }, {
-                color: '#ECECEC',
-                count: 250,
-                key: 'creditsNeeded'
-            }]} length={80}> 
-            </PieChart>
+          <PieChart
+              rotation={-90}
+              zeroTotalCircleColor={'#ECECEC'}
+              style={styles.creditChart}
+              data={[
+                {
+                  color: '#1CC282',
+                  count: progressInThisStage,
+                  key: 'creditsCollected'
+                },
+                {
+                  color: '#ECECEC',
+                  count: remaining,
+                  key: 'creditsNeeded'
+                }
+              ]}
+              length={80}
+          />
 
         </Pressable>
 

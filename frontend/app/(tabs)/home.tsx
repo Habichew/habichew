@@ -485,7 +485,8 @@ const Home = () => {
                             <View style={{borderRadius: 20}}>
                                 <Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}} onPress={() => {router.push('/(tabs)/pet'); Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);}}
                                            style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}}>
-                                    <Image style={{marginVertical: 'auto', marginBottom: 4, marginRight: 3}} source={require('@/assets/images/credit.png')}/>
+                                    <Ionicons name="star" size={30} color="#1CC282" style={{marginVertical: 'auto', marginBottom: 4, marginRight: 6}}/>
+                                    {/*<Image style={{marginVertical: 'auto', marginBottom: 4, marginRight: 3}} source={require('@/assets/images/credit.png')}/>*/}
                                     {/*<Text style={{*/}
                                     {/*    fontFamily: "Poppins",*/}
                                     {/*    fontSize: 20,*/}

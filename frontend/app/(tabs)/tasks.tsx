@@ -16,7 +16,7 @@ import {ScaledSheet} from "react-native-size-matters";
 export default function Tasks() {
   const screenWidth = Dimensions.get('window').width;
 
-  const { user, tasks, loadTasks, completeTask } = useUser();
+  const { user, tasks, setUser, loadTasks, completeTask } = useUser();
   const { habitId, habitName } = useLocalSearchParams();
   const numericHabitId = habitId ? parseInt(habitId as string) : undefined;
 
@@ -118,18 +118,19 @@ export default function Tasks() {
     }
 
     try {
-      // ✅ 调用你在 UserContext 中的 completeTask
       await completeTask(task);
 
-      // ✅ 更新本地任务状态（乐观更新）
+      // Update the local task list
       const updatedTasks = tasks.map((t) =>
           t.userTaskId === task.userTaskId
-              ? { ...t, completed: true } // 也可以加 completedAt、credit 更新
+              ? { ...t, completed: true }
               : t
       );
 
       setFilteredTasks(sortTasks(updatedTasks));
       console.log("Task marked as completed");
+
+      console.log(`User credits updated to: ${user.credits}`)
     } catch (err) {
       console.error("Failed to complete task:", err);
     }
@@ -215,7 +216,13 @@ export default function Tasks() {
             </View>
             <View style={styles.flexTwo}>
               <Text style={[styles.taskTitle, {textDecorationLine: item.completed ? 'line-through' : 'none'}]}>{item.title}</Text>
-              {item.description ? <Text style={styles.taskDescription}>{item.description}</Text> : null}
+              {item.description ?
+                  <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={styles.taskDescription}>
+                    {item.description}
+                  </Text> : null}
               <View style={styles.metaRow}>
                 { item.dueAt ?
                     <View style={styles.badge}>
@@ -377,7 +384,7 @@ const styles = ScaledSheet.create({
     // marginBottom: 4,
     color: "#000"
   },
-  taskDescription: { fontSize: 14, color: "#333", marginBottom: 6 },
+  taskDescription: { fontSize: 12, color: "#555", marginBottom: 6 },
   metaRow: { flexDirection: "row", gap: 12, marginTop: 8 },
   badge: {
     flexDirection: "row",

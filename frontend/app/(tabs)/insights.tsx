@@ -86,7 +86,7 @@ export default function InsightsScreen() {
           };
         }),
       );
-      console.log("pieData", pieData);
+      //console.log("pieData", pieData);
     }
     if (tasks.length > 0) {
       // for every task in tasks
@@ -95,14 +95,14 @@ export default function InsightsScreen() {
       );
       setCompletedDays(
         completedTasks.map((task) => {
-          console.log("completed task", task);
+          // console.log("completed task", task);
           // @ts-ignore
           return new Date(task.completedAt);
         }),
       );
     }
   }, [moodTypes]);
-  console.log("completed days", completedDays);
+  //console.log("completed days", completedDays);
 
   const minDate = new Date(2024, 1, 1); // today
   const maxDate = new Date();
