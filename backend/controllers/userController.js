@@ -173,7 +173,7 @@ export async function findProfileImageById(req, res) {
 export async function updateUser(req, res) {
   try {
     const { userId } = req.params;
-    const { newEmail, newPassword, newUsername, newPetId } = req.body;
+    const { newEmail, newPassword, newUsername, newPetId, newCredits } = req.body;
 
     // Get current user from DB, to update the changed fields only
     const currentUser = await userService.findUserById(userId);
@@ -188,6 +188,7 @@ export async function updateUser(req, res) {
       password: newPassword || existingUser.password,
       username: newUsername || existingUser.username,
       petId: newPetId || existingUser.petId,
+      credits: newCredits || existingUser.credits
     };
 
     if (newPassword) {

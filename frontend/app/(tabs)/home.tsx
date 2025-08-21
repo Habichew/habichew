@@ -35,6 +35,8 @@ const scale = (value: number) => (screenWidth / 375) * value;
 const Home = () => {
   const {
     user,
+      setUser,
+      updateUser,
     habits,
     loadHabits,
     addHabit,
@@ -184,9 +186,20 @@ const Home = () => {
       // riveRef.current?.setInputState("State Machine 1", "NightTime", false);
       riveRef.current?.setInputState(
         "State Machine 1", "Overdue", false);
-      console.log('mission start');
       await completeHabitTasks(habit);
-      console.log('mission complete');
+      // increase credits by 20
+      let newUser = user;
+      if (newUser) {
+          if (newUser.credits) {
+              newUser.credits += 20;
+          } else {
+              newUser.credits = 20;
+          }
+          console.log('new credits:', newUser.credits);
+          updateUser(newUser);
+          setUser(newUser);
+      }
+
       await loadHabits();
   };
 

@@ -66,6 +66,7 @@ export type MoodType = {
 type UserDataContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
+  updateUser: (user: User) => void;
   clearUser: () => void;
 
   habits: Habit[];
@@ -122,6 +123,40 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setPet(null);
     setMoods([]);
     setMoodTypes([]);
+  };
+
+  // ----------------- User Log --------------------
+  const updateUser = async (user: User) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/user/${user.id}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: user.email,
+              username: user.username,
+              petId: user.petId,
+              credits: user.credits
+            }),
+          },
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Failed to update habit");
+      }
+
+      const data = await response.json();
+      console.log("Habit updated successfully:", data);
+
+      // reload habit table
+      await loadHabits();
+    } catch (error) {
+      console.error("Failed to update habit:", error);
+    }
   };
 
   // ----------------- Habit Logic -----------------
@@ -353,6 +388,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       );
 
       if (res.ok) {
+        let newUser = user;
+        newUser.credits = user?.credits ? user.credits + 20 : 20;
+        console.log('new credits:', newUser.credits);
+        setUser(newUser);
+        await updateUser(newUser);
         await loadTasks();
       } else {
         const err = await res.json();
@@ -476,6 +516,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         setUser,
+        updateUser,
         clearUser,
         habits,
         tasks,
