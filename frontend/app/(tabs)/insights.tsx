@@ -52,7 +52,7 @@ export default function InsightsScreen() {
     deleteHabit,
     tasks,
     loadTasks,
-    moods,
+    //moods,
     loadMoods,
     moodTypes,
     loadMoodTypes,
@@ -70,8 +70,8 @@ export default function InsightsScreen() {
       }
       loadTasks();
       loadHabits();
-      loadMoods();
-      loadMoodTypes();
+      //loadMoods();
+      //loadMoodTypes();
     })();
   }, [user]);
   console.log("insights loading");
@@ -328,55 +328,55 @@ export default function InsightsScreen() {
           onPress={onPressPagination}
         />
 
-        <View style={styles.moodsContainer}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              fontFamily: "Poppins",
-              alignSelf: "center",
-            }}
-          >
-            {" "}
-            The Many Moods of Me
-          </Text>
-          {Array.isArray(moodTypes) ? (
-            <View style={styles.chartContainer}>
-              <PieChart style={styles.chart} data={pieData} length={200} />
-              <View style={styles.legend}>
-                {moodTypes.map((moodType, index) => (
-                  <View
-                    key={"viewParent-" + index}
-                    style={{ flexDirection: "row" }}
-                  >
-                    <View
-                      key={"view-" + index}
-                      style={{
-                        marginVertical: "auto",
-                        marginHorizontal: 5,
-                        height: 10,
-                        width: 10,
-                        backgroundColor: moodType.colorCode,
-                        borderRadius: 10,
-                      }}
-                    ></View>
-                    <Text key={"text-" + index}>{moodType.label}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ) : (
-            <Text
-              style={{
-                textAlign: "center",
-                justifyContent: "center",
-                marginTop: 50,
-              }}
-            >
-              No moods found.
-            </Text>
-          )}
-        </View>
+        {/*<View style={styles.moodsContainer}>*/}
+        {/*  <Text*/}
+        {/*    style={{*/}
+        {/*      fontSize: 20,*/}
+        {/*      fontWeight: "bold",*/}
+        {/*      fontFamily: "Poppins",*/}
+        {/*      alignSelf: "center",*/}
+        {/*    }}*/}
+        {/*  >*/}
+        {/*    {" "}*/}
+        {/*    The Many Moods of Me*/}
+        {/*  </Text>*/}
+        {/*  {Array.isArray(moodTypes) ? (*/}
+        {/*    <View style={styles.chartContainer}>*/}
+        {/*      <PieChart style={styles.chart} data={pieData} length={200} />*/}
+        {/*      <View style={styles.legend}>*/}
+        {/*        {moodTypes.map((moodType, index) => (*/}
+        {/*          <View*/}
+        {/*            key={"viewParent-" + index}*/}
+        {/*            style={{ flexDirection: "row" }}*/}
+        {/*          >*/}
+        {/*            <View*/}
+        {/*              key={"view-" + index}*/}
+        {/*              style={{*/}
+        {/*                marginVertical: "auto",*/}
+        {/*                marginHorizontal: 5,*/}
+        {/*                height: 10,*/}
+        {/*                width: 10,*/}
+        {/*                backgroundColor: moodType.colorCode,*/}
+        {/*                borderRadius: 10,*/}
+        {/*              }}*/}
+        {/*            ></View>*/}
+        {/*            <Text key={"text-" + index}>{moodType.label}</Text>*/}
+        {/*          </View>*/}
+        {/*        ))}*/}
+        {/*      </View>*/}
+        {/*    </View>*/}
+        {/*  ) : (*/}
+        {/*    <Text*/}
+        {/*      style={{*/}
+        {/*        textAlign: "center",*/}
+        {/*        justifyContent: "center",*/}
+        {/*        marginTop: 50,*/}
+        {/*      }}*/}
+        {/*    >*/}
+        {/*      No moods found.*/}
+        {/*    </Text>*/}
+        {/*  )}*/}
+        {/*</View>*/}
       </ScrollView>
     </View>
   );
