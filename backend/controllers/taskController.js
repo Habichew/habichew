@@ -2,6 +2,7 @@ import * as taskService from "../services/taskService.js";
 import * as userService from "../services/userService.js";
 import * as habitService from "../services/habitService.js";
 
+
 export async function getTaskListByUserId(req, res) {
     try {
         const {userId} = req.params;
@@ -11,6 +12,57 @@ export async function getTaskListByUserId(req, res) {
     } catch (err) {
         console.error('getTasksByUserId failed:', err);
         res.status(500).json({message:"Failed to fetch task list by user ID", error: err.message});
+    }
+}
+
+export async function completeTask(req, res) {
+    try {
+        const { userId, userTaskId } = req.params;
+
+        // get the userTask
+        const currentTask = await taskService.findUserTaskById(userTaskId);
+        if (!currentTask || currentTask.length === 0) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+
+        if (currentTask.completed) {
+            return res.status(200).json({
+                message: "Task already completed",
+                task: currentTask,
+            });
+        }
+
+        // Get the userHabit, verify the task is legal
+        const habit = await habitService.getUserHabit(userId, currentTask.userHabitId);
+        if (!habit || habit.length === 0) {
+            return res.status(404).json({ message: "Habit not found or not owned by user" });
+        }
+
+        // Mark the task as completed
+        await taskService.markTaskCompleted(userTaskId);
+        const updatedTask = await taskService.findUserTaskById(userTaskId);
+
+        // Add credits to the user
+        const creditToAdd = await taskService.calculateTaskCredit(updatedTask);
+        console.log(`This task values ${creditToAdd} credits`);
+        const updatedUser = await userService.addUserCredit(userId, creditToAdd);
+
+        // Update the last completed time
+        await userService.updateUserTaskLastCompleted(userId);
+
+        return res.status(200).json({
+            message: "Task marked completed and credit updated",
+            creditToAdd,
+            updatedCredit: updatedUser.credits,
+        });
+
+    } catch (err) {
+        console.error("CompleteTask error:", err);
+        return res.status(500).json({
+            message: "Failed to complete task",
+            error: err.message,
+        });
     }
 }
 

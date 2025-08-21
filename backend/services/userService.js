@@ -2,10 +2,6 @@
 import bcrypt from "bcrypt";
 import {pool} from "../config/db.js";
 
-export async function updateUserTaskLastCompleted(userId) {
-  return await pool.query('UPDATE `users` SET taskLastCompleted = current_timestamp WHERE id = ?', [userId]);
-}
-
 export async function getAllUsers() {
   return await pool.query('SELECT * FROM users');
 }
@@ -74,15 +70,13 @@ export async function updateUser(userId, updatedFields) {
   return await pool.query(sql, values);
 }
 
-export async function updateProfileImage(conn, userId, profileImage, callback) {
-  console.log(conn);
-  const result = await conn.query(
-    `UPDATE users
-    SET profileImage = ?
-    WHERE id = ?`,
-    [profileImage, userId]
-  );
-  callback(result);
+export async function updateUserTaskLastCompleted(userId) {
+  return await pool.query('UPDATE `users` SET taskLastCompleted = current_timestamp WHERE id = ?', [userId]);
+}
+
+export async function addUserCredit(userId, creditToAdd){
+  return await pool.query(`UPDATE users SET credits = IFNULL(credits, 0) + ? WHERE id = ?`,[creditToAdd, userId]
+  )
 }
 
 export async function deleteUser(userId) {

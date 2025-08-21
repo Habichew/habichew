@@ -24,11 +24,16 @@ export default function SignInScreen() {
     null,
   );
   const [loading, setLoading] = useState<boolean>(false);
+  const [statusMessage, setStatusMessage] = useState('');
   const isFormValid = email && password;
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
+
     async function login() {
+
+
+
       const response = await fetch(
         process.env.EXPO_PUBLIC_BACKEND_URL + "/users/login",
         {
@@ -40,8 +45,13 @@ export default function SignInScreen() {
         },
       );
 
+      console.log('Received login response!');
+
+
+      const logicStartTime = performance.now();
+      console.log('前端逻辑处理开始时间:', logicStartTime);
+
       const data = await response.json();
-      console.log(data);
 
       if (response.ok) {
         const loggedInUser = data[0];
@@ -69,6 +79,12 @@ export default function SignInScreen() {
     if (email && password) {
       try {
         setLoading(true);
+        setStatusMessage('Entering Login');
+
+        const networkStartTime = performance.now();
+        console.log('--- Login Begin ---');
+        console.log('API request start at: ', networkStartTime);
+
         const response = await fetch(
           process.env.EXPO_PUBLIC_BACKEND_URL + "/users/login",
           {
@@ -80,19 +96,36 @@ export default function SignInScreen() {
           },
         );
 
+        const networkEndTime = performance.now();
+        const networkTime = networkEndTime - networkStartTime;
+        console.log('API request end at:', networkEndTime);
+        console.log(`API request costs: ${networkTime.toFixed(2)} ms in total`);
+
+        const logicStartTime = performance.now();
+        console.log('Frontend logic start at:', logicStartTime);
+
         const data = await response.json();
-        console.log(data);
 
         if (response.ok) {
           const loggedInUser = data[0];
           setUser(loggedInUser); //save user data for global use
-          console.log("check signed in user", loggedInUser.email);
 
           AsyncStorage.setItem("user", loggedInUser);
           router.replace("../(tabs)/home");
         } else {
           Alert.alert("Login Failed", data.message || "Invalid credentials");
         }
+        const logicEndTime = performance.now();
+        const logicTime = logicEndTime - logicStartTime;
+        console.log('Frontend logic end at: ', logicEndTime);
+        console.log(`Frontend logic cost: ${logicTime.toFixed(2)} ms in total`);
+
+        // Record total cost of login process
+        const totalTime = logicEndTime - networkStartTime;
+        console.log(`Total cost: ${totalTime.toFixed(2)} ms`);
+        console.log('--- Login end ---');
+
+        setStatusMessage('Login successful');
         setLoading(false);
       } catch (error) {
         Alert.alert(

@@ -1,5 +1,14 @@
 import {pool} from "../config/db.js";
 
+export async function markTaskCompleted(userTaskId) {
+    return await pool.query(
+        `UPDATE userTasks
+        SET completed=TRUE, completedAt = CURRENT_TIMESTAMP 
+         WHERE id=?`,
+        [userTaskId]);
+}
+
+
 export async function getPresetTasks(habitId) {
     return await pool.query(
         `SELECT id as taskId, title, habitId, description FROM tasks 
@@ -38,7 +47,8 @@ export async function findUserTaskById(userTaskId) {
             ut.credit,
             ut.priority,
             ut.dueAt,
-            ut.completedAt
+            ut.completedAt,
+            ut.createdAt
         FROM userTasks ut
                  LEFT JOIN tasks t ON ut.taskId = t.id
         WHERE ut.id = ?`, [userTaskId]);
@@ -95,6 +105,47 @@ export async function updateTask(userTaskId, task, completeTask) {
     );
 
     return result.affectedRows > 0;
+}
+
+export async function calculateTaskCredit(userTask) {
+    const BASE = 10;
+    let credit = BASE;
+
+    const { priority, dueAt, completedAt, createdAt } = userTask;
+    console.log("dueAt: ", dueAt,"\ncompletedAt: ", completedAt, "\ncreatedAt: ", createdAt);
+
+    // 1. 处理 priority 系数
+    let priorityCoefficient = 1;
+    if (priority) {
+        const priorityMap = {
+            low: 1,
+            medium: 1.2,
+            high: 1.4,
+        };
+        priorityCoefficient = priorityMap[priority.toLowerCase()] || 1;
+    }
+
+    // 2. 处理 due 系数
+    let dueCoefficient = 1;
+    if (dueAt && completedAt && createdAt) {
+        const dueAtTime = new Date(dueAt).getTime();
+        const completedAtTime = new Date(completedAt).getTime();
+        const createdAtTime = new Date(createdAt).getTime();
+
+        const denominator = dueAtTime - createdAtTime;
+
+        // 确保分母大于0，避免除零错误
+        if (denominator > 0) {
+            const numerator = dueAtTime - completedAtTime;
+            dueCoefficient = 1 + (numerator / denominator);
+        }
+        console.log("dueCoefficient: ",dueCoefficient);
+    }
+
+    // 3. 应用系数（乘法叠加）
+    credit = BASE * priorityCoefficient * dueCoefficient;
+
+    return Math.max(0, Math.round(credit)); // Round the result, make the minimum to 0
 }
 
 export async function deleteTask(userTaskId) {

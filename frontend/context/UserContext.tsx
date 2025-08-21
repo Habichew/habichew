@@ -91,6 +91,7 @@ type UserDataContextType = {
 
   addTask: (t: Task) => Promise<void>;
   updateTask: (t: Task) => Promise<void>;
+  completeTask: (t: Task) => Promise<void>;
 
   calculateHabitProgress: () => Record<number, number>;
 
