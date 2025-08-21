@@ -23,11 +23,10 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import ReanimatedSwipeable from "react-native-gesture-handler/src/components/ReanimatedSwipeable";
 import * as Haptics from "expo-haptics";
 import { AndroidHaptics } from "expo-haptics";
-import { SwipeDirectionTypes } from "react-native-screens";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import AnimatedNumbers from 'react-native-animated-numbers';
 
 const screenWidth = Dimensions.get("window").width;
 const scale = (value: number) => (screenWidth / 375) * value;
@@ -35,6 +34,8 @@ const scale = (value: number) => (screenWidth / 375) * value;
 const Home = () => {
   const {
     user,
+      setUser,
+      updateUser,
     habits,
     loadHabits,
     addHabit,
@@ -155,6 +156,11 @@ const Home = () => {
     setModalVisible(true);
   };
 
+  const handleUnarchiveHabit = async (habit: Habit) => {
+      habit.isArchived = 0;
+      await updateHabit(habit);
+  };
+
   function handleShowConfirmDelete(habit: any) {
     setToDeleteHabit(habit);
     setShowConfirmDelete(true);
@@ -179,7 +185,21 @@ const Home = () => {
       // riveRef.current?.setInputState("State Machine 1", "NightTime", false);
       riveRef.current?.setInputState(
         "State Machine 1", "Overdue", false);
-    await loadHabits();
+      await completeHabitTasks(habit);
+      // increase credits by 20
+      let newUser = user;
+      if (newUser) {
+          if (newUser.credits) {
+              newUser.credits += 20;
+          } else {
+              newUser.credits = 20;
+          }
+          console.log('new credits:', newUser.credits);
+          updateUser(newUser);
+          setUser(newUser);
+      }
+
+      await loadHabits();
   };
 
   function feedPet() {
@@ -203,36 +223,40 @@ const Home = () => {
   const getPriorityLabel = (val: string | number) =>
     val == 1 ? "High" : val == 2 ? "Medium" : val == 3 ? "Low" : "Priority";
 
-  const renderHabit = ({ item, index }) => {
-    const progressMap = calculateHabitProgress();
-    const percent = progressMap?.[item.userHabitId] ?? 0;
-    // console.log("percent", progressMap?.[item.userHabitId]);
+  const renderHabit = ({ item, index }: {item: any, index: any}) => {
+    const progressMap: Record <number, any> = calculateHabitProgress();
+    const percent = progressMap?.[item.userHabitId].percent ?? 0;
+    const allTasks = progressMap?.[item.userHabitId].all ?? 0;
+    const completedTasks = progressMap?.[item.userHabitId].done ?? 0;
+      // console.log("percent", progressMap?.[item.userHabitId]);
     // console.log("habit", index);
 
     function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
-      const styleAnimation = useAnimatedStyle(() => {
+        const isArchived = item.isArchived;
+
+        const styleAnimation = useAnimatedStyle(() => {
         return {
           transform: [{ translateX: 0 }],
           alignItems: "center",
           justifyContent: "center",
-          width: 90,
+          width: 180,
           borderRadius: 20,
           backgroundColor: "black",
           marginRight: 10,
           paddingRight: 10,
-          paddingLeft: 40,
-          marginLeft: -50,
+          paddingLeft: 130,
+          marginLeft: -140,
             height: '100%'
         };
       });
 
-      return (
-        <Animated.View style={styleAnimation}>
-          <TouchableOpacity>
-            <Ionicons name="pencil-outline" size={20} color="#F8F0F0" />
-          </TouchableOpacity>
-        </Animated.View>
-      );
+        return (
+            <Animated.View style={styleAnimation}>
+                <TouchableOpacity>
+                    <Ionicons name={item.isArchived ? "folder-open-outline" : "pencil-outline"} size={20} color="#F8F0F0"/>
+                </TouchableOpacity>
+            </Animated.View>
+        );
     }
 
     function LeftAction(prog: SharedValue<number>, drag: SharedValue<number>) {
@@ -262,8 +286,13 @@ const Home = () => {
           console.log("vibrate");
           Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
           if (direction === 'left') {
-              handleEdit(item);
+              if (item.isArchived) {
+                  handleUnarchiveHabit(item);
+              } else {
+                  handleEdit(item);
+              }
           } else if (direction === 'right') {
+              console.log('ticking habit');
               handleTickHabit(item);
           }
       }
@@ -288,11 +317,14 @@ const Home = () => {
                                     <Text style={styles.title}>{item.habitTitle}</Text>
                                     {progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0 ? (
                                         <View style={{flexDirection: 'row'}}>
-                                            <Text style={{
-                                                marginLeft: 'auto',
-                                                marginVertical: 'auto',
-                                                marginRight: 5
-                                            }}>{percent + '%'}</Text>
+                                            {/*<Text style={{*/}
+                                            {/*    marginLeft: 'auto',*/}
+                                            {/*    marginVertical: 'auto',*/}
+                                            {/*    marginRight: 5*/}
+                                            {/*}}>{percent + '%'}</Text>*/}
+                                            <Text style={{marginLeft: 'auto', marginVertical: 'auto', marginRight: 5}}>
+                                                {completedTasks.toString()}/{allTasks.toString()}
+                                            </Text>
                                             {/*{percent === 100 &&*/}
                                             {/*    <TouchableOpacity disabled={!!item.isArchived}*/}
                                             {/*                      onPress={() => handleTickHabit(item)}>*/}
@@ -376,16 +408,10 @@ const Home = () => {
     }
 
   function closeHabits() {
-    console.log("close all habits", row);
+    // console.log("close all habits", row);
     for (let h of row) {
       h?.close();
     }
-    // console.log('current', swipeRef.current);
-    // if (prevOpenedRow && prevOpenedRow !== row[index]) {
-    //     prevOpenedRow.close();
-    // }
-    // prevOpenedRow = row[index];
-    // swipeRef.current?.close();
   }
 
     return (
@@ -412,7 +438,6 @@ const Home = () => {
                 </View>
             ) : null}
             <SystemBars style={'dark'}/>
-              {/*<TouchableOpacity onPress={() => handlePetInteraction()}>*/}
                 <Rive
                     artboardName={artboardName}
                     resourceName='pet'
@@ -457,24 +482,24 @@ const Home = () => {
                                 <Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}} onPress={() => {router.push('/(tabs)/pet'); Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);}}
                                            style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}}>
                                     <Image style={{marginVertical: 'auto', marginBottom: 4, marginRight: 3}} source={require('@/assets/images/credit.png')}/>
-                                    <Text style={{
-                                        fontFamily: "Poppins",
-                                        fontSize: 20,
-                                        padding: 3,
-                                        marginBottom: -5
-                                    }}>{user?.credits ? user.credits : 0}</Text>
+                                    {/*<Text style={{*/}
+                                    {/*    fontFamily: "Poppins",*/}
+                                    {/*    fontSize: 20,*/}
+                                    {/*    padding: 3,*/}
+                                    {/*    marginBottom: -5*/}
+                                    {/*}}>{user?.credits ? user.credits : 0}</Text>*/}
+                                    <AnimatedNumbers
+                                        includeComma
+                                        animateToNumber={user?.credits ? user.credits : 0}
+                                        fontStyle={{ fontSize: 20 }}
+                                    />
                                 </Pressable>
                             </View>
 
                     </View>
                 </Rive>
-              {/*</TouchableOpacity>*/}
 
-            {/*<Image source={require('@/assets/images/previouscat4.png')} style={styles.catImage} resizeMode="contain" />*/}
             <View style={styles.habitContainer}>
-                {/*<View style={styles.habitRow}>*/}
-                {/*  <Text style={styles.today}>Today</Text>*/}
-                {/*</View>*/}
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginBottom: 12, marginHorizontal: 15}}>
                     <View style={{
                         flexDirection: 'row',
@@ -492,10 +517,8 @@ const Home = () => {
                         Haptics.performAndroidHapticsAsync(showArchivedHabits ? AndroidHaptics.Toggle_On : AndroidHaptics.Toggle_Off).then(r => setShowArchivedHabits(!showArchivedHabits)
                         );
                     }} style={{padding: 2, paddingVertical: 8, marginHorizontal: 4, borderRadius: 20}}>
-                        {showArchivedHabits ?
-                            <Ionicons name='archive' size={20} style={{alignSelf: 'center', paddingHorizontal: 12}}/>
-                            : <Ionicons name='archive-outline' size={20}
-                                        style={{alignSelf: 'center', paddingHorizontal: 12}}/>}
+                            <Ionicons name={showArchivedHabits ? 'archive' : 'archive-outline'} size={20} style={{alignSelf: 'center', paddingHorizontal: 12}}/>
+                        {/*<Text>Completed</Text>*/}
                     </TouchableOpacity>
                 </View>
                 <FlatList style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}

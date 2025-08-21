@@ -112,7 +112,6 @@ export default function Tasks() {
 
   const toggleCompleted = async (task: Task) => {
     if (!user || !task.userTaskId) return;
-
     const updatedTask: Task = {
       ...task,
       completed: !Boolean(task.completed),
@@ -121,14 +120,10 @@ export default function Tasks() {
       description: task.description ?? "",
       dueAt: task.dueAt ? formatDate(task.dueAt) : undefined,
     };
-
-    await updateTask(updatedTask);
-
-    const newTasks = tasks.map(t =>
-        t.userTaskId === updatedTask.userTaskId ? updatedTask : t
-    );
-
-    setFilteredTasks(sortTasks(newTasks));
+    await updateTask(updatedTask, Boolean(updatedTask.completed));
+    //loadTasks();
+    console.log("updating input state");
+    setFilteredTasks(sortTasks(tasks));
   };
 
   function handleGenerateTasks() {

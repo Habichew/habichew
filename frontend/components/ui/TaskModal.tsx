@@ -82,11 +82,11 @@ export default function TaskModal({
         ? (priority.toLowerCase() as "low" | "medium" | "high")
         : null,
       habitId: task?.habitId ?? defaultHabitId ?? null,
-      credit: 50,
+      credit: 20,
     };
 
     if (task) {
-      await updateTask(formattedTask as Task);
+      await updateTask(formattedTask as Task, false);
     } else {
       await addTask(formattedTask as Task);
     }
