@@ -55,6 +55,8 @@ const Home = () => {
   );
   const [showArchivedHabits, setShowArchivedHabits] = useState<boolean>(false);
   const [artboardName, setArboardName] = useState<string>("Indoor");
+
+
   const habitId = editHabit?.userHabitId; // number
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -67,51 +69,53 @@ const Home = () => {
   let row: Array<any> = [];
   let prevOpenedRow: any;
 
-  useEffect(() => {
-    if (user) {
-      loadHabits();
-      loadTasks();
-        setRefreshing(true);
-        console.log("user", user);
-      const ONE_MINUTE = 60 * 1000;
+    useEffect(() => {
+        async function loadStuff() {
+            if (user) {
+                setRefreshing(true);
+                await loadHabits();
+                await loadTasks();
+                console.log("user", user);
+                const ONE_MINUTE = 60 * 1000;
 
-        // if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
-        //     riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-        // } else {
-        //     riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-        //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
-        // }
+                // if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
+                //     riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+                // } else {
+                //     riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
+                // }
 
-        let rng = Math.random() * 3;
-        console.log('rng', rng);
-        switch (Math.floor(rng)) {
-            case 0:
-                // Sleeping
-                console.log('trigger sleeping animation');
-                riveRef.current?.setInputState('State Machine 1', 'NightTime', true);
-                riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-                break;
-            case 1:
-                // Hungry
-                console.log('trigger hungry animation');
-                riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
-                break;
-            case 2:
-                // Travel
-                console.log('trigger travel animation');
-                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', true);
-                riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                let rng = Math.random() * 3;
+                console.log('rng', rng);
+                switch (Math.floor(rng)) {
+                    case 0:
+                        // Sleeping
+                        console.log('trigger sleeping animation');
+                        riveRef.current?.setInputState('State Machine 1', 'NightTime', true);
+                        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                        break;
+                    case 1:
+                        // Hungry
+                        console.log('trigger hungry animation');
+                        riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                        riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                        break;
+                    case 2:
+                        // Travel
+                        console.log('trigger travel animation');
+                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', true);
+                        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                        riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
 
+                }
+                setRefreshing(false);
+            }
+            await loadStuff();
+            // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
         }
-        setRefreshing(false);
-
-      // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
-    }
-  }, [user]);
+    }, [user]);
 
   useEffect(() => {
     const newHabits = habits.filter((h) =>
@@ -522,15 +526,18 @@ const Home = () => {
                     </TouchableOpacity>
                 </View>
                 <FlatList style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
-                  initialNumToRender={50}
-                  data={filteredHabits.filter((h) =>
-                      (showArchivedHabits && h.isArchived) || (!showArchivedHabits && ((h.isArchived === 0) || h.isArchived === null)))
-                  }
-                  refreshControl={
-                      <RefreshControl refreshing={refreshing} onRefresh={async () => { console.log("refresh"); await loadHabits()}} />
-                  }
-                  keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
-                  renderItem={renderHabit}/>
+                          initialNumToRender={10}
+                          data={filteredHabits.filter((h) =>
+                              (showArchivedHabits && h.isArchived) || (!showArchivedHabits && ((h.isArchived === 0) || h.isArchived === null)))
+                          }
+                          refreshControl={
+                              <RefreshControl refreshing={refreshing} onRefresh={async () => {
+                                  console.log("refresh");
+                                  await loadHabits()
+                              }}/>
+                          }
+                          keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
+                          renderItem={renderHabit}/>
             </View>
             <ItemModal visible={modalVisible} initialData={editHabit ?? undefined}
               onClose={() => {setModalVisible(false); closeHabits()}} onSave={handleSave} onDelete={deleteHabit}
