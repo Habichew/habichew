@@ -66,15 +66,16 @@ const Home = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
-  let row: Array<any> = [];
+    const flatListRef = useRef(null);
+
+    let row: Array<any> = [];
   let prevOpenedRow: any;
 
     useEffect(() => {
-        async function loadStuff() {
             if (user) {
                 setRefreshing(true);
-                await loadHabits();
-                await loadTasks();
+                loadHabits();
+                loadTasks();
                 console.log("user", user);
                 const ONE_MINUTE = 60 * 1000;
 
@@ -111,8 +112,7 @@ const Home = () => {
 
                 }
                 setRefreshing(false);
-            }
-            await loadStuff();
+            // await loadStuff();
             // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
         }
     }, [user]);
@@ -121,7 +121,7 @@ const Home = () => {
     const newHabits = habits.filter((h) =>
       h.habitTitle?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
-    // console.log("newHabits", newHabits);
+    // console.log("newHabits", habits);
     setFilteredHabits(newHabits);
   }, [searchTerm, habits]);
 
@@ -154,6 +154,7 @@ const Home = () => {
       }
     }
     await loadHabits();
+    flatListRef?.current.scrollToEnd({animated: true});
   };
   const handleEdit = (habit: any) => {
     setEditHabit(habit);
@@ -302,8 +303,6 @@ const Home = () => {
       }
 
         return (
-            <>
-                {(showArchivedHabits && item.isArchived) || (!showArchivedHabits && ((item.isArchived === 0) || item.isArchived === null)) ?
                     <Swipeable
                     friction={2}
                     overshootFriction={8}
@@ -364,8 +363,6 @@ const Home = () => {
                             </Pressable>
                         </View>
                     </Swipeable>
-                    : null}
-            </>
 
         );
     };
@@ -526,7 +523,9 @@ const Home = () => {
                         {/*<Text>Completed</Text>*/}
                     </TouchableOpacity>
                 </View>
-                <FlatList style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
+                <FlatList
+                    ref={flatListRef}
+                    style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
                           initialNumToRender={10}
                           data={filteredHabits.filter((h) =>
                               (showArchivedHabits && h.isArchived) || (!showArchivedHabits && ((h.isArchived === 0) || h.isArchived === null)))
@@ -538,7 +537,8 @@ const Home = () => {
                               }}/>
                           }
                           keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
-                          renderItem={renderHabit}/>
+                          renderItem={renderHabit}
+                />
             </View>
             <ItemModal visible={modalVisible} initialData={editHabit ?? undefined}
               onClose={() => {setModalVisible(false); closeHabits()}} onSave={handleSave} onDelete={deleteHabit}
