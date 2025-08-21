@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
  `email` varchar(255),
  `username` varchar(255),
  `password` varchar(255),
--- 2083 is the most recommended length for URL
- `profileImg` varchar(2083) DEFAULT 'https://i.ibb.co/q3MfyBnr/habichew.png',
- `credits` integer,
+ `credits` integer DEFAULT 0,
  `tasks_num` integer,
  `petId` integer,
  `tasksNum` integer,
@@ -134,7 +132,7 @@ CREATE TABLE IF NOT EXISTS `userTasks` (
    `priority` TEXT, -- low, medium, high
    `dueAt` DATETIME,
    `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   `completedAt` DATE,
+   `completedAt` DATETIME,
 
    CONSTRAINT chk_customTitle_if_no_taskId
        CHECK (

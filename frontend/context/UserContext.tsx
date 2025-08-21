@@ -66,7 +66,6 @@ export type MoodType = {
 type UserDataContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
-  updateUser: (user: User) => void;
   clearUser: () => void;
 
   habits: Habit[];
@@ -91,7 +90,8 @@ type UserDataContextType = {
   deleteHabit: (userHabitId: number) => Promise<void>;
 
   addTask: (t: Task) => Promise<void>;
-  updateTask: (t: Task, updateUserCredits: boolean) => Promise<void>;
+  updateTask: (t: Task) => Promise<void>;
+  completeTask: (t: Task) => Promise<void>;
 
   calculateHabitProgress: () => Record<number, number>;
 
@@ -123,40 +123,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setPet(null);
     setMoods([]);
     setMoodTypes([]);
-  };
-
-  // ----------------- User Log --------------------
-  const updateUser = async (user: User) => {
-    if (!user) return;
-
-    try {
-      const response = await fetch(
-          `${process.env.EXPO_PUBLIC_BACKEND_URL}/user/${user.id}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: user.email,
-              username: user.username,
-              petId: user.petId,
-              credits: user.credits
-            }),
-          },
-      );
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Failed to update user");
-      }
-
-      const data = await response.json();
-      console.log("Habit updated successfully:", data);
-
-      // reload habit table
-      await loadHabits();
-    } catch (error) {
-      console.error("Failed to update user:", error);
-    }
   };
 
   // ----------------- Habit Logic -----------------
@@ -239,18 +205,36 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const completeHabitTasks = async (habit: Habit) => {
     if (!user || !habit.userHabitId) return;
 
-    const habitTasks = tasks.filter(
-        (t) => t.habitId === habit.userHabitId
-    );
+    try {
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${habit.userHabitId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              customTitle: habit.habitTitle,
+              priority: habit.priority,
+              startDate: habit.startDate.slice(0, 10),
+              goalDate: habit.goalDate?.slice(0, 10),
+              frequency: habit.frequency,
+              isArchived: habit.isArchived,
+            }),
+          },
+      );
 
-    for (let task of habitTasks) {
-      task.completed = true;
-      await updateTask(task, false);
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Failed to update habit");
+      }
+
+      const data = await response.json();
+      console.log("Habit updated successfully:", data);
+
+      // reload habit table
+      await loadHabits();
+    } catch (error) {
+      console.error("Failed to update habit:", error);
     }
-    let newUser = user;
-    newUser.credits = newUser.credits ? (newUser.credits + 20 * habitTasks.length) : 20 * habitTasks.length;
-    updateUser(newUser);
-    console.log('completed all tasks of habit', habit.userHabitId);
   };
 
   const deleteHabit = async (userHabitId: number) => {
@@ -306,7 +290,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // return habitId → % map
   const calculateHabitProgress = (): Record<number, number> => {
-    const progressMap: Record<number, any> = {};
+    const progressMap: Record<number, number> = {};
     const grouped = tasks.reduce(
       (acc, t) => {
         if (!t.habitId) return acc;
@@ -322,7 +306,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const done = all.filter((t) => !!t.completed).length;
       const percent =
         all.length === 0 ? 0 : Math.round((done / all.length) * 100);
-      progressMap[+habitId] = {percent: percent, all: all.length, done: done};
+      progressMap[+habitId] = percent;
     }
     return progressMap;
   };
@@ -365,7 +349,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateTask = async (t: Task, updateUserCredits: boolean) => {
+  const updateTask = async (t: Task) => {
     if (!user || !t.userTaskId) return;
 
     const payload = {
@@ -390,13 +374,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       );
 
       if (res.ok) {
-        let newUser = user;
-        if (updateUserCredits) {
-          newUser.credits = user?.credits ? user.credits + 20 : 20;
-          console.log('new credits:', newUser.credits);
-        }
-        setUser(newUser);
-        await updateUser(newUser);
         await loadTasks();
       } else {
         const err = await res.json();
@@ -520,7 +497,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         setUser,
-        updateUser,
         clearUser,
         habits,
         tasks,
@@ -539,7 +515,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         loadMoodTypes,
         addHabit,
         updateHabit,
-        completeHabitTasks,
         deleteHabit,
         addTask,
         updateTask,
