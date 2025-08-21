@@ -16,7 +16,7 @@ import {ScaledSheet} from "react-native-size-matters";
 export default function Tasks() {
   const screenWidth = Dimensions.get('window').width;
 
-  const { user, tasks, loadTasks, updateTask } = useUser();
+  const { user, tasks, loadTasks, completeTask } = useUser();
   const { habitId, habitName } = useLocalSearchParams();
   const numericHabitId = habitId ? parseInt(habitId as string) : undefined;
 
@@ -112,17 +112,27 @@ export default function Tasks() {
 
   const toggleCompleted = async (task: Task) => {
     if (!user || !task.userTaskId) return;
-    const updatedTask: Task = {
-      ...task,
-      completed: !Boolean(task.completed),
-      priority: task.priority || null,
-      credit: task.credit ?? 0,
-      description: task.description ?? "",
-      dueAt: task.dueAt ? formatDate(task.dueAt) : undefined,
-    };
-    await updateTask(updatedTask, Boolean(updatedTask.completed));
-    //loadTasks();
-    console.log("updating input state");
+    if (task.completed) {
+      console.log("Un-completing is not supported via completeTask API.");
+      return;
+    }
+
+    try {
+      // ✅ 调用你在 UserContext 中的 completeTask
+      await completeTask(task);
+
+      // ✅ 更新本地任务状态（乐观更新）
+      const updatedTasks = tasks.map((t) =>
+          t.userTaskId === task.userTaskId
+              ? { ...t, completed: true } // 也可以加 completedAt、credit 更新
+              : t
+      );
+
+      setFilteredTasks(sortTasks(updatedTasks));
+      console.log("Task marked as completed");
+    } catch (err) {
+      console.error("Failed to complete task:", err);
+    }
     setFilteredTasks(sortTasks(tasks));
   };
 

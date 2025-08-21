@@ -202,41 +202,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const completeHabitTasks = async (habit: Habit) => {
-    if (!user || !habit.userHabitId) return;
-
-    try {
-      const response = await fetch(
-          `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${habit.userHabitId}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              customTitle: habit.habitTitle,
-              priority: habit.priority,
-              startDate: habit.startDate.slice(0, 10),
-              goalDate: habit.goalDate?.slice(0, 10),
-              frequency: habit.frequency,
-              isArchived: habit.isArchived,
-            }),
-          },
-      );
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Failed to update habit");
-      }
-
-      const data = await response.json();
-      console.log("Habit updated successfully:", data);
-
-      // reload habit table
-      await loadHabits();
-    } catch (error) {
-      console.error("Failed to update habit:", error);
-    }
-  };
-
   const deleteHabit = async (userHabitId: number) => {
     if (!user) return;
     try {
@@ -384,6 +349,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const completeTask = async (t: Task) => {
+    if (!user || !t.userTaskId) return;
+
+
+    try {
+      const res = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks/${t.userTaskId}/completed`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+          },
+      );
+
+      if (res.ok) {
+        await loadTasks();
+      } else {
+        const err = await res.json();
+        console.error("Failed to complete task:", err);
+      }
+    } catch (err) {
+      console.error(" Failed to complete task:", err);
+    }
+  };
+
   const deleteTask = async (userTaskId: number) => {
     if (!user) return;
     try {
@@ -518,6 +507,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         deleteHabit,
         addTask,
         updateTask,
+        completeTask,
         deleteTask,
         addMood,
       }}
