@@ -23,11 +23,10 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import ReanimatedSwipeable from "react-native-gesture-handler/src/components/ReanimatedSwipeable";
 import * as Haptics from "expo-haptics";
 import { AndroidHaptics } from "expo-haptics";
-import { SwipeDirectionTypes } from "react-native-screens";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import AnimatedNumbers from 'react-native-animated-numbers';
 
 const screenWidth = Dimensions.get("window").width;
 const scale = (value: number) => (screenWidth / 375) * value;
@@ -224,10 +223,12 @@ const Home = () => {
   const getPriorityLabel = (val: string | number) =>
     val == 1 ? "High" : val == 2 ? "Medium" : val == 3 ? "Low" : "Priority";
 
-  const renderHabit = ({ item, index }) => {
-    const progressMap = calculateHabitProgress();
-    const percent = progressMap?.[item.userHabitId] ?? 0;
-    // console.log("percent", progressMap?.[item.userHabitId]);
+  const renderHabit = ({ item, index }: {item: any, index: any}) => {
+    const progressMap: Record <number, any> = calculateHabitProgress();
+    const percent = progressMap?.[item.userHabitId].percent ?? 0;
+    const allTasks = progressMap?.[item.userHabitId].all ?? 0;
+    const completedTasks = progressMap?.[item.userHabitId].done ?? 0;
+      // console.log("percent", progressMap?.[item.userHabitId]);
     // console.log("habit", index);
 
     function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
@@ -316,11 +317,14 @@ const Home = () => {
                                     <Text style={styles.title}>{item.habitTitle}</Text>
                                     {progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0 ? (
                                         <View style={{flexDirection: 'row'}}>
-                                            <Text style={{
-                                                marginLeft: 'auto',
-                                                marginVertical: 'auto',
-                                                marginRight: 5
-                                            }}>{percent + '%'}</Text>
+                                            {/*<Text style={{*/}
+                                            {/*    marginLeft: 'auto',*/}
+                                            {/*    marginVertical: 'auto',*/}
+                                            {/*    marginRight: 5*/}
+                                            {/*}}>{percent + '%'}</Text>*/}
+                                            <Text style={{marginLeft: 'auto', marginVertical: 'auto', marginRight: 5}}>
+                                                {completedTasks.toString()}/{allTasks.toString()}
+                                            </Text>
                                             {/*{percent === 100 &&*/}
                                             {/*    <TouchableOpacity disabled={!!item.isArchived}*/}
                                             {/*                      onPress={() => handleTickHabit(item)}>*/}
@@ -434,7 +438,6 @@ const Home = () => {
                 </View>
             ) : null}
             <SystemBars style={'dark'}/>
-              {/*<TouchableOpacity onPress={() => handlePetInteraction()}>*/}
                 <Rive
                     artboardName={artboardName}
                     resourceName='pet'
@@ -479,24 +482,24 @@ const Home = () => {
                                 <Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}} onPress={() => {router.push('/(tabs)/pet'); Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);}}
                                            style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}}>
                                     <Image style={{marginVertical: 'auto', marginBottom: 4, marginRight: 3}} source={require('@/assets/images/credit.png')}/>
-                                    <Text style={{
-                                        fontFamily: "Poppins",
-                                        fontSize: 20,
-                                        padding: 3,
-                                        marginBottom: -5
-                                    }}>{user?.credits ? user.credits : 0}</Text>
+                                    {/*<Text style={{*/}
+                                    {/*    fontFamily: "Poppins",*/}
+                                    {/*    fontSize: 20,*/}
+                                    {/*    padding: 3,*/}
+                                    {/*    marginBottom: -5*/}
+                                    {/*}}>{user?.credits ? user.credits : 0}</Text>*/}
+                                    <AnimatedNumbers
+                                        includeComma
+                                        animateToNumber={user?.credits ? user.credits : 0}
+                                        fontStyle={{ fontSize: 20 }}
+                                    />
                                 </Pressable>
                             </View>
 
                     </View>
                 </Rive>
-              {/*</TouchableOpacity>*/}
 
-            {/*<Image source={require('@/assets/images/previouscat4.png')} style={styles.catImage} resizeMode="contain" />*/}
             <View style={styles.habitContainer}>
-                {/*<View style={styles.habitRow}>*/}
-                {/*  <Text style={styles.today}>Today</Text>*/}
-                {/*</View>*/}
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginBottom: 12, marginHorizontal: 15}}>
                     <View style={{
                         flexDirection: 'row',

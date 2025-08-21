@@ -91,7 +91,7 @@ type UserDataContextType = {
   deleteHabit: (userHabitId: number) => Promise<void>;
 
   addTask: (t: Task) => Promise<void>;
-  updateTask: (t: Task) => Promise<void>;
+  updateTask: (t: Task, updateUserCredits: boolean) => Promise<void>;
 
   calculateHabitProgress: () => Record<number, number>;
 
@@ -146,7 +146,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.message || "Failed to update habit");
+        throw new Error(err.message || "Failed to update user");
       }
 
       const data = await response.json();
@@ -155,7 +155,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       // reload habit table
       await loadHabits();
     } catch (error) {
-      console.error("Failed to update habit:", error);
+      console.error("Failed to update user:", error);
     }
   };
 
@@ -245,9 +245,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     for (let task of habitTasks) {
       task.completed = true;
-      await updateTask(task);
+      await updateTask(task, false);
     }
-
+    let newUser = user;
+    newUser.credits = newUser.credits ? (newUser.credits + 20 * habitTasks.length) : 20 * habitTasks.length;
+    updateUser(newUser);
     console.log('completed all tasks of habit', habit.userHabitId);
   };
 
@@ -304,7 +306,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // return habitId → % map
   const calculateHabitProgress = (): Record<number, number> => {
-    const progressMap: Record<number, number> = {};
+    const progressMap: Record<number, any> = {};
     const grouped = tasks.reduce(
       (acc, t) => {
         if (!t.habitId) return acc;
@@ -320,7 +322,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const done = all.filter((t) => !!t.completed).length;
       const percent =
         all.length === 0 ? 0 : Math.round((done / all.length) * 100);
-      progressMap[+habitId] = percent;
+      progressMap[+habitId] = {percent: percent, all: all.length, done: done};
     }
     return progressMap;
   };
@@ -363,7 +365,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateTask = async (t: Task) => {
+  const updateTask = async (t: Task, updateUserCredits: boolean) => {
     if (!user || !t.userTaskId) return;
 
     const payload = {
@@ -389,8 +391,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       if (res.ok) {
         let newUser = user;
-        newUser.credits = user?.credits ? user.credits + 20 : 20;
-        console.log('new credits:', newUser.credits);
+        if (updateUserCredits) {
+          newUser.credits = user?.credits ? user.credits + 20 : 20;
+          console.log('new credits:', newUser.credits);
+        }
         setUser(newUser);
         await updateUser(newUser);
         await loadTasks();

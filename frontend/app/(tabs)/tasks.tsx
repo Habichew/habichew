@@ -120,7 +120,7 @@ export default function Tasks() {
       description: task.description ?? "",
       dueAt: task.dueAt ? formatDate(task.dueAt) : undefined,
     };
-    await updateTask(updatedTask);
+    await updateTask(updatedTask, Boolean(updatedTask.completed));
     //loadTasks();
     console.log("updating input state");
     setFilteredTasks(sortTasks(tasks));
