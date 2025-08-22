@@ -41,7 +41,7 @@ export type Task = {
 };
 
 export type Pet = {
-  id: string;
+  id?: string;
   name: string;
   mood?: string;
   personality?: string;
@@ -95,6 +95,8 @@ type UserDataContextType = {
   updateTask: (t: Task) => Promise<void>;
   completeTask: (t: Task) => Promise<void>;
 
+  createPet: (p: Pet) => Promise<void>;
+
   calculateHabitProgress: () => Record<number, number>;
 
   deleteTask: (userTaskId: number) => Promise<void>;
@@ -145,7 +147,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await response.json();
       setUser(data[0]);
-      console.log("Retrieved user successfully:", data);
+      console.log("Retrieved user successfully:", data[0]);
 
       // reload habit table
       // await loadHabits();
@@ -495,6 +497,44 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const createPet = async (p: Pet) => {
+    if (!user) {
+      console.log("no user found");
+      return;
+    }
+
+    try {
+      const payload = {
+        pet: {
+          name: p.name,
+          level: p.level
+        },
+      };
+
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/pet`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          },
+      );
+      const petData = await response.json();
+
+      if (response.ok) {
+        // setPet(petData[0]);
+        console.log("loaded pet", petData);
+      } else {
+        // Alert.alert("Missing input", "Please enter email and password");
+        Alert.alert("Error", "Pet creation failed");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to connect to the server");
+    }
+  }
+
   // ----------------- Mood Logic -----------------
   const loadMoods = async () => {
     if (!user) return;
@@ -589,6 +629,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         completeTask,
         deleteTask,
         addMood,
+        createPet
       }}
     >
       {children}

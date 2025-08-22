@@ -76,7 +76,6 @@ const Home = () => {
                 setRefreshing(true);
                 loadHabits();
                 loadTasks();
-                console.log("user", user);
                 const ONE_MINUTE = 60 * 1000;
 
                 // if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
