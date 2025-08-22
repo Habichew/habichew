@@ -32,8 +32,6 @@ export default function SignInScreen() {
 
     async function login() {
 
-
-
       const response = await fetch(
         process.env.EXPO_PUBLIC_BACKEND_URL + "/users/login",
         {

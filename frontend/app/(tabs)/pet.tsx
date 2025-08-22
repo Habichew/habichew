@@ -49,7 +49,7 @@ export default function PetScreen(this: any) {
             <Image source={require('@/assets/images/pet profile.png')} style={styles.avatar} />
             <View style={styles.avatarDescription}>
               <Text style={styles.petName}>{pet?.name}</Text>
-              <Text style={styles.personality}>{pet?.personality}</Text>
+              {/*<Text style={styles.personality}>{pet?.personality}</Text>*/}
               {/*<Text style={styles.textLine}>Mood: {pet?.mood}</Text>*/}
               <Text style={styles.level}>Level: {pet?.level}</Text>
               <View style={styles.creditContainer}>
@@ -265,10 +265,12 @@ const styles = ScaledSheet.create({
   },
   avatarDescription: {
     paddingHorizontal: 10,
+    flexDirection: 'column'
   },
   level: {
     fontSize: 15,
     fontWeight: "600",
+    flexGrow: 1,
   },
   postcards: {
     paddingTop: 50,
