@@ -16,7 +16,7 @@ import {ScaledSheet} from "react-native-size-matters";
 export default function Tasks() {
   const screenWidth = Dimensions.get('window').width;
 
-  const { user, tasks, setUser, loadTasks, completeTask } = useUser();
+  const { user, tasks, setUser, loadTasks, completeTask, loadUser } = useUser();
   const { habitId, habitName } = useLocalSearchParams();
   const numericHabitId = habitId ? parseInt(habitId as string) : undefined;
 
@@ -28,7 +28,7 @@ export default function Tasks() {
   const [hasEverEnteredHabit, setHasEverEnteredHabit] = useState(false);
   const [showEmptyPrompt, setShowEmptyPrompt] = useState(false);
   const [lastFilteredHabitId, setLastFilteredHabitId] = useState<number | null>(
-    null,
+      null,
   );
   const [loadingTasks, setLoadingTasks] = useState<boolean>(false);
 
@@ -38,19 +38,19 @@ export default function Tasks() {
   let row: Array<any> = [];
   const flatListRef = useRef<SwipeableFlatListRef<any> | null>(null);
 
-    const closeAllOpenRows = () => {
-        flatListRef.current?.closeAnyOpenRows();
-    };
+  const closeAllOpenRows = () => {
+    flatListRef.current?.closeAnyOpenRows();
+  };
 
   //When the page regains focus and there is no habitId parameter, clear the filter
   useFocusEffect(
-    React.useCallback(() => {
-      if (!habitId) {
-        setSearchText("");
-        setIsHabitFilterLocked(false);
-        setLastFilteredHabitId(null);
-      }
-    }, [habitId]),
+      React.useCallback(() => {
+        if (!habitId) {
+          setSearchText("");
+          setIsHabitFilterLocked(false);
+          setLastFilteredHabitId(null);
+        }
+      }, [habitId]),
   );
 
   useEffect(() => {
@@ -90,13 +90,13 @@ export default function Tasks() {
 
 //When the page regains focus and there is no habitId parameter, clear the filter
   useFocusEffect(
-    React.useCallback(() => {
-      if (!habitId) {
-        setSearchText('');
-        setIsHabitFilterLocked(false);
-        setLastFilteredHabitId(null);
-      }
-    }, [habitId])
+      React.useCallback(() => {
+        if (!habitId) {
+          setSearchText('');
+          setIsHabitFilterLocked(false);
+          setLastFilteredHabitId(null);
+        }
+      }, [habitId])
   );
 
   const handleEdit = (task: Task) => {
@@ -129,7 +129,8 @@ export default function Tasks() {
 
       setFilteredTasks(sortTasks(updatedTasks));
       console.log("Task marked as completed");
-
+      console.log('updating user...');
+      await loadUser();
       console.log(`User credits updated to: ${user.credits}`)
     } catch (err) {
       console.error("Failed to complete task:", err);
@@ -142,8 +143,8 @@ export default function Tasks() {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
-      "Authorization",
-      "Bearer " + process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+        "Authorization",
+        "Bearer " + process.env.EXPO_PUBLIC_OPENAI_API_KEY,
     );
 
     const raw = JSON.stringify({
@@ -152,9 +153,9 @@ export default function Tasks() {
         {
           role: "user",
           content:
-            "In short sentences, break down this habit into a bulleted list of max. 6 tasks that are directly executable: '" +
-            habitName +
-            "'. Only respond with a bulleted list",
+              "In short sentences, break down this habit into a bulleted list of max. 6 tasks that are directly executable: '" +
+              habitName +
+              "'. Only respond with a bulleted list",
         },
       ],
     });
@@ -169,25 +170,25 @@ export default function Tasks() {
     // setGeneratedTasks(["Find a private or comfortable space", "Acknowledge your emotions", "Allow your feelings to flow without holding back", "Breathe deeply and steadily", "Use tissues or a cloth if needed", "Take time afterwards to rest or reflect"]);
     setLoadingTasks(true);
     fetch("https://api.openai.com/v1/chat/completions", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        let newTasks = result.choices[0].message.content;
-        newTasks = newTasks.split("\n").map((t: string) => {
-          if (t.startsWith("- ")) {
-            return t.slice(2);
-          }
-          return t;
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          let newTasks = result.choices[0].message.content;
+          newTasks = newTasks.split("\n").map((t: string) => {
+            if (t.startsWith("- ")) {
+              return t.slice(2);
+            }
+            return t;
+          });
+          setFilteredTasks(newTasks);
+          console.log("set generated tasks", newTasks, "length", newTasks.length);
+          setLoadingTasks(false);
+          setShowEmptyPrompt(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setLoadingTasks(false);
         });
-        setFilteredTasks(newTasks);
-        console.log("set generated tasks", newTasks, "length", newTasks.length);
-        setLoadingTasks(false);
-        setShowEmptyPrompt(false);
-      })
-      .catch((error) => {
-        console.error(error);
-        setLoadingTasks(false);
-      });
   }
 
   const renderTask = ({ item, index }) => {
@@ -204,7 +205,7 @@ export default function Tasks() {
 
     return (
         <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginBottom: 10}}>
-        <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}  android_ripple={{color: '#00000020', borderless: true, foreground: false, radius: 300}}>
+          <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}  android_ripple={{color: '#00000020', borderless: true, foreground: false, radius: 300}}>
             <View style={styles.flexOne}>
               <TouchableOpacity disabled={!!item.completed}
                                 onPress={() => toggleCompleted(item)}
@@ -259,85 +260,85 @@ export default function Tasks() {
   }
 
   return (
-    <View style={styles.container}>
+      <View style={styles.container}>
 
-      <View style={styles.topBar}>
-        <TextInput
-          style={styles.search}
-          placeholder={
-            isHabitFilterLocked && numericHabitId
-              ? `Tasks belonged to ${habitName}`
-              : "Search Taskname"
-          }
-          placeholderTextColor="#999"
-          value={searchText}
-          onChangeText={(text) => {
-            if (isHabitFilterLocked) setIsHabitFilterLocked(false);
-            setSearchText(text);
-          }}
+        <View style={styles.topBar}>
+          <TextInput
+              style={styles.search}
+              placeholder={
+                isHabitFilterLocked && numericHabitId
+                    ? `Tasks belonged to ${habitName}`
+                    : "Search Taskname"
+              }
+              placeholderTextColor="#999"
+              value={searchText}
+              onChangeText={(text) => {
+                if (isHabitFilterLocked) setIsHabitFilterLocked(false);
+                setSearchText(text);
+              }}
+          />
+        </View>
+
+        <View style={styles.headerRow}>
+          <Text style={styles.sectionTitle}>Task List</Text>
+          {habitId ? <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Ionicons name="add" size={24} color="#000" />
+          </TouchableOpacity> : null}
+        </View>
+
+        {showEmptyPrompt &&
+            (loadingTasks ? (
+                <ActivityIndicator size={"large"} />
+            ) : (
+                <View style={{ alignItems: "center", marginTop: 40 }}>
+                  <Text
+                      style={{ textAlign: "center", fontSize: 14, marginBottom: 20 }}
+                  >
+                    You don’t have any task for the habit{"\n"}
+                    Generate tasks with just a click or use + to add your own !
+                  </Text>
+                  <TouchableOpacity
+                      style={styles.generateBtn}
+                      onPress={() => setModalVisible(true)}
+                  >
+                    <Text style={styles.generateText}>Generate Tasks</Text>
+                  </TouchableOpacity>
+                </View>
+            ))}
+
+        <FlatList
+            data={filteredTasks}
+            ref={flatListRef}
+            keyExtractor={(item) =>
+                item.userTaskId?.toString() || Math.random().toString()
+            }
+            contentContainerStyle={{ paddingBottom: 100 }}
+            renderItem={renderTask}
+            enableOpenMultipleRows={false}
+            swipeableProps={{
+              friction: 2,
+              overshootFriction: 8,
+              onSwipeableOpen: async (direction, swipeable) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
+            }}
+            style={{marginHorizontal: -40, paddingHorizontal: 25}}
+        />
+
+        {modalVisible ? <Animated.View style={[styles.overlay]}/> : null}
+        <TaskModal
+            visible={modalVisible}
+            onClose={() => {
+              setModalVisible(false);
+              setEditingTask(null);
+            }}
+            onSave={() => {
+              setModalVisible(false);
+              setEditingTask(null);
+              setShowEmptyPrompt(false); // once added the task, hide the prompt
+            }}
+            task={editingTask}
+            defaultHabitId={numericHabitId}
         />
       </View>
-
-      <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>Task List</Text>
-        {habitId ? <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Ionicons name="add" size={24} color="#000" />
-        </TouchableOpacity> : null}
-      </View>
-
-      {showEmptyPrompt &&
-        (loadingTasks ? (
-          <ActivityIndicator size={"large"} />
-        ) : (
-          <View style={{ alignItems: "center", marginTop: 40 }}>
-            <Text
-              style={{ textAlign: "center", fontSize: 14, marginBottom: 20 }}
-            >
-              You don’t have any task for the habit{"\n"}
-              Generate tasks with just a click or use + to add your own !
-            </Text>
-            <TouchableOpacity
-              style={styles.generateBtn}
-              onPress={() => setModalVisible(true)}
-            >
-              <Text style={styles.generateText}>Generate Tasks</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-
-      <FlatList
-        data={filteredTasks}
-        ref={flatListRef}
-        keyExtractor={(item) =>
-          item.userTaskId?.toString() || Math.random().toString()
-        }
-        contentContainerStyle={{ paddingBottom: 100 }}
-        renderItem={renderTask}
-        enableOpenMultipleRows={false}
-        swipeableProps={{
-          friction: 2,
-          overshootFriction: 8,
-          onSwipeableOpen: async (direction, swipeable) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
-        }}
-        style={{marginHorizontal: -40, paddingHorizontal: 25}}
-      />
-
-      {modalVisible ? <Animated.View style={[styles.overlay]}/> : null}
-      <TaskModal
-        visible={modalVisible}
-        onClose={() => {
-          setModalVisible(false);
-          setEditingTask(null);
-        }}
-        onSave={() => {
-          setModalVisible(false);
-          setEditingTask(null);
-          setShowEmptyPrompt(false); // once added the task, hide the prompt
-        }}
-        task={editingTask}
-        defaultHabitId={numericHabitId}
-      />
-    </View>
   );
 }
 
@@ -407,16 +408,16 @@ const styles = ScaledSheet.create({
     paddingVertical: 12,
   },
   generateText: { fontWeight: "bold", fontSize: 16, color: "#000" },
-    leftAction: {
-        transform: [{ translateX: 0 }],
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        backgroundColor: '#1CC282',
-        borderRadius: 16,
-        paddingHorizontal: 20,
-        marginVertical: 6,
-        paddingRight: 40,
-        marginRight: -Dimensions.get('window').width + 70,
-        width: Dimensions.get('window').width
-    }
+  leftAction: {
+    transform: [{ translateX: 0 }],
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    backgroundColor: '#1CC282',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    marginVertical: 6,
+    paddingRight: 40,
+    marginRight: -Dimensions.get('window').width + 70,
+    width: Dimensions.get('window').width
+  }
 });

@@ -10,7 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import Checkbox from "expo-checkbox";
 import CustomInput from "@/components/ui/input";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 export default function SignUpScreen() {
   const router = useRouter();

@@ -59,7 +59,7 @@ export async function createPet(req, res) {
         const fetchedPet = await petService.findPetById(result.insertId);
         return res.status(201).send({
             message: 'Pet created successfully',
-            task: fetchedPet[0],
+            pet: fetchedPet[0],
         });
     } catch (err) {
         console.error('Create error:', err);
