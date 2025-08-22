@@ -19,14 +19,14 @@ export default function BottomBar() {
   const {user} = useUser();
   const userCredits = user?.credits
 
-  // 在组件内部处理 unlock 阈值逻辑
+  // handle unlock
   const sortedPostcards = [...postcardImgs].sort((a, b) => a.unlockScore - b.unlockScore);
 
-// 找到当前 unlocked 的最后一个和下一个
+  // find last and next postcards
   const lastPostcard = [...sortedPostcards].reverse().find(p => p.unlockScore <= userCredits) ?? sortedPostcards[0];
   const nextPostcard = sortedPostcards.find(p => p.unlockScore > lastPostcard.unlockScore) ?? null;
 
-// 边界保护
+  // boundary protection
   const lowerBound = lastPostcard.unlockScore;
   const upperBound = nextPostcard?.unlockScore ?? lowerBound + 100; // fallback
 
