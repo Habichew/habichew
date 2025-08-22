@@ -55,7 +55,7 @@ const Home = () => {
         null,
     );
     const [showArchivedHabits, setShowArchivedHabits] = useState<boolean>(false);
-    const [artboardName, setArboardName] = useState<string>("Indoor");
+    const [artboardName, setArtboardName] = useState<string>("Indoor");
 
 
     const habitId = editHabit?.userHabitId; // number
@@ -85,6 +85,28 @@ const Home = () => {
             //     riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
             //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
             // }
+
+            if (user?.credits) {
+                console.log('current credit', user.credits);
+                let newArtboardName = "";
+                if (user.credits > 100) {
+                    newArtboardName = "Scene2";
+                }
+                else if (user.credits > 50) {
+                    newArtboardName = "Scene1";
+                }
+                else {
+                    newArtboardName = "Indoor";
+                }
+
+                console.log('new artboard name', newArtboardName);
+                setArtboardName(newArtboardName);
+
+                // TODO: reset all states before randomizing
+                // riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                // riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                // riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+            }
 
             let rng = Math.random() * 3;
             console.log('rng', rng);
@@ -193,14 +215,16 @@ const Home = () => {
         riveRef.current?.setInputState(
             "State Machine 1", "Overdue", false);
         await completeHabitTasks(habit);
+
         // await loadHabits();
         // await loadUser();
     };
 
-    function feedPet() {
+    async function feedPet() {
         riveRef.current?.fireState("State Machine 1", "Feed");
         riveRef.current?.setInputState("State Machine 1", "HabitTicked", false);
         riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+        await loadUser();
     }
 
     const formatDate = (dateStr: string) => {
