@@ -191,19 +191,6 @@ const Home = () => {
       riveRef.current?.setInputState(
         "State Machine 1", "Overdue", false);
       await completeHabitTasks(habit);
-      // increase credits by 20
-      let newUser = user;
-      if (newUser) {
-          if (newUser.credits) {
-              newUser.credits += 20;
-          } else {
-              newUser.credits = 20;
-          }
-          console.log('new credits:', newUser.credits);
-          updateUser(newUser);
-          setUser(newUser);
-      }
-
       await loadHabits();
   };
 
@@ -211,7 +198,6 @@ const Home = () => {
     riveRef.current?.fireState("State Machine 1", "Feed");
       riveRef.current?.setInputState("State Machine 1", "HabitTicked", false);
       riveRef.current?.setInputState("State Machine 1", "Overdue", false);
-
   }
 
   const formatDate = (dateStr: string) => {
@@ -233,7 +219,7 @@ const Home = () => {
     const percent = progressMap?.[item.userHabitId]?.percent ?? 0;
     const allTasks = progressMap?.[item.userHabitId]?.all ?? 0;
     const completedTasks = progressMap?.[item.userHabitId]?.done ?? 0;
-      // console.log("percent", progressMap?.[item.userHabitId]);
+      console.log("percent", progressMap?.[item.userHabitId]);
     // console.log("habit", index);
 
     function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
@@ -494,6 +480,7 @@ const Home = () => {
                                         includeComma
                                         animateToNumber={user?.credits ? user.credits : 0}
                                         fontStyle={{ fontSize: 20 }}
+                                        containerStyle={{marginVertical: 'auto'}}
                                     />
                                 </Pressable>
                             </View>

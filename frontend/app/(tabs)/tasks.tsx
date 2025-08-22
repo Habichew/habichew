@@ -5,18 +5,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import TaskModal from '../../components/ui/TaskModal';
-import Rive, {Fit, RiveRef} from "rive-react-native";
+import Rive, {RiveRef} from "rive-react-native";
 import {AndroidHaptics} from 'expo-haptics';
-import Animated, {Easing, SharedValue, useAnimatedStyle, withTiming,} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import SwipeableFlatList, {SwipeableFlatListRef} from 'rn-gesture-swipeable-flatlist';
 import {ScaledSheet} from "react-native-size-matters";
 
 export default function Tasks() {
   const screenWidth = Dimensions.get('window').width;
 
-  const { user, tasks, setUser, loadTasks, completeTask } = useUser();
+  const { user, tasks, loadTasks, completeTask, loadUser } = useUser();
   const { habitId, habitName } = useLocalSearchParams();
   const numericHabitId = habitId ? parseInt(habitId as string) : undefined;
 
@@ -129,7 +128,7 @@ export default function Tasks() {
 
       setFilteredTasks(sortTasks(updatedTasks));
       console.log("Task marked as completed");
-
+      await loadUser();
       console.log(`User credits updated to: ${user.credits}`)
     } catch (err) {
       console.error("Failed to complete task:", err);

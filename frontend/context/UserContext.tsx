@@ -66,6 +66,7 @@ export type MoodType = {
 type UserDataContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
+  updateUser: (user: User) => void;
   clearUser: () => void;
 
   habits: Habit[];
@@ -83,6 +84,7 @@ type UserDataContextType = {
   loadPet: () => Promise<void>;
   loadMoods: () => Promise<void>;
   loadMoodTypes: () => Promise<void>;
+  loadUser: () => Promise<void>;
 
   addHabit: (userId: string, h: Habit) => Promise<void>;
   updateHabit: (h: Habit) => Promise<void>;
@@ -123,6 +125,66 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setPet(null);
     setMoods([]);
     setMoodTypes([]);
+  };
+
+  // ----------------- User Log --------------------
+  const loadUser = async () => {
+    try {
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+          },
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Failed to update user");
+      }
+
+      const data = await response.json();
+      setUser(data[0]);
+      console.log("Retrieved user successfully:", data);
+
+      // reload habit table
+      // await loadHabits();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  }
+
+  const updateUser = async (user: User) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/user/${user.id}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: user.email,
+              username: user.username,
+              petId: user.petId,
+              credits: user.credits
+            }),
+          },
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Failed to update user");
+      }
+
+      const data = await response.json();
+      console.log("Habit updated successfully:", data);
+
+      // reload habit table
+      await loadHabits();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
   };
 
   // ----------------- Habit Logic -----------------
@@ -202,6 +264,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const completeHabitTasks = async (habit: Habit) => {
+    if (!user || !habit.userHabitId) return;
+
+    const habitTasks = tasks.filter(
+        (t) => t.habitId === habit.userHabitId
+    );
+
+    for (let task of habitTasks) {
+      task.completed = true;
+      await completeTask(task);
+    }
+    console.log('completed all tasks of habit', habit.userHabitId);
+  };
+
   const deleteHabit = async (userHabitId: number) => {
     if (!user) return;
     try {
@@ -255,7 +331,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // return habitId → % map
   const calculateHabitProgress = (): Record<number, number> => {
-    const progressMap: Record<number, number> = {};
+    const progressMap: Record<number, any> = {};
     const grouped = tasks.reduce(
       (acc, t) => {
         if (!t.habitId) return acc;
@@ -271,7 +347,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const done = all.filter((t) => !!t.completed).length;
       const percent =
         all.length === 0 ? 0 : Math.round((done / all.length) * 100);
-      progressMap[+habitId] = percent;
+      progressMap[+habitId] = {percent: percent, all: all.length, done: done};
     }
     return progressMap;
   };
@@ -486,6 +562,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         setUser,
+        updateUser,
         clearUser,
         habits,
         tasks,
@@ -502,8 +579,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         loadPet,
         loadMoods,
         loadMoodTypes,
+        loadUser,
         addHabit,
         updateHabit,
+        completeHabitTasks,
         deleteHabit,
         addTask,
         updateTask,
