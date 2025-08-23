@@ -17,7 +17,7 @@ export default function BottomBar() {
   const pathname = usePathname();
   const isActive = (name: string) => pathname.includes(name);
   const {user} = useUser();
-  const userCredits = user?.credits
+  const userCredits = user?.credits;
 
   // 在组件内部处理 unlock 阈值逻辑
   const sortedPostcards = [...postcardImgs].sort((a, b) => a.unlockScore - b.unlockScore);
@@ -46,7 +46,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/home")}
         >
           <Image
-            source={require("@/assets/images/home.png")}
+            source={require("@/assets/images/Home.png")}
             style={[styles.icon, isActive("/home") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/home") && styles.activeLabel]}>Home</Text>
@@ -57,7 +57,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/tasks")}
         >
           <Image
-            source={require("@/assets/images/tasks.png")}
+            source={require("@/assets/images/Desk_alt.png")}
             style={[styles.icon, isActive("/tasks") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/tasks") && styles.activeLabel]}>List</Text>
@@ -105,7 +105,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/insights")}
         >
           <Image
-            source={require("@/assets/images/insights.png")}
+            source={require("@/assets/images/Desk_alt.png")}
             style={[styles.icon, isActive("/insight") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/insight") && styles.activeLabel]}>Insights</Text>
@@ -116,7 +116,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/profile")}
         >
           <Image
-            source={require("@/assets/images/profile.png")}
+            source={require("@/assets/images/User_alt.png")}
             style={[styles.icon, isActive("/profile") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/profile") && styles.activeLabel]}>Profile</Text>
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   container: { borderWidth:1, borderColor:'#eee', flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", height: 80, backgroundColor: "#fff", paddingBottom: Platform.OS === "ios" ? 24 : 12, position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 10 },
   sideGroup: { flexDirection: "row", width: "40%", justifyContent: "space-around" },
   tabItem: { alignItems: "center", justifyContent: "flex-end", height: 60, width: 60 },
-  icon: { width: 24, height: 24, resizeMode: "contain", opacity: 0.6 },
+  icon: { width: 28, height: 28, resizeMode: "contain", opacity: 0.6 },
   activeIcon: { opacity: 1, color: "#000" },
   label: { fontSize: 12, color: "#aaa", marginTop: 4 },
   activeLabel: { color: "#000", fontWeight: "900" },
