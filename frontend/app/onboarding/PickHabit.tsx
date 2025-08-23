@@ -37,7 +37,6 @@ export default function PickHabit() {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + "/presets/categories")
       .then((res) => res.json())
       .then((data) => {
-        console.log('hey',data);
         if (!Array.isArray(data)) {
           let arr = [];
           arr.push(data);
