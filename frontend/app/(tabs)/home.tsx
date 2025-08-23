@@ -328,7 +328,7 @@ const Home = () => {
                 containerStyle={{ width: "100%", alignSelf: 'center', marginBottom: 12}}
             >
                 <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10}}>
-                    <Pressable style={styles.card} onPress={() => handlePressHabit(item)} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
+                    <Pressable style={styles.card} onPress={() => handlePressHabit(item)} onLongPress={() => handleShowConfirmDelete(item)} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
                         <View style={styles.headerRow}>
                             <Text style={styles.title}>{item.habitTitle}</Text>
                             {progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0 ? (
