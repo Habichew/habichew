@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 import BottomBar from "@/components/bottomBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

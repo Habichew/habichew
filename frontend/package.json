@@ -46,6 +46,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
+    "react-native-animated-numbers": "^0.6.3",
     "react-native-calendar-picker": "^8.0.5",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-expo-pie-chart": "^1.0.0",

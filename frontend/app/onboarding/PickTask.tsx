@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useUser, Task } from "../context/UserContext";
+import { useUser, Task } from "../../context/UserContext";
 import TaskModal from "@/components/ui/TaskModal";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
 

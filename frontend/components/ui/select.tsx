@@ -53,11 +53,20 @@ export default function CustomDropdown({
           }
         }}
         // placeholder={placeholder || "Select an option"}
-        placeholder={ placeholder || iconName ?
-          <View style={{flexDirection: 'row'}}>
-          <Ionicons name={iconName} size={24} color="black" style={{ marginVertical: 'auto'}}/> :
-            {placeholder ? <Text style={styles.placeholder}>{placeholder}</Text> : null}
-          </View> : placeholder || "Select an option"
+        placeholder={
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {iconName && (
+                <Ionicons
+                    name={iconName}
+                    size={24}
+                    color="black"
+                    style={{ marginRight: "8@ms0.2" }}
+                />
+            )}
+            <Text style={styles.placeholder}>
+              {placeholder || "Select an option"}
+            </Text>
+          </View>
         }
         style={styles.dropdown}
         textStyle={styles.text}

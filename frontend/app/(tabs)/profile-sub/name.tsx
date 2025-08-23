@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useState } from "react";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 import { useEffect } from "react";
 
 export default function ChangeName() {

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import CustomDropdown from "../../components/ui/select";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../../context/UserContext";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
 import {Ionicons} from "@expo/vector-icons";
 

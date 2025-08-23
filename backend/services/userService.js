@@ -2,26 +2,23 @@
 import bcrypt from "bcrypt";
 import {pool} from "../config/db.js";
 
-export async function updateUserTaskLastCompleted(userId) {
-  const [rows] = await pool.query('UPDATE `users` SET taskLastCompleted = current_timestamp WHERE id = ?', [userId]);
-  return rows;
-}
-
 export async function getAllUsers() {
-  const [rows] = await pool.query('SELECT * FROM users');
-  return rows;
+  return await pool.query('SELECT * FROM users');
 }
 
 export async function createUser(username, email, password) {
   // check if the email is occupied
-  const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
-  if (existing.length > 0) return null;
+  const rows = await pool.query(
+      'SELECT id FROM users WHERE email = ? LIMIT 1',
+      [email]
+  );
+  if (Array.isArray(rows) && rows.length > 0) return null;
 
   // encrypt the password (hash)
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // insert user into database
-  const [result] = await pool.query(
+  const result = await pool.query(
       'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
       [username, email, hashedPassword]
   );
@@ -35,18 +32,16 @@ export async function createUser(username, email, password) {
 
 
 export async function findUserByEmail(email) {
-  const [result] = await pool.query(`SELECT * FROM users WHERE email = ?`, [email]);
-  return result;
+  return await pool.query(`SELECT * FROM users WHERE email = ?`, [email]);
 }
 
 export async function findUserById(id) {
-  const [result] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
-  return result[0];
+  return await pool.query('SELECT * FROM users WHERE id = ?', [id]);
 }
 
 export async function getUserById(id, field) {
   const query = `SELECT ${field} FROM users WHERE id = ?`;
-  const [rows] = await pool.execute(query, [id]);
+  const rows = await pool.execute(query, [id]);
   if (rows.length === 0) throw new Error('User not found');
   return rows[0][field];
 }
@@ -72,22 +67,18 @@ export async function updateUser(userId, updatedFields) {
   const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
   values.push(userId); // user ID at the end
 
-  const [result] = await pool.query(sql, values);
-  return result;
+  return await pool.query(sql, values);
 }
 
-export async function updateProfileImage(conn, userId, profileImage, callback) {
-  console.log(conn);
-  const result = await conn.query(
-    `UPDATE users
-    SET profileImage = ?
-    WHERE id = ?`,
-    [profileImage, userId]
-  );
-  callback(result);
+export async function updateUserTaskLastCompleted(userId) {
+  return await pool.query('UPDATE `users` SET taskLastCompleted = current_timestamp WHERE id = ?', [userId]);
+}
+
+export async function addUserCredit(userId, creditToAdd){
+  return await pool.query(`UPDATE users SET credits = IFNULL(credits, 0) + ? WHERE id = ?`,[creditToAdd, userId]
+  )
 }
 
 export async function deleteUser(userId) {
-  const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
-  return result;
+  return await pool.query('DELETE FROM users WHERE id = ?', [userId]);
 }

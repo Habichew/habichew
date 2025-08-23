@@ -73,7 +73,6 @@ export async function deleteMoodLog(req, res) {
     const { userId } = req.params;
 
     const userCheck = await userService.findUserById(userId);
-    console.log (userCheck);
     if (userCheck.length===0) {
       return res.status(404).json({ message: 'No user found.' });
     }

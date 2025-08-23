@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Dotenv
+../.env
+
+# Reports
+npm-debug.log
+.nyc_output
+coverage
+.cache
+.DS_Store
+
+# Git
+.git
+../.gitignore
+README.md
+

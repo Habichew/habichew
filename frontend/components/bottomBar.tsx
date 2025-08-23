@@ -8,12 +8,34 @@ import {
 } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import { Image } from 'expo-image';
+import {postcardImgs} from "@/constants/PostcardData";
 import PieChart from "react-native-expo-pie-chart";
+import {useUser} from "@/context/UserContext";
 
 export default function BottomBar() {
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (name: string) => pathname.includes(name);
+  const {user} = useUser();
+  const userCredits = user?.credits;
+
+  // 在组件内部处理 unlock 阈值逻辑
+  const sortedPostcards = [...postcardImgs].sort((a, b) => a.unlockScore - b.unlockScore);
+
+// 找到当前 unlocked 的最后一个和下一个
+  const lastPostcard = [...sortedPostcards].reverse().find(p => p.unlockScore <= userCredits) ?? sortedPostcards[0];
+  const nextPostcard = sortedPostcards.find(p => p.unlockScore > lastPostcard.unlockScore) ?? null;
+
+// 边界保护
+  const lowerBound = lastPostcard.unlockScore;
+  const upperBound = nextPostcard?.unlockScore ?? lowerBound + 100; // fallback
+
+  const totalNeededInStage = upperBound - lowerBound;
+  const progressInThisStage = Math.max(userCredits - lowerBound, 0);
+  const remaining = totalNeededInStage - progressInThisStage;
+
+  console.log('[bottomBar.tsx] Progress in the stage: ',progressInThisStage);
+  console.log('[bottomBar.tsx] Remaining credits in the stage: ',remaining);
 
   return (
     <View style={styles.container}>
@@ -24,7 +46,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/home")}
         >
           <Image
-            source={require("@/assets/images/home.png")}
+            source={require("@/assets/images/Home.png")}
             style={[styles.icon, isActive("/home") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/home") && styles.activeLabel]}>Home</Text>
@@ -35,7 +57,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/tasks")}
         >
           <Image
-            source={require("@/assets/images/tasks.png")}
+            source={require("@/assets/images/Desk_alt.png")}
             style={[styles.icon, isActive("/tasks") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/tasks") && styles.activeLabel]}>List</Text>
@@ -49,22 +71,30 @@ export default function BottomBar() {
             isActive("/pet") ? styles.activeCatShadow : styles.inactiveCatShadow,
           ]}
           onPress={() => router.push("/(tabs)/pet")}
-          android_ripple={{color: '#00000020', borderless: false, foreground: true, radius: 35}}
+          android_ripple={{color: '#00000020', borderless: false, foreground: true, radius: 33}}
         >
           <Image
             source={require("@/assets/images/catWhiteCircle.png")}
             style={styles.centerIcon}
           />
-            <PieChart rotation={-90} zeroTotalCircleColor={'#ECECEC'} style={styles.creditChart} data={[{
-                color: '#1CC282',
-                count: 750,
-                key: 'creditsCollected'
-            }, {
-                color: '#ECECEC',
-                count: 250,
-                key: 'creditsNeeded'
-            }]} length={80}> 
-            </PieChart>
+          <PieChart
+              rotation={-90}
+              zeroTotalCircleColor={'#ECECEC'}
+              style={styles.creditChart}
+              data={[
+                {
+                  color: '#1CC282',
+                  count: progressInThisStage,
+                  key: 'creditsCollected'
+                },
+                {
+                  color: '#ECECEC',
+                  count: remaining,
+                  key: 'creditsNeeded'
+                }
+              ]}
+              length={80}
+          />
 
         </Pressable>
 
@@ -75,7 +105,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/insights")}
         >
           <Image
-            source={require("@/assets/images/insights.png")}
+            source={require("@/assets/images/Desk_alt.png")}
             style={[styles.icon, isActive("/insight") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/insight") && styles.activeLabel]}>Insights</Text>
@@ -86,7 +116,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/profile")}
         >
           <Image
-            source={require("@/assets/images/profile.png")}
+            source={require("@/assets/images/User_alt.png")}
             style={[styles.icon, isActive("/profile") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/profile") && styles.activeLabel]}>Profile</Text>
@@ -99,7 +129,7 @@ const styles = StyleSheet.create({
   container: { borderWidth:1, borderColor:'#eee', flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", height: 80, backgroundColor: "#fff", paddingBottom: Platform.OS === "ios" ? 24 : 12, position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 10 },
   sideGroup: { flexDirection: "row", width: "40%", justifyContent: "space-around" },
   tabItem: { alignItems: "center", justifyContent: "flex-end", height: 60, width: 60 },
-  icon: { width: 24, height: 24, resizeMode: "contain", opacity: 0.6 },
+  icon: { width: 28, height: 28, resizeMode: "contain", opacity: 0.6 },
   activeIcon: { opacity: 1, color: "#000" },
   label: { fontSize: 12, color: "#aaa", marginTop: 4 },
   activeLabel: { color: "#000", fontWeight: "900" },
@@ -114,7 +144,7 @@ const styles = StyleSheet.create({
   justifyContent: "center",
   alignItems: "center",
   elevation: 6, },
-  centerIcon: { width: 68, height: 68, resizeMode: "contain", position: 'absolute', zIndex: 10 },
+  centerIcon: { width: 68, height: 68, resizeMode: "contain", position: 'absolute', zIndex: 10, borderWidth: StyleSheet.hairlineWidth, borderRadius: 90, borderColor: '#00000010' },
   inactiveCatShadow: {
   shadowColor: "#fff",
   shadowOffset: { width: 0, height: 2 },

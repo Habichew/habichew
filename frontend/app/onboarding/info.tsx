@@ -12,12 +12,18 @@ import CustomDropdown from "@/components/ui/select";
 import CustomInput from "@/components/ui/input";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
 import {Ionicons} from "@expo/vector-icons";
+import {useUser} from "@/context/UserContext";
 
 export default function InfoScreen1() {
   const router = useRouter();
   const [pronoun, setPronoun] = useState<string | null>(null);
   const [pace, setPace] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const {
+      setPet,
+      createPet,
+  } = useUser();
+
   //explicit step index for the 4-step onboarding
   const STEP_INDEX = 1; // Story=0, Info=1, PickHabit=2, PickTask=3
 
@@ -28,9 +34,14 @@ export default function InfoScreen1() {
     router.push("../onboarding/story");
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!isFormValid) return;
     router.push("/onboarding/PickHabit");
+    console.log('creating pet');
+    await createPet({
+      name: name,
+      level: 1
+    })
   };
 
   const pronounOptions = [

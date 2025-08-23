@@ -1,5 +1,7 @@
 import * as habitService from "../services/habitService.js";
-import {sendNotImplementedError} from "../app.js";
+import {sendNotImplementedError} from "../index.js";
+import * as taskService from "../services/taskService.js";
+import * as userService from "../services/userService.js";
 
 export async function getHabitCategories(req, res) {
     try {
@@ -38,9 +40,9 @@ export async function getHabitByUser(req, res) {
     try {
         const {userId, userHabitId} = req.params;
         const habit = await habitService.getUserHabit(userId, userHabitId);
-        res.status(200).json(habit);
+        return res.status(200).json(habit);
     } catch (err) {
-        res.status(500).json({message: 'Failed to fetch the habit', error: err.message});
+        return res.status(500).json({message: 'Failed to fetch the habit', error: err.message});
     }
 }
 
@@ -67,6 +69,47 @@ export async function createHabitByUser(req, res) {
     }
 }
 
+export async function completeHabit(req, res) {
+    try {
+        const { userId, userHabitId } = req.params;
+
+        // get the habit to validate it's legal
+        const currentHabit = await habitService.getUserHabit(userId, userHabitId);
+        if (!currentHabit || currentHabit.length === 0) {
+            return res.status(404).json({ message: "Habit not found" });
+        }
+
+
+        if (currentHabit.isArchived) {
+            return res.status(200).json({
+                message: "Habit already completed",
+                habit: currentHabit,
+            });
+        }
+
+
+        // Mark the habit as completed
+        const isArchived = 1;
+        const updatedHabit = await habitService.updateHabitByUser(userId,userHabitId,null,null,null,null,null,1);
+
+        // Add credits to the user
+        const creditToAdd = 15;
+        const updatedUser = await userService.addUserCredit(userId, creditToAdd);
+
+        return res.status(200).json({
+            message: "Habit marked completed and credit updated",
+            updatedHabit
+        });
+
+    } catch (err) {
+        console.error("CompleteTask error:", err);
+        return res.status(500).json({
+            message: "Failed to complete task",
+            error: err.message,
+        });
+    }
+}
+
 export async function updateHabitByUser(req, res) {
     try {
         const { userId, userHabitId } = req.params;
@@ -83,9 +126,9 @@ export async function updateHabitByUser(req, res) {
         }
 
         const habit = await habitService.updateHabitByUser(userId, userHabitId, customTitle, priority, startDate, goalDate, frequency, isArchived);
-        res.status(200).json({ message: 'User habit updated successfully' , habit });
+        return res.status(200).json({ message: 'User habit updated successfully' , habit });
     } catch (err) {
-        res.status(500).json({ message: 'Failed to update habit', error: err.message });
+        return res.status(500).json({ message: 'Failed to update habit', error: err.message });
     }
 }
 
@@ -106,25 +149,3 @@ export async function deleteUserHabit (req,res){
     }
 }
 
-export function getTaskRecommendations(conn, req, res) {
-    sendNotImplementedError(res);
-    /*
-    try {
-      habitService.getTaskRecommendations(
-          conn,
-          req.body.habit,
-          (result) => {
-            if (result.length === 1) {
-              res.status(200);
-            } else if (result.length === 0) {
-              res.status(403);
-            }
-            res.send(result);
-          }
-      );
-  } catch (code) {
-    res.status(code);
-    res.send();
-  }
-  */
-}

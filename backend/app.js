@@ -1,6 +1,8 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+// import mariadb from "mariadb";
+import multer from "multer";
 import dotenv from "dotenv";
 import path from "path";
 
@@ -9,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 // Import database pool
 import pool from "./config/db.js";
@@ -19,6 +21,41 @@ const app = express();
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix =
+      Date.now() +
+      "-" +
+      Math.round(Math.random() * 1e9) +
+      path.extname(file.originalname);
+    const filename = file.fieldname + "-" + uniqueSuffix;
+    req.body.file = filename;
+    cb(null, filename);
+  },
+});
+
+export const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/png'
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      const err = new Error('Only .jpg .jpeg .png images are supported!');
+      err.name = 'ExtensionError';
+      return cb(err);
+    }
+  },
+  limits: { fileSize: 5 * 1000 * 1000 },
+});
+
 // Configuration
 const PORT = process.env.BACKEND_PORT || 3000;
 const HOST = process.env.HOST || 'localhost'; // Important for Docker
@@ -26,11 +63,11 @@ const HOST = process.env.HOST || 'localhost'; // Important for Docker
 const testDbConnection = async () => {
   try {
     const conn = await pool.getConnection();
-    console.log('MySQL database connected successfully');
+    console.log('MariaDB database connected successfully');
     // Release the connection to MySQL
     conn.release();
   } catch (err) {
-    console.error('MySQL connection failed:', err.message);
+    console.error('MariaDB connection failed:', err.message);
     // Don't exit in development, retry connection
     if (process.env.NODE_ENV === 'production') {
       process.exit(1);
@@ -56,6 +93,9 @@ app.use(cors());
 
 app.set("view engine", "ejs");
 
+app.set('json replacer', (key, value) =>
+    typeof value === 'bigint' ? Number(value) : value
+);
 
 
 app.get("/", (req, res) => {
@@ -99,24 +139,8 @@ app.use("/presets", presetsRouter);
 // Moods
 app.use('/moods', moodRouter);
 
-/*
-
-// Pets
-app.use("/pets", petRouter);
-
-// Planets
-app.use("/planets", planetRouter);
-
-// User Habits
-app.use("/userHabits", userHabitRouter);
-
-// Images
-app.get("/uploads/:image", function (req, res) {
-  res.sendFile(path.join(__dirname, "/uploads/", req.params.image)); // find out the filePath based on given fileName
-});*/
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running at http://10.22.198.190:${PORT}/`);
+app.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}/`);
 });
 
 export function sendNotImplementedError(response) {

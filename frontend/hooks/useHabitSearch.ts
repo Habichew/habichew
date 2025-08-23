@@ -1,4 +1,4 @@
-import { Habit } from "../app/context/UserContext";
+import { Habit } from "@/context/UserContext";
 
 export const useHabitSearch = (habits: Habit[], keyword: string) => {
   if (!keyword.trim()) return habits;

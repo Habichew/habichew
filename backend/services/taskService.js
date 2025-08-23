@@ -1,17 +1,24 @@
 import {pool} from "../config/db.js";
-import result from "mysql/lib/protocol/packets/OkPacket.js";
+
+export async function markTaskCompleted(userTaskId) {
+    return await pool.query(
+        `UPDATE userTasks
+        SET completed=TRUE, completedAt = CURRENT_TIMESTAMP 
+         WHERE id=?`,
+        [userTaskId]);
+}
+
 
 export async function getPresetTasks(habitId) {
-    const [row] = await pool.query(
+    return await pool.query(
         `SELECT id as taskId, title, habitId, description FROM tasks 
          WHERE habitId=?`,
         [habitId]);
-    return row;
 }
 
 
 export async function getTaskListByUserId(userId) {
-    const [row] = await pool.query(`
+    return await pool.query(`
         SELECT
             uh.id AS userHabitId,
             ut.id AS userTaskId,
@@ -27,11 +34,10 @@ export async function getTaskListByUserId(userId) {
                  JOIN userHabits uh ON ut.userHabitId = uh.id
                  LEFT JOIN tasks t ON ut.taskId = t.id
         WHERE uh.userId = ?`, [userId]);
-    return row;
 }
 
 export async function findUserTaskById(userTaskId) {
-    const [row] = await pool.query(`
+    const row = await pool.query(`
         SELECT
             ut.userHabitId,
             ut.id AS userTaskId,
@@ -41,7 +47,8 @@ export async function findUserTaskById(userTaskId) {
             ut.credit,
             ut.priority,
             ut.dueAt,
-            ut.completedAt
+            ut.completedAt,
+            ut.createdAt
         FROM userTasks ut
                  LEFT JOIN tasks t ON ut.taskId = t.id
         WHERE ut.id = ?`, [userTaskId]);
@@ -61,7 +68,7 @@ export async function createTask({
     // verify if the object task is legal
     if (!userHabitId) throw new Error("userHabitId is required");
 
-    const [result] = await pool.query(`
+    const result = await pool.query(`
     INSERT INTO userTasks (taskId, customTitle, userHabitId, description, priority, dueAt, credit)
     VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [taskId || null, customTitle || null, userHabitId, description, priority, dueAt, credit]
@@ -92,7 +99,7 @@ export async function updateTask(userTaskId, task, completeTask) {
 
     values.push(userTaskId);
 
-    const [result] = await pool.query(
+    const result = await pool.query(
         `UPDATE userTasks SET ${setClauses.join(', ')} WHERE id = ?`,
         values
     );
@@ -100,7 +107,48 @@ export async function updateTask(userTaskId, task, completeTask) {
     return result.affectedRows > 0;
 }
 
+export async function calculateTaskCredit(userTask) {
+    const BASE = 10;
+    let credit = BASE;
+
+    const { priority, dueAt, completedAt, createdAt } = userTask;
+    console.log("dueAt: ", dueAt,"\ncompletedAt: ", completedAt, "\ncreatedAt: ", createdAt);
+
+    // 1. 处理 priority 系数
+    let priorityCoefficient = 1;
+    if (priority) {
+        const priorityMap = {
+            low: 1,
+            medium: 1.2,
+            high: 1.4,
+        };
+        priorityCoefficient = priorityMap[priority.toLowerCase()] || 1;
+    }
+
+    // 2. 处理 due 系数
+    let dueCoefficient = 1;
+    if (dueAt && completedAt && createdAt) {
+        const dueAtTime = new Date(dueAt).getTime();
+        const completedAtTime = new Date(completedAt).getTime();
+        const createdAtTime = new Date(createdAt).getTime();
+
+        const denominator = dueAtTime - createdAtTime;
+
+        // 确保分母大于0，避免除零错误
+        if (denominator > 0) {
+            const numerator = dueAtTime - completedAtTime;
+            dueCoefficient = 1 + (numerator / denominator);
+        }
+        console.log("dueCoefficient: ",dueCoefficient);
+    }
+
+    // 3. 应用系数（乘法叠加）
+    credit = BASE * priorityCoefficient * dueCoefficient;
+
+    return Math.max(0, Math.round(credit)); // Round the result, make the minimum to 0
+}
+
 export async function deleteTask(userTaskId) {
-    const [result] = await pool.query('DELETE FROM userTasks WHERE id = ?', [userTaskId]);
+    const result = await pool.query('DELETE FROM userTasks WHERE id = ?', [userTaskId]);
     return result.affectedRows > 0;
 }

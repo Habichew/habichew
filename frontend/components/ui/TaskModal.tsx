@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {Modal,View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,TouchableWithoutFeedback} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useUser, Task } from "../../app/context/UserContext";
+import { useUser, Task } from "@/context/UserContext";
 import { webDateInputWrapper, webDateInput } from "./webDateStyles";
 import CustomDropdown from "./select";
 import {ScaledSheet} from "react-native-size-matters";
@@ -82,11 +82,11 @@ export default function TaskModal({
         ? (priority.toLowerCase() as "low" | "medium" | "high")
         : null,
       habitId: task?.habitId ?? defaultHabitId ?? null,
-      credit: 50,
+      credit: 20,
     };
 
     if (task) {
-      await updateTask(formattedTask as Task);
+      await updateTask(formattedTask as Task, false);
     } else {
       await addTask(formattedTask as Task);
     }
@@ -153,7 +153,7 @@ export default function TaskModal({
   };
 
   return (
-  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} hardwareAccelerated={true}>
     <TouchableOpacity onPress={onClose}
                               activeOpacity={1}
                               style={styles.overlay}>
@@ -163,7 +163,7 @@ export default function TaskModal({
             <View style={styles.rowEnd}>
               {task ? (
                 <TouchableOpacity onPress={handleDelete}>
-                  <Ionicons name="trash-outline" size={20} color="#888" />
+                  <Text><Ionicons name="trash-outline" size={20} color="#888" /></Text>
                 </TouchableOpacity>
               ) : null }
             </View>

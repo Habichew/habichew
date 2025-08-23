@@ -41,7 +41,7 @@ export type Task = {
 };
 
 export type Pet = {
-  id: string;
+  id?: string;
   name: string;
   mood?: string;
   personality?: string;
@@ -66,6 +66,7 @@ export type MoodType = {
 type UserDataContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
+  updateUser: (user: User) => void;
   clearUser: () => void;
 
   habits: Habit[];
@@ -83,14 +84,19 @@ type UserDataContextType = {
   loadPet: () => Promise<void>;
   loadMoods: () => Promise<void>;
   loadMoodTypes: () => Promise<void>;
+  loadUser: () => Promise<void>;
 
   addHabit: (userId: string, h: Habit) => Promise<void>;
+  completeHabit: (h:Habit) => Promise<void>;
   updateHabit: (h: Habit) => Promise<void>;
   completeHabitTasks: (h: Habit) => Promise<void>;
   deleteHabit: (userHabitId: number) => Promise<void>;
 
   addTask: (t: Task) => Promise<void>;
   updateTask: (t: Task) => Promise<void>;
+  completeTask: (t: Task) => Promise<void>;
+
+  createPet: (p: Pet) => Promise<void>;
 
   calculateHabitProgress: () => Record<number, number>;
 
@@ -100,7 +106,7 @@ type UserDataContextType = {
 };
 
 const UserDataContext = createContext<UserDataContextType | undefined>(
-  undefined,
+    undefined,
 );
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
@@ -124,12 +130,72 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setMoodTypes([]);
   };
 
+  // ----------------- User Log --------------------
+  const loadUser = async () => {
+    try {
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+          },
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Failed to update user");
+      }
+
+      const data = await response.json();
+      setUser(data[0]);
+      console.log("Retrieved user successfully:", data[0]);
+
+      // reload habit table
+      // await loadHabits();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  }
+
+  const updateUser = async (user: User) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/user/${user.id}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: user.email,
+              username: user.username,
+              petId: user.petId,
+              credits: user.credits
+            }),
+          },
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Failed to update user");
+      }
+
+      const data = await response.json();
+      console.log("Habit updated successfully:", data);
+
+      // reload habit table
+      await loadHabits();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  };
+
   // ----------------- Habit Logic -----------------
   const loadHabits = async () => {
     if (!user) return;
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}`,
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}`,
       );
       const data = await res.json();
       setHabits(data);
@@ -148,12 +214,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         frequency: habit.frequency ?? null,
       };
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${userId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${userId}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
       );
 
       if (!response.ok) throw new Error("Failed to add habit");
@@ -167,41 +233,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateHabit = async (habit: Habit) => {
-    if (!user || !habit.userHabitId) return;
-
-    try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${habit.userHabitId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customTitle: habit.habitTitle,
-            priority: habit.priority,
-            startDate: habit.startDate.slice(0, 10),
-            goalDate: habit.goalDate?.slice(0, 10),
-            frequency: habit.frequency,
-            isArchived: habit.isArchived,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Failed to update habit");
-      }
-
-      const data = await response.json();
-      console.log("Habit updated successfully:", data);
-
-      // reload habit table
-      await loadHabits();
-    } catch (error) {
-      console.error("Failed to update habit:", error);
-    }
-  };
-
-  const completeHabitTasks = async (habit: Habit) => {
     if (!user || !habit.userHabitId) return;
 
     try {
@@ -236,15 +267,52 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const completeHabit = async (habit: Habit) => {
+    if (!user || !habit.userHabitId) return;
+    try {
+      const res = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${habit.userHabitId}/completed`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+          },
+      );
+
+      if (res.ok) {
+        await loadHabits();
+        await loadUser();
+      } else {
+        const err = await res.json();
+        console.error("Failed to complete habit:", err);
+      }
+    } catch (err) {
+      console.error(" Failed to complete habit:", err);
+    }
+  }
+
+  const completeHabitTasks = async (habit: Habit) => {
+    if (!user || !habit.userHabitId) return;
+
+    const habitTasks = tasks.filter(
+        (t) => t.habitId === habit.userHabitId
+    );
+
+    for (let task of habitTasks) {
+      task.completed = true;
+      await completeTask(task);
+    }
+    console.log('completed all tasks of habit', habit.userHabitId);
+  };
+
   const deleteHabit = async (userHabitId: number) => {
     if (!user) return;
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${userHabitId}`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        },
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${userHabitId}`,
+          {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          },
       );
       if (res.ok) {
         await loadHabits();
@@ -262,9 +330,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return;
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks`,
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks`,
       );
-      console.log("tasks", res);
       const data = await res.json();
       const mapped = data.map((t: any) => {
         const habit = habits.find((h) => h.userHabitId === t.userHabitId);
@@ -290,23 +357,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // return habitId → % map
   const calculateHabitProgress = (): Record<number, number> => {
-    const progressMap: Record<number, number> = {};
+    const progressMap: Record<number, any> = {};
     const grouped = tasks.reduce(
-      (acc, t) => {
-        if (!t.habitId) return acc;
-        if (!acc[t.habitId]) acc[t.habitId] = [];
-        acc[t.habitId].push(t);
-        return acc;
-      },
-      {} as Record<number, Task[]>,
+        (acc, t) => {
+          if (!t.habitId) return acc;
+          if (!acc[t.habitId]) acc[t.habitId] = [];
+          acc[t.habitId].push(t);
+          return acc;
+        },
+        {} as Record<number, Task[]>,
     );
 
     for (const habitId in grouped) {
       const all = grouped[habitId];
       const done = all.filter((t) => !!t.completed).length;
       const percent =
-        all.length === 0 ? 0 : Math.round((done / all.length) * 100);
-      progressMap[+habitId] = percent;
+          all.length === 0 ? 0 : Math.round((done / all.length) * 100);
+      progressMap[+habitId] = {percent: percent, all: all.length, done: done};
     }
     return progressMap;
   };
@@ -330,12 +397,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
       );
 
       if (res.ok) {
@@ -365,12 +432,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks/${t.userTaskId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks/${t.userTaskId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
       );
 
       if (res.ok) {
@@ -384,14 +451,38 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const completeTask = async (t: Task) => {
+    if (!user || !t.userTaskId) return;
+
+
+    try {
+      const res = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks/${t.userTaskId}/completed`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+          },
+      );
+
+      if (res.ok) {
+        await loadTasks();
+      } else {
+        const err = await res.json();
+        console.error("Failed to complete task:", err);
+      }
+    } catch (err) {
+      console.error(" Failed to complete task:", err);
+    }
+  };
+
   const deleteTask = async (userTaskId: number) => {
     if (!user) return;
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks/${userTaskId}`,
-        {
-          method: "DELETE",
-        },
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks/${userTaskId}`,
+          {
+            method: "DELETE",
+          },
       );
       if (res.ok) await loadTasks();
     } catch (err) {
@@ -409,13 +500,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     console.log("load user's pet");
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/pet`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/pet`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
           },
-        },
       );
       const petData = await response.json();
 
@@ -430,12 +521,50 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const createPet = async (p: Pet) => {
+    if (!user) {
+      console.log("no user found");
+      return;
+    }
+
+    try {
+      const payload = {
+        pet: {
+          name: p.name,
+          level: p.level
+        },
+      };
+
+      const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/pet`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          },
+      );
+      const petData = await response.json();
+
+      if (response.ok) {
+        // setPet(petData[0]);
+        console.log("loaded pet", petData);
+      } else {
+        // Alert.alert("Missing input", "Please enter email and password");
+        Alert.alert("Error", "Pet creation failed");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to connect to the server");
+    }
+  }
+
   // ----------------- Mood Logic -----------------
   const loadMoods = async () => {
     if (!user) return;
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/moods/${user.id}`,
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/moods/${user.id}`,
       );
       const data = await res.json();
       console.log("moods", data);
@@ -461,12 +590,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}/tasks`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
       );
 
       if (res.ok) {
@@ -493,37 +622,43 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <UserDataContext.Provider
-      value={{
-        user,
-        setUser,
-        clearUser,
-        habits,
-        tasks,
-        pet,
-        moods,
-        moodTypes,
-        setHabits,
-        setTasks,
-        setPet,
-        setMoods,
-        loadHabits,
-        loadTasks,
-        calculateHabitProgress,
-        loadPet,
-        loadMoods,
-        loadMoodTypes,
-        addHabit,
-        updateHabit,
-        deleteHabit,
-        addTask,
-        updateTask,
-        deleteTask,
-        addMood,
-      }}
-    >
-      {children}
-    </UserDataContext.Provider>
+      <UserDataContext.Provider
+          value={{
+            user,
+            setUser,
+            updateUser,
+            clearUser,
+            habits,
+            tasks,
+            pet,
+            moods,
+            moodTypes,
+            setHabits,
+            setTasks,
+            setPet,
+            setMoods,
+            loadHabits,
+            loadTasks,
+            calculateHabitProgress,
+            loadPet,
+            loadMoods,
+            loadMoodTypes,
+            loadUser,
+            addHabit,
+            completeHabit,
+            updateHabit,
+            completeHabitTasks,
+            deleteHabit,
+            addTask,
+            updateTask,
+            completeTask,
+            deleteTask,
+            addMood,
+            createPet
+          }}
+      >
+        {children}
+      </UserDataContext.Provider>
   );
 };
 

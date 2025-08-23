@@ -1,69 +1,31 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
-  Dimensions,
+  Dimensions, Modal, Pressable, TouchableWithoutFeedback,
 } from "react-native";
-import { useUser } from "@/app/context/UserContext";
+import { useUser } from "@/context/UserContext";
 import { ScaledSheet } from "react-native-size-matters";
 
 import FlipCard from "react-native-flip-card";
 import Postcard from "@/components/ui/Postcard";
-import Carousel, {
+import {postcardImgs} from "@/constants/PostcardData"
+/*import Carousel, {
   ICarouselInstance,
-} from "react-native-reanimated-carousel";
+} from "react-native-reanimated-carousel";*/
 import { Image } from 'expo-image';
+import {Ionicons} from "@expo/vector-icons";
 
 export default function PetScreen(this: any) {
-  const { pet, loadPet } = useUser(); // use user data
-  const postCardImgs = [
-    {
-      unlockScore: 50,
-      frontUrl: require("@/assets/images/postcard 1.png"),
-      backUrl: require("@/assets/images/postcard 1 back.png"),
-    },
-    {
-      unlockScore: 150,
-      frontUrl: require("@/assets/images/postcard 2.png"),
-      backUrl: require("@/assets/images/postcard 2 back.png"),
-    },
-    {
-      unlockScore: 500,
-      frontUrl: require("@/assets/images/postcard 3.png"),
-      backUrl: require("@/assets/images/postcard 3 back.png"),
-    },
-    {
-      unlockScore: 1000,
-      frontUrl: require("@/assets/images/postcard 4.png"),
-      backUrl: require("@/assets/images/postcard 4 back.png"),
-    },
-    {
-      unlockScore: 2000,
-      frontUrl: require("@/assets/images/postcard 5.png"),
-      backUrl: require("@/assets/images/postcard 5 back.png"),
-    },
-    {
-      unlockScore: 5000,
-      frontUrl: require("@/assets/images/postcard 6.png"),
-      backUrl: require("@/assets/images/postcard 6 back.png"),
-    },
-    {
-      unlockScore: 10000,
-      frontUrl: require("@/assets/images/postcard 7.png"),
-      backUrl: require("@/assets/images/postcard 7 back.png"),
-    },
-    {
-      unlockScore: 25000,
-      frontUrl: require("@/assets/images/postcard 8.png"),
-      backUrl: require("@/assets/images/postcard 8 back.png"),
-    },
-    {
-      unlockScore: 50000,
-      frontUrl: require("@/assets/images/postcard 9.png"),
-      backUrl: require("@/assets/images/postcard 9 back.png"),
-    },
-  ];
+  const { pet, loadPet, user } = useUser(); // use user data
+  const [selectedCard, setSelectedCard] = useState<{
+    frontUrl: any;
+    backUrl: any;
+    unlockScore: number;
+  } | null>(null);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   useState(() => {
     console.log("load user pet");
@@ -87,9 +49,13 @@ export default function PetScreen(this: any) {
             <Image source={require('@/assets/images/pet profile.png')} style={styles.avatar} />
             <View style={styles.avatarDescription}>
               <Text style={styles.petName}>{pet?.name}</Text>
-              <Text style={styles.personality}>{pet?.personality}</Text>
-              <Text style={styles.textLine}>{pet?.hunger}</Text>
-              <Text style={styles.level}>{pet?.level}</Text>
+              {/*<Text style={styles.personality}>{pet?.personality}</Text>*/}
+              {/*<Text style={styles.textLine}>Mood: {pet?.mood}</Text>*/}
+              <Text style={styles.level}>Level: {pet?.level}</Text>
+              <View style={styles.creditContainer}>
+                <Ionicons name="star" size={20} color="#1CC282"/>
+                <Text style={{ lineHeight:20 }}> {user?.credits|0}</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -97,61 +63,97 @@ export default function PetScreen(this: any) {
         <View style={styles.postcards}>
           <Text style={styles.postcardsTitle}>Postcards</Text>
 
-          <View style={{marginBottom: 30}}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20, marginBottom: 10}}>
-              <Postcard source={postCardImgs[0].frontUrl} unlockScore={postCardImgs[0].unlockScore} />
-              <Postcard source={postCardImgs[1].frontUrl} unlockScore={postCardImgs[1].unlockScore} />
-              <Postcard source={postCardImgs[2].frontUrl} unlockScore={postCardImgs[2].unlockScore} />
-            </View>
-            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20, marginBottom: 10}}>
-              <Postcard source={postCardImgs[3].frontUrl} unlockScore={postCardImgs[3].unlockScore} />
-              <Postcard source={postCardImgs[4].frontUrl} unlockScore={postCardImgs[4].unlockScore} />
-              <Postcard source={postCardImgs[5].frontUrl} unlockScore={postCardImgs[5].unlockScore} />
-            </View>
-            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20}}>
-              <Postcard source={postCardImgs[6].frontUrl} unlockScore={postCardImgs[6].unlockScore} />
-              <Postcard source={postCardImgs[7].frontUrl} unlockScore={postCardImgs[7].unlockScore} />
-              <Postcard source={postCardImgs[8].frontUrl} unlockScore={postCardImgs[8].unlockScore} />
-            </View>
+          <View style={{ marginBottom: 30 }}>
+            {postcardImgs.reduce((rows, current, index) => {
+              if (index % 3 === 0) rows.push([]);
+              rows[rows.length - 1].push(current);
+              return rows;
+            }, []).map((row, rowIndex) => (
+                <View key={rowIndex} style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20, marginBottom: 10 }}>
+                  {row.map((item, idx) => (
+                      <Postcard
+                          key={`postcard-${rowIndex}-${idx}`}
+                          source={item.frontUrl}
+                          unlockScore={item.unlockScore}
+                          isUnlocked={user.credits >= item.unlockScore}
+                          onPress={() => {
+                            setSelectedCard(item);        // select the unlocked postcard
+                            setModalVisible(true);        // Open the modal to flip the postcard
+                          }}
+                      />
+                  ))}
+                </View>
+            ))}
           </View>
 
-          <Carousel
-              ref={ref}
-              width={width}
-              data={postCardImgs.filter((item, index) => {
-                if (item.unlockScore < 1000) return item;
-              }).reverse()}
-              pagingEnabled={true}
-              snapEnabled={true}
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                paddingTop: 50,
-                top: 0,
-                marginBottom: Dimensions.get('window').height * 0.5
-              }}
-              mode={"vertical-stack"}
-              modeConfig={{
-                snapDirection: "left",
-                stackInterval: -10,
-                opacityInterval: 0
-              }}
-              customConfig={() => ({ type: "positive", viewCount: 5 })}
-              renderItem={({index, item}) => (
-                  <FlipCard style={{flexDirection: 'row', width: '100%'}} flipHorizontal={true} flipVertical={false} friction={8} perspective={2000} useNativeDriver={true}>
-                    {/* Face Side */}
-                    <View style={styles.face}>
-                      <Image style={[styles.faceImg]} source={item.frontUrl} key={"postcard-"+index}></Image>
+          <Modal
+              visible={modalVisible}
+              transparent={true}
+              animationType="fade"
+          >
+            <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+              <View style={styles.modalBackground}>
+                <TouchableWithoutFeedback onPress={() => {}}>
+                  <View style={styles.modalContainer}>
+                    <FlipCard
+                        flipHorizontal
+                        flipVertical={false}
+                        friction={8}
+                        perspective={2000}
+                        useNativeDriver
+                    >
+                    {/* Front Side of Postcard */}
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                      <Image style={[styles.faceImg]} source={selectedCard?.frontUrl} key={`front`}></Image>
                     </View>
-                    {/* Back Side */}
-                    <View style={styles.back}>
-                      <Image style={styles.backImg} source={item.backUrl} key={"postcard-"+index}/>
+                    {/* Back Side of Postcard */}
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                      <Image style={[styles.faceImg]} source={selectedCard?.backUrl} key={"back"}></Image>
                     </View>
-                  </FlipCard>
-              )}
-              loop={false}
-          />
+                    </FlipCard>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
+
+          {/*<Carousel*/}
+          {/*    ref={ref}*/}
+          {/*    width={width}*/}
+          {/*    data={postCardImgs.filter((item, index) => {*/}
+          {/*      if (item.unlockScore < user.credits) return item;*/}
+          {/*    }).reverse()}*/}
+          {/*    pagingEnabled={true}*/}
+          {/*    snapEnabled={true}*/}
+          {/*    style={{*/}
+          {/*      alignItems: "center",*/}
+          {/*      justifyContent: "center",*/}
+          {/*      width: "100%",*/}
+          {/*      paddingTop: 50,*/}
+          {/*      top: 0,*/}
+          {/*      marginBottom: Dimensions.get('window').height * 0.5*/}
+          {/*    }}*/}
+          {/*    mode={"vertical-stack"}*/}
+          {/*    modeConfig={{*/}
+          {/*      snapDirection: "left",*/}
+          {/*      stackInterval: -10,*/}
+          {/*      opacityInterval: 0*/}
+          {/*    }}*/}
+          {/*    customConfig={() => ({ type: "positive", viewCount: 5 })}*/}
+          {/*    renderItem={({index, item}) => (*/}
+          {/*        <FlipCard style={{flexDirection: 'row', width: '100%'}} flipHorizontal={true} flipVertical={false} friction={8} perspective={2000} useNativeDriver={true}>*/}
+          {/*          /!* Face Side *!/*/}
+          {/*          <View style={styles.face}>*/}
+          {/*            <Image style={[styles.faceImg]} source={item.frontUrl} key={"postcard-"+index}></Image>*/}
+          {/*          </View>*/}
+          {/*          /!* Back Side *!/*/}
+          {/*          <View style={styles.back}>*/}
+          {/*            <Image style={styles.backImg} source={item.backUrl} key={"postcard-"+index}/>*/}
+          {/*          </View>*/}
+          {/*        </FlipCard>*/}
+          {/*    )}*/}
+          {/*    loop={false}*/}
+          {/*/>*/}
         </View>
       </ScrollView>
     </View>
@@ -253,19 +255,26 @@ const styles = ScaledSheet.create({
     fontWeight: "bold",
     fontFamily: "Poppins",
   },
+  creditContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   personality: {
     fontSize: 14,
     fontFamily: "Poppins",
   },
   avatarDescription: {
     paddingHorizontal: 10,
+    flexDirection: 'column'
   },
   level: {
     fontSize: 15,
     fontWeight: "600",
+    flexGrow: 1,
   },
   postcards: {
     paddingTop: 50,
+    paddingBottom: 100
   },
   postcardsTitle: {
     fontSize: 24,
@@ -313,5 +322,17 @@ const styles = ScaledSheet.create({
     width: Dimensions.get("window").width * 0.8,
     borderWidth: 1,
     borderColor: "#00000069",
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: Dimensions.get("window").width * 0.8,
+    aspectRatio: 3/2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -12,6 +12,9 @@ habitRouter.get('/:userId/:userHabitId', habitController.getHabitByUser);
 // Create a habit
 habitRouter.post('/:userId', habitController.createHabitByUser);
 
+// Complete a habit
+habitRouter.patch('/:userId/:userHabitId/completed', habitController.completeHabit);
+
 // Update a habit
 habitRouter.patch('/:userId/:userHabitId', habitController.updateHabitByUser);
 

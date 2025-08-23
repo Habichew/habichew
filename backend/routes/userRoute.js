@@ -61,6 +61,9 @@ userRouter.get("/:userId/tasks/:userTaskId", taskController.findUserTaskById);
 // Create a task
 userRouter.post("/:userId/tasks", taskController.createTask);
 
+// Complete a task
+userRouter.patch("/:userId/tasks/:userTaskId/completed", taskController.completeTask);
+
 // Update a task
 userRouter.patch("/:userId/tasks/:userTaskId", taskController.updateTask);
 
