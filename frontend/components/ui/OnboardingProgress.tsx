@@ -15,6 +15,8 @@ type Props = {
   count?: number; // default 4
   onSkip?: () => void;
   onNext?: () => void;
+  showSkip?: boolean; // default true
+  showNext?: boolean; // default true
   skipLabel?: string; // default "Skip"
   nextLabel?: string; // default "Next"
   fixed?: boolean; // default true
@@ -43,21 +45,31 @@ export default function OnboardingProgress({
   dotSpacing = 4,
   style,
   textStyle,
+  showSkip = true,
+  showNext = true,
 }: Props) {
   const dots = Math.max(1, count);
   const activeDot = clamp(index, 0, dots - 1);
 
+  const showSkipBtn = Boolean(onSkip) && showSkip;
+  const showNextBtn = Boolean(onNext) && showNext;
   return (
     <View
-      style={[styles.bar, fixed && styles.fixed, { backgroundColor }, style]}
+      style={[
+        styles.bar,
+        fixed && styles.fixed,
+        { backgroundColor },
+        style,
+        !(showSkipBtn || showNextBtn) && { justifyContent: "center" }, // 两边都隐藏时，让圆点居中
+      ]}
     >
-      <TouchableOpacity
-        onPress={onSkip}
-        disabled={!onSkip}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <Text style={[styles.navText, textStyle]}>{skipLabel}</Text>
-      </TouchableOpacity>
+      {showSkipBtn ? (
+        <TouchableOpacity onPress={onSkip} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Text style={[styles.navText, textStyle]}>{skipLabel}</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={{ width: 48 }} />
+      )}
 
       <View style={styles.dotsRow}>
         {Array.from({ length: dots }).map((_, i) => (
@@ -74,13 +86,13 @@ export default function OnboardingProgress({
         ))}
       </View>
 
-      <TouchableOpacity
-        onPress={onNext}
-        disabled={!onNext}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <Text style={[styles.navText, textStyle]}>{nextLabel}</Text>
-      </TouchableOpacity>
+      {showNextBtn ? (
+        <TouchableOpacity onPress={onNext} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Text style={[styles.navText, textStyle]}>{nextLabel}</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={{ width: 48 }} />
+      )}
     </View>
   );
 }

@@ -83,11 +83,7 @@ export default function InfoScreen1() {
         </TouchableOpacity>
       </View>
 
-      <OnboardingProgress
-        index={STEP_INDEX}
-        onSkip={() => router.push("/onboarding/PickHabit")}
-        onNext={() => router.push("/onboarding/PickHabit")}
-      />
+      <OnboardingProgress index={STEP_INDEX} showSkip={false} showNext={false}/>
     </View>
   );
 }
