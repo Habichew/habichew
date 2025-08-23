@@ -273,6 +273,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
             visible={visible}
             transparent
             animationType="slide"
+            hardwareAccelerated={true}
         >
             <TouchableOpacity
                 activeOpacity={1}

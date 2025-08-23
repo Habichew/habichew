@@ -153,7 +153,7 @@ export default function TaskModal({
   };
 
   return (
-  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} hardwareAccelerated={true}>
     <TouchableOpacity onPress={onClose}
                               activeOpacity={1}
                               style={styles.overlay}>
