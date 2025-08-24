@@ -280,7 +280,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       if (res.ok) {
         await loadHabits();
-        await loadUser();
+        // await loadUser();
       } else {
         const err = await res.json();
         console.error("Failed to complete habit:", err);
