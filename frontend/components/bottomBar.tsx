@@ -46,7 +46,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/home")}
         >
           <Image
-            source={require("@/assets/images/home.png")}
+            source={require("@/assets/images/Home.png")}
             style={[styles.icon, isActive("/home") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/home") && styles.activeLabel]}>Home</Text>

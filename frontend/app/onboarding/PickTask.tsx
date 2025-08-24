@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   FlatList,
+    Dimensions
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -110,7 +111,7 @@ export default function PickTasks() {
         keyExtractor={(item, index) =>
           item.userTaskId?.toString() || `${item.title}-${index}`
         }
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100, width: Dimensions.get('window').width - 80, minWidth: 200 }}
         renderItem={({ item }) => {
           const dueDate = item.dueAt
             ? new Date(item.dueAt).toLocaleDateString("en-US", {
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 60,
+    paddingTop: 60
   },
   back: { position: "absolute", left: 20, top: 28 },
   roundBtn: {
