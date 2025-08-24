@@ -1,5 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import {Dimensions, View, Text, StyleSheet, Image, Pressable, TouchableOpacity, TextInput, ActivityIndicator, FlatList} from 'react-native';
+import {
+  Dimensions,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  FlatList,
+  Platform
+} from 'react-native';
 import { useUser, Task } from "../../context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
@@ -208,7 +220,15 @@ export default function Tasks() {
           <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}  android_ripple={{color: '#00000020', borderless: true, foreground: false, radius: 300}}>
             <View style={styles.flexOne}>
               <TouchableOpacity disabled={!!item.completed}
-                                onPress={() => toggleCompleted(item)}
+                                onPress={() => {
+                                    if (Platform.OS === 'android') {
+                                      Haptics.performAndroidHapticsAsync(AndroidHaptics.Confirm);
+                                    } else {
+                                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+                                    }
+                                    toggleCompleted(item)
+                                  }
+                                }
                                 style={{ padding: 5, margin: -5}}>
                 <Ionicons
                     name={!item.completed ? "ellipse-outline" : "checkmark-circle-outline"}
