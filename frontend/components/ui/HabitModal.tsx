@@ -385,7 +385,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                     <DateTimePicker
                                                         value={formData.goalDate ? new Date(formData.goalDate) : new Date()}
                                                         mode="date"
-                                                        display="calendar"
+                                                        display={Platform.OS === 'android' ? "calendar" : undefined}
                                                         onChange={(event, selectedDate) => {
                                                             setShowDatePicker(false);
                                                             if (selectedDate) {
@@ -396,6 +396,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                                 setFormData({...formData, goalDate: formattedDate});
                                                             }
                                                         }}
+                                                        // timeZoneOffsetInMinutes={60}
                                                     />
                                                 )}
                                             </View>
