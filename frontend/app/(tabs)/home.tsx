@@ -472,7 +472,8 @@ const Home = () => {
             <SystemBars style={'dark'}/>
             <Rive
                 artboardName={artboardName}
-                resourceName='pet'
+                url={Platform.OS === 'ios' ? "https://www.scss.tcd.ie/~nangolem/habichew-animations/pet.riv" : undefined}
+                resourceName={Platform.OS === 'android' ? 'pet' : undefined}
                 fit={Fit.Cover}
                 ref={riveRef}
                 stateMachineName={"State Machine 1"}
