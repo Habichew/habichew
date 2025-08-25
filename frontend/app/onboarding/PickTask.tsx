@@ -35,7 +35,7 @@ export default function PickTasks() {
   const handleSaveTask = async (task: Task) => {
     try {
       const newTask = { ...task, habitId: numericUserHabitId };
-      await addTask(newTask);
+      // await addTask(newTask);
       setTaskList((prev) => [...prev, newTask]);
       setModalVisible(false);
       setEditingTask(null);
