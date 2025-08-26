@@ -341,6 +341,14 @@ export default function Tasks() {
               onSwipeableOpen: async (direction, swipeable) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
             }}
             style={{marginHorizontal: -40, paddingHorizontal: 25}}
+            ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Ionicons name="checkmark-done-outline" style={styles.emptyIcon} color="black"/>
+                  <Text style={styles.emptyTitle}>All Tasks Cleared</Text>
+                  <Text style={styles.emptySubtitle}>
+                    There are no tasks to display.{'\n'}Try adding one to get started!
+                  </Text>
+                </View>)}
         />
 
         {modalVisible ? <Animated.View style={[styles.overlay]}/> : null}
@@ -439,5 +447,29 @@ const styles = ScaledSheet.create({
     paddingRight: 40,
     marginRight: -Dimensions.get('window').width + 70,
     width: Dimensions.get('window').width
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
   }
 });

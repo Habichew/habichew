@@ -582,6 +582,7 @@ const Home = () => {
                     data={filteredHabits.filter((h) =>
                         (showArchivedHabits && h.isArchived) || (!showArchivedHabits && ((h.isArchived === 0) || h.isArchived === null)))
                     }
+
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={async () => {
                             console.log("refresh");
@@ -590,6 +591,13 @@ const Home = () => {
                     }
                     keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
                     renderItem={renderHabit}
+                    ListEmptyComponent={() => (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>
+                                There are no habits to display. Try adding one!
+                            </Text>
+                        </View>
+                    )}
                 />
             </View>
             <ItemModal visible={modalVisible} initialData={editHabit ?? undefined}
@@ -703,6 +711,19 @@ const styles = ScaledSheet.create({
         color: "#000",
         fontSize: 20,
         fontWeight: "bold",
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 20,
+    },
+    emptyText: {
+        fontSize: 14,
+        color: '#666',
+        textAlign: 'center',
+        fontStyle: 'italic',
     },
 });
 
