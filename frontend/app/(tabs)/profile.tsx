@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { useUser } from "@/context/UserContext";
 import BottomBar from "@/components/bottomBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {Ionicons} from "@expo/vector-icons";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -94,7 +95,8 @@ function ProfileItem({
         <Text style={styles.label}>{label}</Text>
         {value && <Text style={styles.value}>{value}</Text>}
       </View>
-      <Text style={styles.arrow}>{">"}</Text>
+      <Ionicons name={"chevron-forward-outline"}></Ionicons>
+      {/*<Text style={styles.arrow}>{">"}</Text>*/}
     </TouchableOpacity>
   );
 }
