@@ -316,7 +316,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                         </View>
 
                                         {/* habit section */}
-                                        <View style={styles.habitSection}>
+                                        <View style={[styles.habitSection, {marginBottom: isEdit && isKeyboardVisible && Platform.OS === 'ios' ? keyboardHeight : 0}]}>
 
                                             {/* Priority */}
                                             <TouchableWithoutFeedback onPress={() => freqDropDownRef.current.close()}>
