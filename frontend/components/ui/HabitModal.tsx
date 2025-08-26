@@ -385,22 +385,38 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
 
                                                 )}
                                                 {showDatePicker && (
-                                                    <DateTimePicker
-                                                        value={formData.goalDate ? new Date(formData.goalDate) : new Date()}
-                                                        mode="date"
-                                                        display={Platform.OS === 'android' ? "calendar" : undefined}
-                                                        onChange={(event, selectedDate) => {
-                                                            setShowDatePicker(false);
-                                                            if (selectedDate) {
-                                                                const y = selectedDate.getFullYear();
-                                                                const m = selectedDate.getMonth() + 1;
-                                                                const d = selectedDate.getDate();
-                                                                const formattedDate = `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-                                                                setFormData({...formData, goalDate: formattedDate});
-                                                            }
-                                                        }}
-                                                        // timeZoneOffsetInMinutes={60}
-                                                    />
+                                                    <Modal
+                                                        transparent={true}
+                                                        animationType="slide"
+                                                        visible={showDatePicker}
+                                                        onRequestClose={() => setShowDatePicker(false)}
+                                                    >
+                                                        <View style={styles.modalContainer}>
+                                                            <View style={styles.pickerContainer}>
+                                                                <DateTimePicker
+                                                                    value={formData.goalDate ? new Date(formData.goalDate) : new Date()}
+                                                                    mode="date"
+                                                                    display={Platform.select({ ios: 'spinner', android: 'calendar' })}
+                                                                        onChange={(event, selectedDate) => {
+                                                                        setShowDatePicker(false);
+                                                                        if (event.type === 'set' && selectedDate) {
+                                                                            const y = selectedDate.getFullYear();
+                                                                            const m = selectedDate.getMonth() + 1;
+                                                                            const d = selectedDate.getDate();
+                                                                            const formattedDate = `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+                                                                            setFormData({...formData, goalDate: formattedDate});
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                <TouchableOpacity
+                                                                    style={styles.closeButton}
+                                                                    onPress={() => setShowDatePicker(false)}
+                                                                >
+                                                                    <Text>Close</Text>
+                                                                </TouchableOpacity>
+                                                            </View>
+                                                        </View>
+                                                    </Modal>
                                                 )}
                                             </View>
 
@@ -704,6 +720,26 @@ const styles = ScaledSheet.create({
         paddingHorizontal: 50,
         borderColor: '#00000015',
         backgroundColor: '#ECECEC'
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    pickerContainer: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 20,
+        width: '90%',
+        maxHeight: 300,
+    },
+    closeButton: {
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: '#ddd',
+        borderRadius: 5,
+        alignItems: 'center',
     },
 });
 

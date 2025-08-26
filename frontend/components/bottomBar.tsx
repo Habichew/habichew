@@ -34,8 +34,8 @@ export default function BottomBar() {
   const progressInThisStage = Math.max(userCredits - lowerBound, 0);
   const remaining = totalNeededInStage - progressInThisStage;
 
-  console.log('[bottomBar.tsx] Progress in the stage: ',progressInThisStage);
-  console.log('[bottomBar.tsx] Remaining credits in the stage: ',remaining);
+/*  console.log('[bottomBar.tsx] Progress in the stage: ',progressInThisStage);
+  console.log('[bottomBar.tsx] Remaining credits in the stage: ',remaining);*/
 
   return (
     <View style={styles.container}>
@@ -46,7 +46,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/home")}
         >
           <Image
-            source={require("@/assets/images/Home.png")}
+            source={require("@/assets/images/home.png")}
             style={[styles.icon, isActive("/home") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/home") && styles.activeLabel]}>Home</Text>
@@ -105,7 +105,7 @@ export default function BottomBar() {
           onPress={() => router.push("/(tabs)/insights")}
         >
           <Image
-            source={require("@/assets/images/Desk_alt.png")}
+            source={require("@/assets/images/Chart.png")}
             style={[styles.icon, isActive("/insight") && styles.activeIcon]}
           />
           <Text style={[styles.label, isActive("/insight") && styles.activeLabel]}>Insights</Text>
