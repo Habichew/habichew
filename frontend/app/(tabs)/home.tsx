@@ -27,6 +27,7 @@ import * as Haptics from "expo-haptics";
 import { AndroidHaptics } from "expo-haptics";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import AnimatedNumbers from 'react-native-animated-numbers';
+import {useRoute} from "@react-navigation/core";
 
 const screenWidth = Dimensions.get("window").width;
 const scale = (value: number) => (screenWidth / 375) * value;
@@ -66,10 +67,14 @@ const Home = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
+    const [credits, setCredits] = useState<number>(0);
+
     const flatListRef = useRef(null);
+    const route = useRoute();
 
     let row: Array<any> = [];
     let prevOpenedRow: any;
+
 
     useEffect(() => {
         if (user) {
@@ -85,58 +90,80 @@ const Home = () => {
             //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
             // }
 
-            if (user?.credits) {
-                console.log('current credit', user.credits);
-                let newArtboardName = "";
-                if (user.credits > 100) {
-                    newArtboardName = "Scene2";
-                }
-                else if (user.credits > 50) {
-                    newArtboardName = "Scene1";
-                }
-                else {
-                    newArtboardName = "Indoor";
-                }
-
-                console.log('new artboard name', newArtboardName);
-                setArtboardName(newArtboardName);
+            if (user?.credits > credits) {
+                // console.log('current credit', user.credits);
+                // setCredits(user?.credits);
+                // let newArtboardName = "";
+                // if (user.credits > 100) {
+                //     newArtboardName = "Scene2";
+                // }
+                // else if (user.credits > 50) {
+                //     newArtboardName = "Scene1";
+                // }
+                // else {
+                //     newArtboardName = "Indoor";
+                // }
+                //
+                // console.log('new artboard name', newArtboardName);
+                // setArtboardName(newArtboardName);
 
                 // TODO: reset all states before randomizing
                 // riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
                 // riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
                 // riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+            } else {
+                let rng = Math.random() * 3;
+                console.log('rng', rng);
+                switch (Math.floor(rng)) {
+                    case 0:
+                        // Sleeping
+                        console.log('trigger sleeping animation');
+                        riveRef.current?.setInputState('State Machine 1', 'NightTime', true);
+                        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                        break;
+                    case 1:
+                        // Hungry
+                        console.log('trigger hungry animation');
+                        riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                        riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                        break;
+                    case 2:
+                        // Travel
+                        console.log('trigger travel animation');
+                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', true);
+                        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                        riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+
+                }
             }
 
-            let rng = Math.random() * 3;
-            console.log('rng', rng);
-            switch (Math.floor(rng)) {
-                case 0:
-                    // Sleeping
-                    console.log('trigger sleeping animation');
-                    riveRef.current?.setInputState('State Machine 1', 'NightTime', true);
-                    riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-                    riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-                    break;
-                case 1:
-                    // Hungry
-                    console.log('trigger hungry animation');
-                    riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-                    riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-                    riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
-                    break;
-                case 2:
-                    // Travel
-                    console.log('trigger travel animation');
-                    riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', true);
-                    riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-                    riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
-
-            }
             setRefreshing(false);
             // await loadStuff();
             // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
         }
     }, [user]);
+
+    useEffect(() => {
+        if (user?.credits > credits) {
+            console.log('current credit', user.credits);
+            setCredits(user?.credits);
+            let newArtboardName = "";
+            if (user.credits > 100) {
+                newArtboardName = "Scene2";
+            }
+            else if (user.credits > 50) {
+                newArtboardName = "Scene1";
+            }
+            else {
+                newArtboardName = "Indoor";
+            }
+
+            console.log('new artboard name', newArtboardName);
+            setArtboardName(newArtboardName);
+            }
+    }, [route]);
 
     useEffect(() => {
         const newHabits = habits.filter((h) =>
@@ -472,8 +499,8 @@ const Home = () => {
             <SystemBars style={'dark'}/>
             <Rive
                 artboardName={artboardName}
-                url={Platform.OS === 'ios' ? "https://www.scss.tcd.ie/~nangolem/habichew-animations/pet.riv" : undefined}
-                resourceName={Platform.OS === 'android' ? 'pet' : undefined}
+                url={"https://www.scss.tcd.ie/~nangolem/habichew-animations/pet.riv"}
+                // resourceName={Platform.OS === 'android' ? 'pet' : undefined}
                 fit={Fit.Cover}
                 ref={riveRef}
                 stateMachineName={"State Machine 1"}
