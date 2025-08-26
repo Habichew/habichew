@@ -65,7 +65,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
     const [generatedTasks, setGeneratedTasks] = useState<string[]>([]);
     const [loadingTasks, setLoadingTasks] = useState<boolean>(false);
     const [savingOrCreating, setSavingOrCreating] = useState<boolean>(false);
-    const [editable, setEditable] = useState(false);
+    const [editable, setEditable] = useState(true);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [taskInput, setTaskInput] = useState<string>('');
@@ -146,6 +146,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
         setGeneratedTasks([]);
         setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
         setTaskInput('');
+        setEditable(true);
         onClose();
     };
 
@@ -272,6 +273,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                     onClose();
                     setGeneratedTasks([]);
                     setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
+                    setEditable(true);
                 }}
                 visible={visible}
                 transparent
@@ -286,6 +288,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                         setGeneratedTasks([]);
                         setTaskInput('');
                         setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
+                        setEditable(true);
                     }}
                 >
                     <View>
