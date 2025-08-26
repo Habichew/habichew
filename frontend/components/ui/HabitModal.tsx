@@ -14,7 +14,7 @@ import {
     ScrollView,
     Dimensions,
     Pressable,
-    Keyboard
+    Keyboard, KeyboardAvoidingView
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {Ionicons} from '@expo/vector-icons';
@@ -65,8 +65,9 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
     const [generatedTasks, setGeneratedTasks] = useState<string[]>([]);
     const [loadingTasks, setLoadingTasks] = useState<boolean>(false);
     const [savingOrCreating, setSavingOrCreating] = useState<boolean>(false);
-    const [editable, setEditable] = useState(false);
+    const [editable, setEditable] = useState(true);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [taskInput, setTaskInput] = useState<string>('');
 
     const windowHeight = Dimensions.get('window').height;
@@ -87,14 +88,16 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
-            () => {
+            (event) => {
                 setKeyboardVisible(true);
+                setKeyboardHeight(event.endCoordinates.height);
             },
         );
         const keyboardDidHideListener = Keyboard.addListener(
             'keyboardDidHide',
             () => {
                 setKeyboardVisible(false);
+                setKeyboardHeight(0);
             },
         );
 
@@ -143,6 +146,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
         setGeneratedTasks([]);
         setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
         setTaskInput('');
+        setEditable(true);
         onClose();
     };
 
@@ -264,286 +268,290 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
 
 
     return (
-        <Modal
-            onRequestClose={() => {
-                onClose();
-                setGeneratedTasks([]);
-                setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
-            }}
-            visible={visible}
-            transparent
-            animationType="slide"
-        >
-            <TouchableOpacity
-                activeOpacity={1}
-                style={styles.overlay}
-                onPressOut={() => {
+            <Modal
+                onRequestClose={() => {
                     onClose();
                     setGeneratedTasks([]);
-                    setTaskInput('');
                     setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
+                    setEditable(true);
                 }}
+                visible={visible}
+                transparent
+                animationType="slide"
+                hardwareAccelerated={true}
             >
-                <View>
-                    <TouchableWithoutFeedback>
-                        <View
-                            style={{maxHeight: Dimensions.get('window').height, width: Dimensions.get('window').width}}>
-                            <View style={styles.modal}>
-                                <View style={styles.modalHeader}>
-                                    <View style={{
-                                        borderBottomWidth: StyleSheet.hairlineWidth,
-                                        borderColor: '#cda6ff',
-                                        marginHorizontal: -25,
-                                        paddingHorizontal: 25,
-                                        marginBottom: 10
-                                    }}>
-                                        <TextInput
-                                            ref={inputRef}
-                                            autoFocus
-                                            placeholder="* Habit Title"
-                                            placeholderTextColor="#bbb"
-                                            style={styles.title}
-                                            value={formData.habitTitle}
-                                            onChangeText={text => setFormData({...formData, habitTitle: text})}
-                                        />
-                                    </View>
-
-                                    {/* habit section */}
-                                    <View style={styles.habitSection}>
-
-                                        {/* Priority */}
-                                        <TouchableWithoutFeedback onPress={() => freqDropDownRef.current.close()}>
-                                            <CustomDropdown
-                                                items={[
-                                                    {label: 'Low', value: 'Low'},
-                                                    {label: 'Medium', value: 'Medium'},
-                                                    {label: 'High', value: 'High'},
-                                                ]}
-                                                placeholder={ScreenWidth > BigPhoneWidth ? "Priority" : "Prio"}
-                                                value={formData.priority}
-                                                setValue={val => val && setFormData({...formData, priority: val})}
-                                                zIndex={4}
-                                                zIndexInverse={8}
-                                                style={{flex: 1}}
-                                                ref={prioDropDownRef}
-                                                iconName={'flag-outline'}
+                <TouchableOpacity
+                    activeOpacity={1}
+                    style={styles.overlay}
+                    onPressOut={() => {
+                        onClose();
+                        setGeneratedTasks([]);
+                        setTaskInput('');
+                        setFormData({habitTitle: '', goalDate: '', priority: '', frequency: ''});
+                        setEditable(true);
+                    }}
+                >
+                    <View>
+                        <TouchableWithoutFeedback>
+                            <View
+                                style={{maxHeight: Dimensions.get('window').height, width: Dimensions.get('window').width}}>
+                                <View style={styles.modal}>
+                                    <View style={styles.modalHeader}>
+                                        <View style={{
+                                            borderBottomWidth: StyleSheet.hairlineWidth,
+                                            borderColor: '#cda6ff',
+                                            marginHorizontal: -25,
+                                            paddingHorizontal: 25,
+                                            marginBottom: 10
+                                        }}>
+                                            <TextInput
+                                                ref={inputRef}
+                                                autoFocus
+                                                placeholder="* Habit Title"
+                                                placeholderTextColor="#bbb"
+                                                style={styles.title}
+                                                value={formData.habitTitle}
+                                                onChangeText={text => setFormData({...formData, habitTitle: text})}
                                             />
-                                        </TouchableWithoutFeedback>
+                                        </View>
 
-                                        {/* Date */}
-                                        <View
-                                            style={[styles.inputGroup, {flex: 1}]}>
-                                            {Platform.OS === 'web' ? (
-                                                <View style={webDateInputWrapper}>
-                                                    <input
-                                                        type="date"
-                                                        value={formData.goalDate}
-                                                        onChange={e => setFormData({
-                                                            ...formData,
-                                                            goalDate: e.target.value
-                                                        })}
-                                                        style={{
-                                                            ...webDateInput,
-                                                            color: formData.goalDate ? '#000' : '#bbb'
-                                                        }}
-                                                    />
-                                                </View>
-                                            ) : (
-                                                <View style={{
-                                                    borderRadius: 30,
-                                                    zIndex: 3,
-                                                    overflow: 'hidden',
-                                                    shadowColor: "#000",
-                                                    elevation: 4,
-                                                    shadowOffset: {width: 3, height: -5},
-                                                    shadowOpacity: 0.15,
-                                                    shadowRadius: 4,
-                                                }}>
-                                                    <Pressable android_ripple={{
-                                                        color: '#00000010',
-                                                        borderless: false,
-                                                        radius: 300
-                                                    }} style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
-                                                        <Ionicons name="calendar-outline" size={24} color="black"/>
-                                                        <Text
-                                                            numberOfLines={1} ellipsizeMode={'tail'}
-                                                            style={[styles.dateText, {color: formData.goalDate ? 'black' : '#bbb'}]}>
-                                                            {formData.goalDate
-                                                                ? new Date(formData.goalDate).toLocaleDateString()
-                                                                : ScreenWidth > BigPhoneWidth ? 'Due Date' : 'Date'}
-                                                        </Text>
-                                                    </Pressable>
-                                                </View>
+                                        {/* habit section */}
+                                        <View style={styles.habitSection}>
 
-
-                                            )}
-                                            {showDatePicker && (
-                                                <DateTimePicker
-                                                    value={formData.goalDate ? new Date(formData.goalDate) : new Date()}
-                                                    mode="date"
-                                                    display="calendar"
-                                                    onChange={(event, selectedDate) => {
-                                                        setShowDatePicker(false);
-                                                        if (selectedDate) {
-                                                            const y = selectedDate.getFullYear();
-                                                            const m = selectedDate.getMonth() + 1;
-                                                            const d = selectedDate.getDate();
-                                                            const formattedDate = `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-                                                            setFormData({...formData, goalDate: formattedDate});
-                                                        }
-                                                    }}
+                                            {/* Priority */}
+                                            <TouchableWithoutFeedback onPress={() => freqDropDownRef.current.close()}>
+                                                <CustomDropdown
+                                                    items={[
+                                                        {label: 'Low', value: 'Low'},
+                                                        {label: 'Medium', value: 'Medium'},
+                                                        {label: 'High', value: 'High'},
+                                                    ]}
+                                                    placeholder={ScreenWidth > BigPhoneWidth ? "Priority" : "Prio"}
+                                                    value={formData.priority}
+                                                    setValue={val => val && setFormData({...formData, priority: val})}
+                                                    zIndex={4}
+                                                    zIndexInverse={8}
+                                                    style={{flex: 1}}
+                                                    ref={prioDropDownRef}
+                                                    iconName={'flag-outline'}
                                                 />
-                                            )}
-                                        </View>
+                                            </TouchableWithoutFeedback>
+
+                                            {/* Date */}
+                                            <View
+                                                style={[styles.inputGroup, {flex: 1}]}>
+                                                {Platform.OS === 'web' ? (
+                                                    <View style={webDateInputWrapper}>
+                                                        <input
+                                                            type="date"
+                                                            value={formData.goalDate}
+                                                            onChange={e => setFormData({
+                                                                ...formData,
+                                                                goalDate: e.target.value
+                                                            })}
+                                                            style={{
+                                                                ...webDateInput,
+                                                                color: formData.goalDate ? '#000' : '#bbb'
+                                                            }}
+                                                        />
+                                                    </View>
+                                                ) : (
+                                                    <View style={{
+                                                        borderRadius: 30,
+                                                        zIndex: 3,
+                                                        overflow: 'hidden',
+                                                        shadowColor: "#000",
+                                                        elevation: 4,
+                                                        shadowOffset: {width: 3, height: -5},
+                                                        shadowOpacity: 0.15,
+                                                        shadowRadius: 4,
+                                                    }}>
+                                                        <Pressable android_ripple={{
+                                                            color: '#00000010',
+                                                            borderless: false,
+                                                            radius: 300
+                                                        }} style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+                                                            <Ionicons name="calendar-outline" size={24} color="black"/>
+                                                            <Text
+                                                                numberOfLines={1} ellipsizeMode={'tail'}
+                                                                style={[styles.dateText, {color: formData.goalDate ? 'black' : '#bbb'}]}>
+                                                                {formData.goalDate
+                                                                    ? new Date(formData.goalDate).toLocaleDateString()
+                                                                    : ScreenWidth > BigPhoneWidth ? 'Due Date' : 'Date'}
+                                                            </Text>
+                                                        </Pressable>
+                                                    </View>
 
 
-                                        {/* Frequency */}
-                                        <TouchableWithoutFeedback onPress={() => freqDropDownRef.current.close()}>
-                                            <CustomDropdown
-                                                items={[
-                                                    {label: 'Daily', value: 'Daily'},
-                                                    {label: 'Weekly', value: 'Weekly'},
-                                                    {label: 'Monthly', value: 'Monthly'},
-                                                    {label: 'Once', value: 'Once'},
-                                                ]}
-                                                placeholder={ScreenWidth > BigPhoneWidth ? "Frequency" : 'Freq'}
-                                                value={formData.frequency}
-                                                setValue={val => val && setFormData({...formData, frequency: val})}
-                                                zIndex={3}
-                                                zIndexInverse={9}
-                                                style={{flex: 1}}
-                                                ref={freqDropDownRef}
-                                                iconName={'time-outline'}
-                                            />
-                                        </TouchableWithoutFeedback>
-                                    </View>
-                                </View>
-
-                                {/* Tasks section*/}
-                                {
-                                    isEdit ?
-                                        null
-                                        : <View style={styles.modalBody}>
-                                            {/* Tasks Header */}
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                                paddingHorizontal: 10
-                                            }}>
-                                                <Text style={styles.taskTitle}>Tasks</Text>
-                                                <View style={{marginLeft: 30, flexDirection: 'row', flexGrow: 1}}>
-                                                    <TouchableOpacity
-                                                        style={{
-                                                            marginRight: 'auto',
-                                                            marginVertical: "auto",
-                                                            justifyContent: 'center',
-                                                            alignItems: 'center',
-                                                            backgroundColor: editable ? '#00000010' : 'transparent',
-                                                            borderRadius: 10,
-                                                            padding: 5
+                                                )}
+                                                {showDatePicker && (
+                                                    <DateTimePicker
+                                                        value={formData.goalDate ? new Date(formData.goalDate) : new Date()}
+                                                        mode="date"
+                                                        display={Platform.OS === 'android' ? "calendar" : undefined}
+                                                        onChange={(event, selectedDate) => {
+                                                            setShowDatePicker(false);
+                                                            if (selectedDate) {
+                                                                const y = selectedDate.getFullYear();
+                                                                const m = selectedDate.getMonth() + 1;
+                                                                const d = selectedDate.getDate();
+                                                                const formattedDate = `${y}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+                                                                setFormData({...formData, goalDate: formattedDate});
+                                                            }
                                                         }}
-                                                        onPress={() => setEditable(!editable)}>
-                                                        <Ionicons name="pencil-outline" size={18} color="#000"/>
+                                                        // timeZoneOffsetInMinutes={60}
+                                                    />
+                                                )}
+                                            </View>
+
+
+                                            {/* Frequency */}
+                                            <TouchableWithoutFeedback onPress={() => freqDropDownRef.current.close()}>
+                                                <CustomDropdown
+                                                    items={[
+                                                        {label: 'Daily', value: 'Daily'},
+                                                        {label: 'Weekly', value: 'Weekly'},
+                                                        {label: 'Monthly', value: 'Monthly'},
+                                                        {label: 'Once', value: 'Once'},
+                                                    ]}
+                                                    placeholder={ScreenWidth > BigPhoneWidth ? "Frequency" : 'Freq'}
+                                                    value={formData.frequency}
+                                                    setValue={val => val && setFormData({...formData, frequency: val})}
+                                                    zIndex={3}
+                                                    zIndexInverse={9}
+                                                    style={{flex: 1}}
+                                                    ref={freqDropDownRef}
+                                                    iconName={'time-outline'}
+                                                />
+                                            </TouchableWithoutFeedback>
+                                        </View>
+                                    </View>
+
+                                    {/* Tasks section*/}
+                                    {
+                                        isEdit ?
+                                            null
+                                            : <View style={[styles.modalBody, { paddingBottom: Platform.OS === 'ios' ? keyboardHeight : 0}]}>
+                                                {/* Tasks Header */}
+                                                <View style={{
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                    paddingHorizontal: 10
+                                                }}>
+                                                    <Text style={styles.taskTitle}>Tasks</Text>
+                                                    <View style={{marginLeft: 30, flexDirection: 'row', flexGrow: 1}}>
+                                                        <TouchableOpacity
+                                                            style={{
+                                                                marginRight: 'auto',
+                                                                marginVertical: "auto",
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                backgroundColor: editable ? '#00000010' : 'transparent',
+                                                                borderRadius: 10,
+                                                                padding: 5
+                                                            }}
+                                                            onPress={() => setEditable(!editable)}>
+                                                            <Ionicons name="pencil-outline" size={18} color="#000"/>
+                                                        </TouchableOpacity>
+                                                        <Pressable
+                                                            style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
+                                                            onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
+                                                            {/*<Text style={styles.generateText}>Generate</Text>*/}
+                                                            <Text style={styles.generateText}>Generate Tasks</Text>
+                                                        </Pressable>
+                                                    </View>
+                                                </View>
+
+                                                {/* Tasks Content */}
+                                                {loadingTasks ? (
+                                                    <ActivityIndicator size="large"/>
+                                                ) : generatedTasks.length > 0 ? (
+                                                    <FlatList data={generatedTasks} keyExtractor={(item, index) => index.toString()}
+                                                              onContentSizeChange={() => flatListRef?.current.scrollToEnd({animated: true})}
+                                                              ref={flatListRef}
+                                                              renderItem={({
+                                                                               item,
+                                                                               index,
+                                                                               separators
+                                                                           }) => renderTask(item, index)}
+                                                              style={{
+                                                                  maxHeight: ScreenHeight > 1000 || !isKeyboardVisible ? (windowHeight / 3) : (windowHeight / 12),
+                                                                  marginVertical: 10,
+                                                                  marginBottom: 0
+                                                              }}/>
+                                                ) : null}
+                                                <Pressable style={[{flexDirection: 'row'}]} onPress={() => {
+                                                    setEditable(true);
+                                                    // addTaskInput();
+                                                }}
+                                                >
+                                                    <TouchableOpacity style={{marginVertical: 'auto', padding: 5}} disabled={taskInput.length === 0} onPress={() => {addTaskInput(taskInput); setTaskInput('')}}>
+                                                        <Ionicons name="add" size={24} color="#000"/>
                                                     </TouchableOpacity>
-                                                    <Pressable
-                                                        style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
-                                                        onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
-                                                        {/*<Text style={styles.generateText}>Generate</Text>*/}
-                                                        <Text style={styles.generateText}>Generate Tasks</Text>
-                                                    </Pressable>
+                                                    <TextInput ref={taskInputRef} placeholderTextColor="gray" editable={editable}
+                                                               style={{padding: 4, color: 'black', width: '100%'}}
+                                                               placeholder={"Add task"}
+                                                               value={taskInput}
+                                                               onChangeText={(input) => setTaskInput(input)}
+                                                               onEndEditing={(e) => {
+                                                                   if (taskInput.length > 0) {
+                                                                       setTaskInput('');
+                                                                       addTaskInput(taskInput);
+                                                                   }
+                                                               }}
+                                                    >
+                                                    </TextInput>
+                                                </Pressable>
+                                            </View>
+                                    }
+
+                                    {/* Create Button */}
+                                    <View style={styles.centeredButtons}>
+                                        <Pressable disabled={!formData.habitTitle} onPress={handleSave}
+                                                   style={[styles.saveBtn, {
+                                                       backgroundColor: !formData.habitTitle ? '#454545' : 'black',
+                                                       borderWidth: 0
+                                                   }]}>
+                                            {/*<Ionicons name={'arrow-forward-outline'} color={'white'} size={20}/>*/}
+                                            <Text style={styles.saveText}>Done</Text>
+                                        </Pressable>
+                                    </View>
+
+                                    {/* Confirm delete */}
+                                    {showConfirmDelete ? (
+                                        <View style={styles.confirmOverlay}>
+                                            <View style={styles.confirmBox}>
+                                                <Text style={styles.confirmText}>
+                                                    Are you sure you want to delete this habit?{'\n'}All related tasks will
+                                                    be deleted.
+                                                </Text>
+                                                <View style={styles.confirmButtons}>
+                                                    <TouchableOpacity style={styles.cancelBtn}
+                                                                      onPress={() => setShowConfirmDelete(false)}>
+                                                        <Text style={styles.cancelText}>Cancel</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity
+                                                        style={styles.saveBtn}
+                                                        onPress={() => {
+                                                            if (onDelete && habitId) {
+                                                                onDelete(habitId);
+                                                                setShowConfirmDelete(false);
+                                                                onClose();
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Text style={styles.saveText}>Delete</Text>
+                                                    </TouchableOpacity>
                                                 </View>
                                             </View>
-
-                                            {/* Tasks Content */}
-                                            {loadingTasks ? (
-                                                <ActivityIndicator size="large"/>
-                                            ) : generatedTasks.length > 0 ? (
-                                                <FlatList data={generatedTasks} keyExtractor={(item, index) => index.toString()}
-                                                          onContentSizeChange={() => flatListRef?.current.scrollToEnd({animated: true})}
-                                                          ref={flatListRef}
-                                                          renderItem={({
-                                                                           item,
-                                                                           index,
-                                                                           separators
-                                                                       }) => renderTask(item, index)}
-                                                          style={{
-                                                              maxHeight: ScreenHeight > 1000 || !isKeyboardVisible ? (windowHeight / 3) : (windowHeight / 12),
-                                                              marginVertical: 10,
-                                                              marginBottom: 0
-                                                          }}/>
-                                            ) : null}
-                                            <Pressable style={[{flexDirection: 'row'}]} onPress={() => {
-                                                setEditable(true);
-                                                // addTaskInput();
-                                            }}
-                                            >
-                                                <TouchableOpacity style={{marginVertical: 'auto', padding: 5}} disabled={taskInput.length === 0} onPress={() => {addTaskInput(taskInput); setTaskInput('')}}>
-                                                    <Ionicons name="add" size={24} color="#000"/>
-                                                </TouchableOpacity>
-                                                <TextInput ref={taskInputRef} placeholderTextColor="gray" editable={editable}
-                                                           style={{padding: 4, color: 'black', width: '100%'}}
-                                                           placeholder={"Add task"}
-                                                           value={taskInput}
-                                                           onChangeText={(input) => setTaskInput(input)}
-                                                           onEndEditing={(e) => {
-                                                               if (taskInput.length > 0) {
-                                                                   setTaskInput('');
-                                                                   addTaskInput(taskInput);
-                                                               }
-                                                           }}
-                                                >
-                                                </TextInput>
-                                            </Pressable>
                                         </View>
-                                }
-
-                                {/* Create Button */}
-                                <View style={styles.centeredButtons}>
-                                    <Pressable disabled={!formData.habitTitle} onPress={handleSave}
-                                               style={[styles.saveBtn, {
-                                                   backgroundColor: !formData.habitTitle ? '#454545' : 'black',
-                                                   borderWidth: 0
-                                               }]}>
-                                        {/*<Ionicons name={'arrow-forward-outline'} color={'white'} size={20}/>*/}
-                                        <Text style={styles.saveText}>Done</Text>
-                                    </Pressable>
+                                    ) : null}
                                 </View>
-
-                                {/* Confirm delete */}
-                                {showConfirmDelete ? (
-                                    <View style={styles.confirmOverlay}>
-                                        <View style={styles.confirmBox}>
-                                            <Text style={styles.confirmText}>
-                                                Are you sure you want to delete this habit?{'\n'}All related tasks will
-                                                be deleted.
-                                            </Text>
-                                            <View style={styles.confirmButtons}>
-                                                <TouchableOpacity style={styles.cancelBtn}
-                                                                  onPress={() => setShowConfirmDelete(false)}>
-                                                    <Text style={styles.cancelText}>Cancel</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity
-                                                    style={styles.saveBtn}
-                                                    onPress={() => {
-                                                        if (onDelete && habitId) {
-                                                            onDelete(habitId);
-                                                            setShowConfirmDelete(false);
-                                                            onClose();
-                                                        }
-                                                    }}
-                                                >
-                                                    <Text style={styles.saveText}>Delete</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    </View>
-                                ) : null}
                             </View>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </View>
-            </TouchableOpacity>
-        </Modal>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
     );
 };
 

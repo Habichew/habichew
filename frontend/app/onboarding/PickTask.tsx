@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   FlatList,
+    Dimensions
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,9 +16,8 @@ import TaskModal from "@/components/ui/TaskModal";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
 
 export default function PickTasks() {
-  const { habit, habitId } = useLocalSearchParams<{
-    habit: string;
-    habitId: string;
+  const { habit, userHabitId, presetHabitId } = useLocalSearchParams<{
+    habit: string; userHabitId: string; presetHabitId: string
   }>();
   const router = useRouter();
   const { addTask } = useUser();
@@ -26,15 +26,16 @@ export default function PickTasks() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [showInfo, setShowInfo] = useState(true);
-  const numericHabitId = Number(habitId);
+  const numericUserHabitId = Number(userHabitId);
+  const numericPresetHabitId = Number(presetHabitId);
   const STEP_INDEX = 3; // Story=0, Info=1, PickHabit=2, PickTask=3
   const handleBack = () => {
     router.push("../onboarding/PickHabit");
   };
   const handleSaveTask = async (task: Task) => {
     try {
-      const newTask = { ...task, habitId: numericHabitId };
-      await addTask(newTask);
+      const newTask = { ...task, habitId: numericUserHabitId };
+      // await addTask(newTask);
       setTaskList((prev) => [...prev, newTask]);
       setModalVisible(false);
       setEditingTask(null);
@@ -47,14 +48,11 @@ export default function PickTasks() {
 
   const handleGeneratePresetTasks = async () => {
     try {
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/presets/habits/${numericHabitId}/tasks`,
-      );
+      const res = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/presets/habits/${numericPresetHabitId}/tasks`);
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.message || "Failed to fetch preset tasks");
       }
-
       const data = await res.json();
       const newTasks: Task[] = [];
 
@@ -65,7 +63,7 @@ export default function PickTasks() {
           priority: null,
           dueAt: null,
           credit: 0,
-          habitId: numericHabitId,
+          habitId: numericUserHabitId,  
         };
         await addTask(formatted);
         newTasks.push(formatted);
@@ -113,7 +111,7 @@ export default function PickTasks() {
         keyExtractor={(item, index) =>
           item.userTaskId?.toString() || `${item.title}-${index}`
         }
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100, width: Dimensions.get('window').width - 80, minWidth: 200 }}
         renderItem={({ item }) => {
           const dueDate = item.dueAt
             ? new Date(item.dueAt).toLocaleDateString("en-US", {
@@ -163,7 +161,7 @@ export default function PickTasks() {
         }}
         onSave={handleSaveTask}
         task={editingTask}
-        defaultHabitId={numericHabitId}
+        defaultHabitId={numericUserHabitId}
       />
 
       <OnboardingProgress
@@ -180,7 +178,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 60,
+    paddingTop: 60
   },
   back: { position: "absolute", left: 20, top: 28 },
   roundBtn: {

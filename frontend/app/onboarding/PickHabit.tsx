@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import CustomDropdown from "../../components/ui/select";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "@/context/UserContext";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
 import {Ionicons} from "@expo/vector-icons";
 
@@ -37,7 +37,6 @@ export default function PickHabit() {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + "/presets/categories")
       .then((res) => res.json())
       .then((data) => {
-        console.log('hey',data);
         if (!Array.isArray(data)) {
           let arr = [];
           arr.push(data);
@@ -69,7 +68,7 @@ export default function PickHabit() {
     }
   };
 
-  const handleSubmitHabit = async (habit: string, habitId?: number) => {
+  const handleSubmitHabit = async (habit: string, presetHabitId?: number) => {
     if (!userId) {
       alert("Please log in first");
       return;
@@ -77,7 +76,7 @@ export default function PickHabit() {
 
     try {
       const payload: any = {
-        ...(habitId ? { habitId } : {}),
+        ...(presetHabitId ? { habitId: presetHabitId } : {}),
         customTitle: habit,
       };
 
@@ -106,7 +105,8 @@ export default function PickHabit() {
         pathname: "/onboarding/PickTask",
         params: {
           habit,
-          habitId: result.habit.userHabitId,
+          userHabitId: String(result.habit.userHabitId),
+          presetHabitId: presetHabitId ? String(presetHabitId) : undefined,
         },
       });
     } catch (error) {
@@ -163,7 +163,7 @@ export default function PickHabit() {
           <TouchableOpacity
             key={idx}
             style={styles.habitItem}
-            onPress={() => handleSubmitHabit(habit.title)}
+            onPress={() => handleSubmitHabit(habit.title, habit.habitId)}
           >
             <Text style={styles.habitText}>{habit.title}</Text>
           </TouchableOpacity>

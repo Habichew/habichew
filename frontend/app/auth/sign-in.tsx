@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
+  ActivityIndicator, Platform,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
@@ -29,7 +29,6 @@ export default function SignInScreen() {
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-
     async function login() {
 
       const response = await fetch(
@@ -55,7 +54,7 @@ export default function SignInScreen() {
         const loggedInUser = data[0];
         setUser(loggedInUser); //save user data for global use
         console.log("check signed in user", loggedInUser.email);
-        // AsyncStorage.setItem('userId', loggedInUser.id);
+        if (Platform.OS === 'android') AsyncStorage.setItem('userId', loggedInUser.id);
         router.replace("../(tabs)/home");
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials");
@@ -70,7 +69,7 @@ export default function SignInScreen() {
       }
     }
 
-    tryCachedUserLogin();
+    if (Platform.OS === 'android') tryCachedUserLogin();
   }, []);
 
   const handleSignIn = async () => {
@@ -108,7 +107,7 @@ export default function SignInScreen() {
           const loggedInUser = data[0];
           setUser(loggedInUser); //save user data for global use
 
-          AsyncStorage.setItem("user", loggedInUser);
+          if (Platform.OS === 'android') AsyncStorage.setItem("user", loggedInUser);
           router.replace("../(tabs)/home");
         } else {
           Alert.alert("Login Failed", data.message || "Invalid credentials");

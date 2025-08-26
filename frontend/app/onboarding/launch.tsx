@@ -7,6 +7,7 @@ import {
   Image,
   Animated,
   Easing,
+  Dimensions
 } from "react-native";
 import { useEffect, useRef } from "react";
 
@@ -75,6 +76,8 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "80%",
+    objectFit: 'contain',
+    height: Dimensions.get('window').height
   },
   bottomSection: {
     flex: 1,

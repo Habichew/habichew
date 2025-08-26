@@ -71,6 +71,7 @@ export default function InfoScreen1() {
       <View style={{ marginVertical: "auto" }}>
         <Text style={styles.heading}>I used to travel with my kind, but I got separated… now I’m on my own, too.”</Text>
         <Text style={styles.subheading}>You can call me..</Text>
+        <View style={{ zIndex: 2 }}>
         <CustomDropdown
           items={paceOptions}
           value={pace}
@@ -78,12 +79,13 @@ export default function InfoScreen1() {
           placeholder="Select your pace of work"
           zIndex={2}
           zIndexInverse={1}
-        />
+        /></View>
+        <View style={{ zIndex: 1 }}>
         <CustomInput
           placeholder="Enter Pet Name"
           value={name}
           onChangeText={setName}
-        />
+        /></View>
 
         <TouchableOpacity
           style={[styles.button, { opacity: isFormValid ? 1 : 0.6 }]}
@@ -94,11 +96,7 @@ export default function InfoScreen1() {
         </TouchableOpacity>
       </View>
 
-      <OnboardingProgress
-        index={STEP_INDEX}
-        onSkip={() => router.push("/onboarding/PickHabit")}
-        onNext={() => router.push("/onboarding/PickHabit")}
-      />
+      <OnboardingProgress index={STEP_INDEX} showSkip={false} showNext={false}/>
     </View>
   );
 }

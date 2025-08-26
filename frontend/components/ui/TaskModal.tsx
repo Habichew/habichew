@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import {Modal,View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,TouchableWithoutFeedback} from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useUser, Task } from "@/context/UserContext";
@@ -42,6 +52,9 @@ export default function TaskModal({
   const [priority, setPriority] = useState<"Low" | "Medium" | "High" | null>(
     null,
   );
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+
   useEffect(() => {
     if (task) {
       setTitle(task.title || "");
@@ -65,6 +78,26 @@ export default function TaskModal({
       setPriority(null);
     }
   }, [task, visible]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+        'keyboardDidShow',
+        (event) => {
+          setKeyboardHeight(event.endCoordinates.height);
+        },
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+        'keyboardDidHide',
+        () => {
+          setKeyboardHeight(0);
+        },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const handleSave = async () => {
     if (!user) return;
@@ -153,7 +186,7 @@ export default function TaskModal({
   };
 
   return (
-  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} hardwareAccelerated={true}>
     <TouchableOpacity onPress={onClose}
                               activeOpacity={1}
                               style={styles.overlay}>
@@ -210,7 +243,7 @@ export default function TaskModal({
             </View>
 
 
-            <View style={styles.footerButtons}>
+            <View style={[styles.footerButtons, { paddingBottom: Platform.OS === 'ios' ? keyboardHeight : 0}]}>
               <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>

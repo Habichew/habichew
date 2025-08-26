@@ -7,7 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     Vibration,
-    View,Linking
+    View,Linking, Platform
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -55,8 +55,7 @@ const Home = () => {
         null,
     );
     const [showArchivedHabits, setShowArchivedHabits] = useState<boolean>(false);
-    const [artboardName, setArboardName] = useState<string>("Indoor");
-
+    const [artboardName, setArtboardName] = useState<string>("Indoor");
 
     const habitId = editHabit?.userHabitId; // number
     const router = useRouter();
@@ -85,6 +84,28 @@ const Home = () => {
             //     riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
             //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
             // }
+
+            if (user?.credits) {
+                console.log('current credit', user.credits);
+                let newArtboardName = "";
+                if (user.credits > 100) {
+                    newArtboardName = "Scene2";
+                }
+                else if (user.credits > 50) {
+                    newArtboardName = "Scene1";
+                }
+                else {
+                    newArtboardName = "Indoor";
+                }
+
+                console.log('new artboard name', newArtboardName);
+                setArtboardName(newArtboardName);
+
+                // TODO: reset all states before randomizing
+                // riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                // riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                // riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+            }
 
             let rng = Math.random() * 3;
             console.log('rng', rng);
@@ -128,7 +149,11 @@ const Home = () => {
     const handleAdd = () => {
         setEditHabit(null);
         setModalVisible(true);
-        Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+        if (Platform.OS === 'android') {
+            Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+        } else {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }
     };
     const handleSave = async (data: any) => {
         if (editHabit) {
@@ -193,14 +218,16 @@ const Home = () => {
         riveRef.current?.setInputState(
             "State Machine 1", "Overdue", false);
         await completeHabitTasks(habit);
+
         // await loadHabits();
         // await loadUser();
     };
 
-    function feedPet() {
+    async function feedPet() {
         riveRef.current?.fireState("State Machine 1", "Feed");
         riveRef.current?.setInputState("State Machine 1", "HabitTicked", false);
         riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+        await loadUser();
     }
 
     const formatDate = (dateStr: string) => {
@@ -278,7 +305,11 @@ const Home = () => {
 
         function handleSwipe( direction: any) {
             console.log("vibrate");
-            Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+            if (Platform.OS === 'android') {
+                Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_End);
+            } else {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
+            }
             if (direction === 'left') {
                 if (item.isArchived) {
                     handleUnarchiveHabit(item);
@@ -299,12 +330,19 @@ const Home = () => {
                 renderRightActions={RightAction}
                 renderLeftActions={!item.isArchived ? LeftAction : undefined}
                 onSwipeableWillOpen={handleSwipe}
-                onSwipeableOpenStartDrag={() => Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_End)}
+                onSwipeableOpenStartDrag={() => {
+                    if (Platform.OS === 'android') {
+                        Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start)
+                    } else {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+                    }
+                  }
+                }
                 ref={(swipeRef: any) => row[index] = swipeRef}
                 containerStyle={{ width: "100%", alignSelf: 'center', marginBottom: 12}}
             >
                 <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10}}>
-                    <Pressable style={styles.card} onPress={() => handlePressHabit(item)} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
+                    <Pressable style={styles.card} onPress={() => handlePressHabit(item)} onLongPress={() => handleShowConfirmDelete(item)} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
                         <View style={styles.headerRow}>
                             <Text style={styles.title}>{item.habitTitle}</Text>
                             {progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0 ? (
@@ -391,7 +429,11 @@ const Home = () => {
                 feedPet();
                 // setArboardName('Indoor 2');
             } else {
-                Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                if (Platform.OS === 'android') {
+                    Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                } else {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
             }
         }
 
@@ -430,15 +472,19 @@ const Home = () => {
             <SystemBars style={'dark'}/>
             <Rive
                 artboardName={artboardName}
-                resourceName='pet'
+                url={Platform.OS === 'ios' ? "https://www.scss.tcd.ie/~nangolem/habichew-animations/pet.riv" : undefined}
+                resourceName={Platform.OS === 'android' ? 'pet' : undefined}
                 fit={Fit.Cover}
                 ref={riveRef}
                 stateMachineName={"State Machine 1"}
                 style={styles.pet}
+                aria-live={'polite'}
+                accessible={true}
             >
                 <Pressable
-                    onPress={() => Linking.openURL("https://rare-colors-993141.framer.app/")}
-                    style={styles.helpButton}
+                    onPress={() => Linking.openURL("https://habichew.framer.website/")}
+                    style={[styles.helpButton, {top: insets.top + 15}]}
+                    accessibilityLabel={'Help'}
                 >
                     <Text style={styles.helpText}>?</Text>
                 </Pressable>
@@ -454,7 +500,7 @@ const Home = () => {
                 }}>
                     <View style={{width: 125, borderRadius: 20, overflow: 'hidden', marginVertical: 7}}>
                         <Pressable android_ripple={{color: '#ffffff30', borderless: false, foreground: true, radius: 100}} onPress={handleAdd}
-                                   style={{maxWidth: 125, zIndex: 4, flex: 1, backgroundColor: '#1CC282', borderRadius: 20 }}>
+                                   style={{maxWidth: 125, zIndex: 4, flex: 1, backgroundColor: '#1CC282', borderRadius: 20 }} accessibilityLabel={'Add Habit'}>
                             <Text  style={{
                                 textAlign: "center",
                                 justifyContent: 'center',
@@ -469,8 +515,14 @@ const Home = () => {
                     </View>
 
                     <View style={{borderRadius: 20}}>
-                        <Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}} onPress={() => {router.push('/(tabs)/pet'); Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);}}
-                                   style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}}>
+                        <Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}} onPress={() => {router.push('/(tabs)/pet');
+                            if (Platform.OS === 'android') {
+                                Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                            } else {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            }
+                        }}
+                                   style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}} accessibilityLabel={'Credits'}>
                             <Ionicons name="star" size={30} color="#1CC282" style={{marginVertical: 'auto', marginBottom: 4, marginRight: 6}}/>
                             {/*<Image style={{marginVertical: 'auto', marginBottom: 4, marginRight: 3}} source={require('@/assets/images/credit.png')}/>*/}
                             {/*<Text style={{*/}
@@ -490,6 +542,12 @@ const Home = () => {
 
                 </View>
             </Rive>
+            {/*<Rive*/}
+            {/*    url="https://www.scss.tcd.ie/~nangolem/habichew-animations/pet.riv"*/}
+            {/*    artboardName="Indoor"*/}
+            {/*    stateMachineName="State Machine 1"*/}
+            {/*    style={{width: 400, height: 400}}*/}
+            {/*/>*/}
 
             <View style={styles.habitContainer}>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginBottom: 12, marginHorizontal: 15}}>
@@ -502,12 +560,16 @@ const Home = () => {
                         flexGrow: 1
                     }}>
                         <Ionicons name='search-outline' size={20} style={{alignSelf: 'center'}} ></Ionicons>
-                        <TextInput ref={tiRef} placeholder="Search habit" placeholderTextColor="#888" value={searchTerm}onChangeText={setSearchTerm} style={{width: '100%'}}/>
+                        <TextInput ref={tiRef} placeholder="Search habit" placeholderTextColor="#888" value={searchTerm}onChangeText={setSearchTerm} style={{width: '100%', padding: 10}}/>
                     </View>
                     <TouchableOpacity onPress={() => {
                         console.log("set showArchivedHabits to", !showArchivedHabits);
-                        Haptics.performAndroidHapticsAsync(showArchivedHabits ? AndroidHaptics.Toggle_On : AndroidHaptics.Toggle_Off).then(r => setShowArchivedHabits(!showArchivedHabits)
-                        );
+                        if (Platform.OS === 'android') {
+                            Haptics.performAndroidHapticsAsync(showArchivedHabits ? AndroidHaptics.Toggle_On : AndroidHaptics.Toggle_Off);
+                        } else {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+                        }
+                        setShowArchivedHabits(!showArchivedHabits);
                     }} style={{padding: 2, paddingVertical: 8, marginHorizontal: 4, borderRadius: 20}}>
                         <Ionicons name={showArchivedHabits ? 'archive' : 'archive-outline'} size={20} style={{alignSelf: 'center', paddingHorizontal: 12}}/>
                         {/*<Text>Completed</Text>*/}
@@ -623,7 +685,6 @@ const styles = ScaledSheet.create({
     saveText: {fontSize: 20, color: '#000', fontWeight: 'bold', marginRight: 5},
     helpButton: {
         position: "absolute",
-        top: 70,
         right: 20,
         width: 30,
         height: 30,
@@ -636,7 +697,7 @@ const styles = ScaledSheet.create({
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
-        shadowRadius: 3.5,
+        shadowRadius: 3.5
     },
     helpText: {
         color: "#000",
