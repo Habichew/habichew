@@ -16,6 +16,14 @@ import {postcardImgs} from "@/constants/PostcardData"
 } from "react-native-reanimated-carousel";*/
 import { Image } from 'expo-image';
 import {Ionicons} from "@expo/vector-icons";
+import {Gesture, GestureDetector, PinchGestureHandler} from "react-native-gesture-handler";
+import {scale} from "style-value-types";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+import {ICarouselInstance} from "react-native-reanimated-carousel";
+
 
 export default function PetScreen(this: any) {
   const { pet, loadPet, user } = useUser(); // use user data
@@ -35,6 +43,21 @@ export default function PetScreen(this: any) {
 
   const ref = React.useRef<ICarouselInstance>(null);
   const width = Dimensions.get("window").width;
+
+  const scale = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+
+  const pinchGesture = Gesture.Pinch()
+      .onUpdate((e) => {
+        scale.value = savedScale.value * e.scale;
+      })
+      .onEnd(() => {
+        savedScale.value = scale.value;
+      });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
     <View style={styles.container}>
@@ -95,22 +118,26 @@ export default function PetScreen(this: any) {
               <View style={styles.modalBackground}>
                 <TouchableWithoutFeedback onPress={() => {}}>
                   <View style={styles.modalContainer}>
+                    <GestureDetector gesture={pinchGesture}>
+
                     <FlipCard
                         flipHorizontal
                         flipVertical={false}
                         friction={8}
                         perspective={2000}
                         useNativeDriver
+                        style={animatedStyle}
                     >
-                    {/* Front Side of Postcard */}
-                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                      {/* Front Side of Postcard */}
+                    <View style={{ flex: 1, justifyContent: 'center', transform: [{scale: scale.value}] }}>
                       <Image style={[styles.faceImg]} source={selectedCard?.frontUrl} key={`front`}></Image>
                     </View>
                     {/* Back Side of Postcard */}
-                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                    <View style={{ flex: 1, justifyContent: 'center', transform: [{scale: scale.value}] }}>
                       <Image style={[styles.faceImg]} source={selectedCard?.backUrl} key={"back"}></Image>
                     </View>
                     </FlipCard>
+                  </GestureDetector>
                   </View>
                 </TouchableWithoutFeedback>
               </View>

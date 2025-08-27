@@ -433,7 +433,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                     placeholder={ScreenWidth > BigPhoneWidth ? "Frequency" : 'Freq'}
                                                     value={formData.frequency}
                                                     setValue={val => val && setFormData({...formData, frequency: val})}
-                                                    zIndex={3}
+                                                    zIndex={100}
                                                     zIndexInverse={9}
                                                     style={{flex: 1}}
                                                     ref={freqDropDownRef}

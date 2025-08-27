@@ -306,25 +306,25 @@ export default function Tasks() {
           </TouchableOpacity> : null}
         </View>
 
-        {showEmptyPrompt &&
-            (loadingTasks ? (
-                <ActivityIndicator size={"large"} />
-            ) : (
-                <View style={{ alignItems: "center", marginTop: 40 }}>
-                  <Text
-                      style={{ textAlign: "center", fontSize: 14, marginBottom: 20 }}
-                  >
-                    You don’t have any task for the habit{"\n"}
-                    Generate tasks with just a click or use + to add your own !
-                  </Text>
-                  <TouchableOpacity
-                      style={styles.generateBtn}
-                      onPress={() => setModalVisible(true)}
-                  >
-                    <Text style={styles.generateText}>Generate Tasks</Text>
-                  </TouchableOpacity>
-                </View>
-            ))}
+        {/*{showEmptyPrompt &&*/}
+        {/*    (loadingTasks ? (*/}
+        {/*        <ActivityIndicator size={"large"} />*/}
+        {/*    ) : (*/}
+        {/*        <View style={{ alignItems: "center", marginTop: 40 }}>*/}
+        {/*          <Text*/}
+        {/*              style={{ textAlign: "center", fontSize: 14, marginBottom: 20 }}*/}
+        {/*          >*/}
+        {/*            You don’t have any task for the habit{"\n"}*/}
+        {/*            Generate tasks with just a click or use + to add your own !*/}
+        {/*          </Text>*/}
+        {/*          <TouchableOpacity*/}
+        {/*              style={styles.generateBtn}*/}
+        {/*              onPress={() => setModalVisible(true)}*/}
+        {/*          >*/}
+        {/*            <Text style={styles.generateText}>Generate Tasks</Text>*/}
+        {/*          </TouchableOpacity>*/}
+        {/*        </View>*/}
+        {/*    ))}*/}
 
         <FlatList
             data={filteredTasks}
@@ -348,6 +348,12 @@ export default function Tasks() {
                   <Text style={styles.emptySubtitle}>
                     There are no tasks to display.{'\n'}Try adding one to get started!
                   </Text>
+                  <TouchableOpacity
+                      style={styles.generateBtn}
+                      onPress={() => setModalVisible(true)}
+                  >
+                    <Text style={styles.generateText}>Generate Tasks</Text>
+                  </TouchableOpacity>
                 </View>)}
         />
 
