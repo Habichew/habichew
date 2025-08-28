@@ -8,9 +8,13 @@
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://habichew.scss.tcd.ie"
+      },
       "android": {
         "buildType": "apk"
       }
+      
     },
     "ios-simulator": {
       "extends": "development",
@@ -20,11 +24,17 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://habichew.scss.tcd.ie"
+      }
     },
     "production": {
       "autoIncrement": true,
       "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://habichew.scss.tcd.ie"
+      },
       "android": {
         "buildType": "apk"
       }

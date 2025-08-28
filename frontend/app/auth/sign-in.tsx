@@ -57,7 +57,7 @@ export default function SignInScreen() {
         if (Platform.OS === 'android') AsyncStorage.setItem('userId', loggedInUser.id);
         router.replace("../(tabs)/home");
       } else {
-        Alert.alert("Login Failed", data.message || "Invalid credentials");
+        Alert.alert("Login Failed", data.message || "Invalid password or username");
       }
     }
 

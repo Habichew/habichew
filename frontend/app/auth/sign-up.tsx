@@ -20,43 +20,42 @@ export default function SignUpScreen() {
   const [agree, setAgree] = useState(false);
   const isFormValid = username && agree && email && password;
   const { setUser } = useUser();
-  const handleSignUp = async () => {
-    if (!agree) {
-      alert("Please agree to the terms.");
-      return;
-    }
+  const isEmailValid = (email: string) => /\S+@\S+\.\S+/.test(email);
 
-    if (!email || !password) {
-      alert("Please fill in all fields");
-      return;
-    }
+const handleSignUp = async () => {
+  if (!isEmailValid(email)) {
+    alert("Please enter a valid email address");
+    return;
+  }
 
-    try {
-      const response = await fetch(
-        process.env.EXPO_PUBLIC_BACKEND_URL + "/users/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, email, password }),
-        },
-      );
+  if (password.length < 8) {
+    alert("Password must be at least 8 characters");
+    return;
+  }
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-
-        // alert("Registration successful!");
-        router.replace("../onboarding/launch");
-      } else {
-        alert(`Registration failed: ${data.error || "Unknown error"}`);
+  try {
+    const response = await fetch(
+      process.env.EXPO_PUBLIC_BACKEND_URL + "/users/signup",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
       }
-    } catch (error: any) {
-      alert(`Error: ${error.message}`);
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setUser(data.user);
+      router.replace("../onboarding/launch");
+    } else {
+      alert(`Registration failed: ${data.error || "Unknown error"}`);
     }
-  };
+  } catch (error: any) {
+    alert(`Error: ${error.message}`);
+  }
+};
+
 
   return (
     <View style={styles.screen}>
