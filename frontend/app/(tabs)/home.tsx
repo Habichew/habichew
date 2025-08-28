@@ -68,6 +68,7 @@ const Home = () => {
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
     const [credits, setCredits] = useState<number>(0);
+    const [petFed, setPetFed] = useState<boolean>(false);
 
     const flatListRef = useRef(null);
     const route = useRoute();
@@ -240,6 +241,8 @@ const Home = () => {
 
         // completeHabitTasks(habit);
         console.log("trigger animation and complete habit");
+        console.log('set ishappy to false');
+        riveRef.current?.setInputState("State Machine 1", "IsHappy", false);
         riveRef.current?.setInputState("State Machine 1", "HabitTicked", true);
         // riveRef.current?.setInputState("State Machine 1", "NightTime", false);
         riveRef.current?.setInputState(
@@ -254,6 +257,8 @@ const Home = () => {
         riveRef.current?.fireState("State Machine 1", "Feed");
         riveRef.current?.setInputState("State Machine 1", "HabitTicked", false);
         riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+        // riveRef.current?.setInputState("State Machine 1", "IsHappy", true);
+        setPetFed(true);
         await loadUser();
     }
 
@@ -437,32 +442,43 @@ const Home = () => {
     });
 
     async function handlePetInteraction() {
-        console.log('NightTime', await riveRef.current?.getBooleanState('NightTime'), 'HabitTicked', await riveRef.current?.getBooleanState('HabitTicked'));
-
+        const isHappy: boolean | null | undefined = await riveRef.current?.getBooleanState('IsHappy');
         const nightTime: boolean | null | undefined = await riveRef.current?.getBooleanState('NightTime');
         const shouldTravel: boolean | null | undefined = await riveRef.current?.getBooleanState('ShouldTravel');
         const habitTicked: boolean | null | undefined = await riveRef.current?.getBooleanState('HabitTicked');
-
-        if (nightTime) {
-            riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        } else if (shouldTravel) {
-            riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        console.log('NightTime', nightTime, 'HabitTicked', habitTicked, 'isHappy', isHappy, 'petFed', petFed);
+        if (isHappy) {
+            // reset happy
+            riveRef.current?.setInputState('State Machine 1', 'IsHappy', false);
+        }
+        if (petFed) {
+            // interrupt happy
+            riveRef.current?.setInputState('State Machine 1', 'IsHappy', true);
+            setPetFed(false);
         } else {
-            if (habitTicked) {
-                console.log('feed pet');
+            if (nightTime) {
+                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                feedPet();
-                // setArboardName('Indoor 2');
+            } else if (shouldTravel) {
+                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             } else {
-                if (Platform.OS === 'android') {
-                    Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                if (habitTicked) {
+                    console.log('feed pet');
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    feedPet();
+                    // setArboardName('Indoor 2');
                 } else {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    if (Platform.OS === 'android') {
+                        Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                    } else {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }
                 }
             }
         }
+
+
 
     }
 
