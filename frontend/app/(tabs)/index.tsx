@@ -1,6 +1,6 @@
 import { useRouter, useRootNavigationState } from "expo-router";
-import { useEffect } from "react";
-import { View, Text } from "react-native";
+import React, { useEffect } from "react";
+import {View, Text, ActivityIndicator} from "react-native";
 
 export default function IndexRedirect() {
   const router = useRouter();
@@ -16,6 +16,7 @@ export default function IndexRedirect() {
 
   return (
     <View>
+      <ActivityIndicator size="large"/>
       <Text>Redirecting...</Text>
     </View>
   );

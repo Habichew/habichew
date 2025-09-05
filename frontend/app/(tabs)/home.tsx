@@ -7,7 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     Vibration,
-    View,Linking, Platform
+    View, Linking, Platform, ActivityIndicator
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -28,6 +28,7 @@ import { AndroidHaptics } from "expo-haptics";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import AnimatedNumbers from 'react-native-animated-numbers';
 import {useRoute} from "@react-navigation/core";
+import { Skeleton } from 'moti/skeleton';
 
 const screenWidth = Dimensions.get("window").width;
 const scale = (value: number) => (screenWidth / 375) * value;
@@ -80,74 +81,76 @@ const Home = () => {
     useEffect(() => {
         if (user) {
             setRefreshing(true);
-            loadHabits();
-            loadTasks();
-            const ONE_MINUTE = 60 * 1000;
+            loadHabits().then(() => {
+                loadTasks().then(() => {
+                    const ONE_MINUTE = 60 * 1000;
 
-            // if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
-            //     riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-            // } else {
-            //     riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-            //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
-            // }
+                    // if (user.taskLastCompleted && (Date.now() - new Date(user.taskLastCompleted).getTime()) > 0.5 * ONE_MINUTE) {
+                    //     riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+                    // } else {
+                    //     riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                    //     riveRef.current?.setInputState('State Machine 1', 'HappyTime', 45);
+                    // }
 
-            if (user?.credits > credits) {
-                // console.log('current credit', user.credits);
-                // setCredits(user?.credits);
-                // let newArtboardName = "";
-                // if (user.credits > 100) {
-                //     newArtboardName = "Scene2";
-                // }
-                // else if (user.credits > 50) {
-                //     newArtboardName = "Scene1";
-                // }
-                // else {
-                //     newArtboardName = "Indoor";
-                // }
-                //
-                // console.log('new artboard name', newArtboardName);
-                // setArtboardName(newArtboardName);
+                    if (user?.credits && user.credits > credits) {
+                        // console.log('current credit', user.credits);
+                        // setCredits(user?.credits);
+                        // let newArtboardName = "";
+                        // if (user.credits > 100) {
+                        //     newArtboardName = "Scene2";
+                        // }
+                        // else if (user.credits > 50) {
+                        //     newArtboardName = "Scene1";
+                        // }
+                        // else {
+                        //     newArtboardName = "Indoor";
+                        // }
+                        //
+                        // console.log('new artboard name', newArtboardName);
+                        // setArtboardName(newArtboardName);
 
-                // TODO: reset all states before randomizing
-                // riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
-                // riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-                // riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-            } else {
-                let rng = Math.random() * 3;
-                console.log('rng', rng);
-                switch (Math.floor(rng)) {
-                    case 0:
-                        // Sleeping
-                        console.log('trigger sleeping animation');
-                        riveRef.current?.setInputState('State Machine 1', 'NightTime', true);
-                        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-                        break;
-                    case 1:
-                        // Hungry
-                        console.log('trigger hungry animation');
-                        riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
-                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
-                        riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
-                        break;
-                    case 2:
-                        // Travel
-                        console.log('trigger travel animation');
-                        riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', true);
-                        riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
-                        riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                        // TODO: reset all states before randomizing
+                        // riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                        // riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                        // riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                    } else {
+                        let rng = Math.random() * 3;
+                        console.log('rng', rng);
+                        switch (Math.floor(rng)) {
+                            case 0:
+                                // Sleeping
+                                console.log('trigger sleeping animation');
+                                riveRef.current?.setInputState('State Machine 1', 'NightTime', true);
+                                riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                                break;
+                            case 1:
+                                // Hungry
+                                console.log('trigger hungry animation');
+                                riveRef.current?.setInputState('State Machine 1', 'Overdue', true);
+                                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                                break;
+                            case 2:
+                                // Travel
+                                console.log('trigger travel animation');
+                                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', true);
+                                riveRef.current?.setInputState('State Machine 1', 'Overdue', false);
+                                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
 
-                }
+                        }
+                    }
+
+                    setRefreshing(false);
+                    // await loadStuff();
+                    // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
+                });
+            });
             }
-
-            setRefreshing(false);
-            // await loadStuff();
-            // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
-        }
     }, [user]);
 
     useEffect(() => {
-        if (user?.credits > credits) {
+        if (user?.credits && user.credits > credits) {
             console.log('current credit', user.credits);
             setCredits(user?.credits);
             let newArtboardName = "";
@@ -618,30 +621,82 @@ const Home = () => {
                         {/*<Text>Completed</Text>*/}
                     </TouchableOpacity>
                 </View>
-                <FlatList
-                    ref={flatListRef}
-                    style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
-                    initialNumToRender={10}
-                    data={filteredHabits.filter((h) =>
-                        (showArchivedHabits && h.isArchived) || (!showArchivedHabits && ((h.isArchived === 0) || h.isArchived === null)))
-                    }
-
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={async () => {
-                            console.log("refresh");
-                            await loadHabits()
-                        }}/>
-                    }
-                    keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
-                    renderItem={renderHabit}
-                    ListEmptyComponent={() => (
-                        <View style={styles.emptyContainer}>
-                            <Text style={styles.emptyText}>
-                                There are no habits to display. Try adding one!
-                            </Text>
+                { refreshing ?
+                    <>
+                        <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10, marginBottom: 12}}>
+                            <Pressable style={styles.card} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
+                                <View style={styles.headerRow}>
+                                    <Skeleton colorMode={'light'} width={screenWidth *0.55} />
+                                </View>
+                                <View style={[styles.progressBarBackground, {height: scale(16)}]}>
+                                    <Skeleton colorMode={'light'} />
+                                </View>
+                                <View style={[styles.tagRow, {height: scale(20)}]}>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                </View>
+                            </Pressable>
                         </View>
-                    )}
-                />
+                        <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10, marginBottom: 12}}>
+                            <Pressable style={styles.card} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
+                                <View style={styles.headerRow}>
+                                    <Skeleton colorMode={'light'} width={screenWidth *0.55} />
+                                </View>
+                                <View style={[styles.progressBarBackground, {height: scale(16)}]}>
+                                    <Skeleton colorMode={'light'} />
+                                </View>
+                                <View style={[styles.tagRow, {height: scale(20)}]}>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                </View>
+                            </Pressable>
+                        </View>
+                        <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10, marginBottom: 12}}>
+                            <Pressable style={styles.card} android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
+                                <View style={styles.headerRow}>
+                                    <Skeleton colorMode={'light'} width={screenWidth *0.55} />
+                                </View>
+                                <View style={[styles.progressBarBackground, {height: scale(16)}]}>
+                                    <Skeleton colorMode={'light'} />
+                                </View>
+                                <View style={[styles.tagRow, {height: scale(20)}]}>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                </View>
+                            </Pressable>
+                        </View>
+                    </>
+                    :
+                    <FlatList
+                        ref={flatListRef}
+                        style={{paddingBottom: 10, width: "100%", alignSelf: 'center'}}
+                        initialNumToRender={10}
+                        data={filteredHabits.filter((h) =>
+                            (showArchivedHabits && h.isArchived) || (!showArchivedHabits && ((h.isArchived === 0) || h.isArchived === null)))
+                        }
+
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={async () => {
+                                console.log("refresh");
+                                await loadHabits()
+                            }}/>
+                        }
+                        keyExtractor={(item, index) => item.userHabitId ? String(item.userHabitId) : String(index)}
+                        renderItem={renderHabit}
+                        ListEmptyComponent={() => (
+                            refreshing ? <ActivityIndicator size="large"/> :
+                                <View style={styles.emptyContainer}>
+                                    <Text style={styles.emptyText}>
+                                        There are no habits to display. Try adding one!
+                                    </Text>
+                                </View>
+                        )}
+                    />
+                }
+
             </View>
             <ItemModal visible={modalVisible} initialData={editHabit ?? undefined}
                        onClose={() => {setModalVisible(false); closeHabits()}} onSave={handleSave} onDelete={deleteHabit}

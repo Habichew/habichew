@@ -9,10 +9,11 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useUser } from "@/context/UserContext";
+import {useUser} from "@/context/UserContext";
 import BottomBar from "@/components/bottomBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Ionicons} from "@expo/vector-icons";
+import {CacheHandler} from "@/context/CacheHandler";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -23,7 +24,8 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.clear();
+    // await AsyncStorage.clear();
+    CacheHandler.clearUserCache();
     router.replace("../auth/sign-in");
   };
 

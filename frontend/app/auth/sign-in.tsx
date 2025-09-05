@@ -1,19 +1,12 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator, Platform,
-} from "react-native";
-import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import {ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {useEffect, useState} from "react";
+import {useRouter} from "expo-router";
 import CustomInput from "@/components/ui/input";
-import { useUser } from "../../context/UserContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useUser} from "../../context/UserContext";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import {MMKV, Mode, useMMKVString} from 'react-native-mmkv';
+import {CacheHandler} from "@/context/CacheHandler";
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -27,6 +20,7 @@ export default function SignInScreen() {
   const [statusMessage, setStatusMessage] = useState('');
   const isFormValid = email && password;
   const insets = useSafeAreaInsets();
+  // const [user, setUser] = useMMKVString('user');
 
   useEffect(() => {
     async function login() {
@@ -54,22 +48,27 @@ export default function SignInScreen() {
         const loggedInUser = data[0];
         setUser(loggedInUser); //save user data for global use
         console.log("check signed in user", loggedInUser.email);
-        if (Platform.OS === 'android') AsyncStorage.setItem('userId', loggedInUser.id);
+        CacheHandler.saveUser(loggedInUser);
+
         router.replace("../(tabs)/home");
       } else {
         Alert.alert("Login Failed", data.message || "Invalid password or username");
       }
     }
 
-    async function tryCachedUserLogin() {
-      const cachedUser = await AsyncStorage.getItem("user");
-      if (cachedUser !== null) {
-        console.log("logging in with cached user", cachedUser);
-        await login();
+    async function skipLoginIfUserCached() {
+      // const cachedUser = await AsyncStorage.getItem("user");
+      console.log('reading from local storage');
+      const cachedUser = CacheHandler.loadUser();
+      console.log('cached user', cachedUser);
+      if (cachedUser !== undefined) {
+        // set user to cached user
+        setUser(JSON.parse(cachedUser));
+        router.replace("../(tabs)/home");
       }
     }
 
-    if (Platform.OS === 'android') tryCachedUserLogin();
+    if (Platform.OS === 'android') skipLoginIfUserCached();
   }, []);
 
   const handleSignIn = async () => {
@@ -106,8 +105,7 @@ export default function SignInScreen() {
         if (response.ok) {
           const loggedInUser = data[0];
           setUser(loggedInUser); //save user data for global use
-
-          if (Platform.OS === 'android') AsyncStorage.setItem("user", loggedInUser);
+          CacheHandler.saveUser(loggedInUser);
           router.replace("../(tabs)/home");
         } else {
           Alert.alert("Login Failed", data.message || "Invalid credentials");
@@ -189,7 +187,7 @@ export default function SignInScreen() {
 
       <TouchableOpacity onPress={() => router.push("/auth/sign-up")} style={{marginTop: 20}}>
         <Text style={styles.link}>
-          Don't have an account?{" "}
+          Don&#39;t have an account?{" "}
           <Text style={{ fontWeight: "bold" }}>Sign up</Text>
         </Text>
       </TouchableOpacity>
