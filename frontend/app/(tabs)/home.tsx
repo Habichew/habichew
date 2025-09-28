@@ -34,6 +34,10 @@ const screenWidth = Dimensions.get("window").width;
 const scale = (value: number) => (screenWidth / 375) * value;
 
 const Home = () => {
+    /**
+     * Returns the Home screen.
+     */
+
     const {
         user,
         updateUser,
@@ -74,7 +78,7 @@ const Home = () => {
     const flatListRef = useRef(null);
     const route = useRoute();
 
-    let row: Array<any> = [];
+    let row: any[] = [];
     let prevOpenedRow: any;
 
 
@@ -633,8 +637,6 @@ const Home = () => {
                                 </View>
                                 <View style={[styles.tagRow, {height: scale(20)}]}>
                                     <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
-                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
-                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
                                 </View>
                             </Pressable>
                         </View>
@@ -649,7 +651,6 @@ const Home = () => {
                                 <View style={[styles.tagRow, {height: scale(20)}]}>
                                     <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
                                     <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
-                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
                                 </View>
                             </Pressable>
                         </View>
@@ -662,9 +663,7 @@ const Home = () => {
                                     <Skeleton colorMode={'light'} />
                                 </View>
                                 <View style={[styles.tagRow, {height: scale(20)}]}>
-                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
-                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
-                                    <Skeleton colorMode={'light'} width={100} height={scale(20)}/>
+                                    <Skeleton colorMode={'light'} width={100} height={scale(25)}/>
                                 </View>
                             </Pressable>
                         </View>

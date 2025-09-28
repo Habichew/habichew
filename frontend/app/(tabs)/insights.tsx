@@ -47,7 +47,6 @@ export default function InsightsScreen() {
     user,
     habits,
     loadHabits,
-    addHabit,
     updateHabit,
     deleteHabit,
     tasks,

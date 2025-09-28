@@ -1,6 +1,8 @@
 // frontend/context/UserContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { Alert } from "react-native";
+import {MMKV, Mode} from "react-native-mmkv";
+import {CacheHandler} from "@/context/CacheHandler";
 
 const backendUrl = process.env.BACKEND_URL;
 
@@ -134,7 +136,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const loadUser = async () => {
     try {
       const response = await fetch(
-          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user.id}`,
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user?.id}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" }
@@ -350,8 +352,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       });
 
       setTasks(mapped);
+      // cache tasks
+      CacheHandler.saveTasks(mapped);
     } catch (err) {
       console.error("Failed to load tasks:", err);
+
+      // load cached tasks (if they exist)
+      const cachedTasks = CacheHandler.loadTasks();
+      if (cachedTasks) {
+        setTasks(JSON.parse(cachedTasks));
+      }
     }
   };
 
@@ -440,15 +450,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           },
       );
 
-      if (res.ok) {
-        await loadTasks();
-      } else {
+      if (!res.ok) {
         const err = await res.json();
         console.error("Failed to update task:", err);
+        CacheHandler.updateTask(t);
       }
     } catch (err) {
       console.error(" Failed to update task:", err);
+      CacheHandler.updateTask(t);
     }
+    await loadTasks();
   };
 
   const completeTask = async (t: Task) => {
@@ -464,15 +475,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           },
       );
 
-      if (res.ok) {
-        await loadTasks();
-      } else {
+      if (!res.ok) {
         const err = await res.json();
         console.error("Failed to complete task:", err);
+        CacheHandler.completeTask(t);
       }
     } catch (err) {
       console.error(" Failed to complete task:", err);
+      CacheHandler.completeTask(t);
     }
+    await loadTasks();
   };
 
   const deleteTask = async (userTaskId: number) => {
