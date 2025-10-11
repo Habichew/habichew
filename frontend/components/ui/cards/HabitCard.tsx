@@ -49,6 +49,8 @@ export default function
               }: HabitProps) {
     const router = useRouter();
     const {
+        user,
+        offlineMode,
         completeHabit,
         updateHabit,
         completeHabitTasks,
@@ -134,7 +136,9 @@ export default function
 
     //Add animation here
     const handleTickHabit = async (habit: Habit) => {
+        if ((!user || offlineMode) && !habit.userHabitId) habit.userHabitId = -1; // TODO: what should we do if we don't have a userHabitId yet in offline mode? Use a negative ID to separate between offline and online resources?
         if (!habit.userHabitId) return;
+
         // await updateHabit({ ...habit, isCompleted: true });
         habit.isArchived = 1;
 

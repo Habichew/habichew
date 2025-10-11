@@ -338,7 +338,18 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
     };
 
     const completeHabit = async (habit: Habit) => {
-        if (!user || !habit.userHabitId) return;
+        console.log("complete habit", habit);
+        if (!habit.userHabitId) return;
+        else if (!user || offlineMode) {
+            completeCachedHabit(habit);
+            await loadHabits();
+            return;
+        }
+
+        function completeCachedHabit(habit: Habit) {
+            CacheHandler.completeHabit(habit);
+        }
+
         try {
             const res = await fetch(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${habit.userHabitId}/completed`,
