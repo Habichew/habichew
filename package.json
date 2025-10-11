@@ -10,6 +10,7 @@
     "eas-cli": "^16.17.4",
     "expo": "^53.0.20",
     "expo-dev-client": "^5.2.4",
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "@react-native-community/cli": "latest"
   }
 }

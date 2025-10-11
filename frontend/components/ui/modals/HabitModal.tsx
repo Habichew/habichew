@@ -19,8 +19,8 @@ import {
 import {Picker} from '@react-native-picker/picker';
 import {Ionicons} from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import CustomDropdown from './select';
-import {webDateInputWrapper, webDateInput} from './webDateStyles';
+import CustomDropdown from '../select';
+import {webDateInputWrapper, webDateInput} from '../webDateStyles';
 import {useFocusEffect} from '@react-navigation/native';
 import {ScaledSheet} from 'react-native-size-matters';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';

@@ -1,8 +1,17 @@
 import {MMKV, Mode} from "react-native-mmkv";
-import {Habit, Task, User} from "@/context/UserContext";
-import {Dispatcher} from "undici";
-import HttpMethod = Dispatcher.HttpMethod;
+import {Habit, Task, User, CachedRequest} from "@/context/UserContext";
 
+export enum HttpMethod {
+    GET = 'GET',
+    POST = 'POST',
+    PUT = 'PUT',
+    PATCH = 'PATCH',
+    DELETE = 'DELETE'
+}
+
+/**
+ * Manages interactions with local key-value storage.
+ */
 export class CacheHandler {
     static storage = new MMKV({
         id: `user-storage`,
@@ -11,29 +20,59 @@ export class CacheHandler {
         readOnly: false
     });
 
-    public static getHasChangedOffline(): boolean {
+    private static hasChangedFlag: boolean = this.hasChangedOffline();  // cache if storage has changed to prevent repeated read operations to storage
+
+    private static hasChangedOffline(): boolean {
         return !!CacheHandler.storage.getBoolean('hasChangedOffline');
     }
 
+    public static getHasChangedOffline(): boolean {
+        return this.hasChangedFlag;
+    }
+
     public static setHasChangedOffline(hasChangedOffline: boolean) {
+        if (this.hasChangedFlag === hasChangedOffline) {
+            return;
+        }
         CacheHandler.storage.set('hasChangedOffline', hasChangedOffline);
+        this.hasChangedFlag = hasChangedOffline;
     }
 
     private static addToQueue(method: HttpMethod, entity: Habit | Task | User) {
         let queueStr: string | undefined = CacheHandler.storage.getString('requestQueue');
         if (queueStr != null) {
-            let queue: {method: HttpMethod, entity: Habit | Task | User}[] = JSON.parse(queueStr);
-            queue.push({method, entity});
+            let queue: CachedRequest[] = JSON.parse(queueStr);
+            queue.push(new CachedRequest(method, entity));
             CacheHandler.storage.set('requestQueue', JSON.stringify(queue));
         }
     }
 
-    private static loadQueue() {
-        return CacheHandler.storage.getString('requestQueue');
+    public static loadQueue(): CachedRequest[] | null {
+        const qStr = CacheHandler.storage.getString('requestQueue');
+        if (qStr != null) {
+            return JSON.parse(qStr);
+        }
+        return null;
     }
 
     private static clearQueue() {
         CacheHandler.storage.delete('requestQueue');
+    }
+
+    static addHabit(h: Habit) {
+        console.log("caching new habit", h);
+
+        const habitsStr = CacheHandler.storage.getString('habits');
+        console.log('habitsStr',  habitsStr);
+        let habits: Habit[] = habitsStr ? JSON.parse(habitsStr) : [];
+        console.log('habits',  habits);
+        let newHabits: Habit[] = habits;
+        newHabits.push(h);
+        console.log('new habits',  newHabits);
+
+        CacheHandler.storage.set('habits', JSON.stringify(newHabits));
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.POST, h);
     }
 
     static updateHabit(h: Habit) {
@@ -49,7 +88,7 @@ export class CacheHandler {
             CacheHandler.storage.set('habits', JSON.stringify(newHabits));
         }
         this.setHasChangedOffline(true);
-        this.addToQueue('PATCH', h);
+        this.addToQueue(HttpMethod.PATCH, h);
     }
 
     static completeHabit(h: Habit) {
@@ -84,7 +123,7 @@ export class CacheHandler {
             }
         }
         this.setHasChangedOffline(true);
-        this.addToQueue('PATCH', h)
+        this.addToQueue(HttpMethod.PATCH, h)
     }
 
     static saveHabits(habits: Habit[]) {
@@ -94,7 +133,8 @@ export class CacheHandler {
 
     static loadHabits() {
         console.log("loading cached habits");
-        return CacheHandler.storage.getString('habits');
+        const habitsStr = CacheHandler.storage.getString('habits');
+        return habitsStr ? JSON.parse(habitsStr) : null;
     }
 
     static updateTask(t: Task) {
@@ -110,7 +150,7 @@ export class CacheHandler {
             CacheHandler.storage.set('tasks', JSON.stringify(newTasks));
         }
         this.setHasChangedOffline(true);
-        this.addToQueue('PATCH', t);
+        this.addToQueue(HttpMethod.PATCH, t);
     }
 
     static completeTask(t: Task) {
@@ -135,7 +175,7 @@ export class CacheHandler {
             }
         }
         this.setHasChangedOffline(true);
-        this.addToQueue('PATCH', t);
+        this.addToQueue(HttpMethod.PATCH, t);
     }
 
     static saveTasks(mapped: any[]) {
@@ -143,9 +183,27 @@ export class CacheHandler {
         CacheHandler.storage.set('tasks', JSON.stringify(mapped));
     }
 
+    static deleteTask(t: Task) {
+        console.log("delete cached task", t);
+        const tasksStr = CacheHandler.storage.getString('tasks');
+        if (tasksStr) {
+            const tasksArr: Task[] = JSON.parse(tasksStr);
+            let newTasks: Task[] = tasksArr;
+            tasksArr.forEach((task, index) => {
+                if (task.userTaskId === t.userTaskId) {
+                    delete newTasks[index];
+                }
+            });
+            CacheHandler.storage.set('tasks', JSON.stringify(newTasks));
+        }
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.DELETE, t);
+    }
+
     static loadTasks() {
         console.log("loading cached tasks");
-        return CacheHandler.storage.getString('tasks');
+        let tasksStr = CacheHandler.storage.getString('tasks');
+        return tasksStr ? JSON.parse(tasksStr) : null;
     }
 
     static saveUser(user: User) {
@@ -153,14 +211,32 @@ export class CacheHandler {
         CacheHandler.storage.set('user', JSON.stringify(user));
     }
 
-    static loadUser() {
+    static loadUser(): User | null {
         console.log("loading cached user");
-        return CacheHandler.storage.getString('user');
+        let userStr = CacheHandler.storage.getString('user');
+        return userStr ? JSON.parse(userStr) : null;
     }
 
     static clearUserCache() {
         CacheHandler.storage.delete('user');
         CacheHandler.storage.delete('tasks');
         CacheHandler.storage.delete('habits');
+        CacheHandler.storage.delete('offlineMode');
+    }
+
+    static getOfflineMode(): boolean {
+        return !!CacheHandler.storage.getBoolean('offlineMode');
+    }
+
+    static setOfflineMode(offlineMode: boolean): void {
+        CacheHandler.storage.set('offlineMode', offlineMode);
+    }
+
+    static getTaskGeneration(): boolean {
+        return !!CacheHandler.storage.getBoolean('taskGeneration');
+    }
+
+    static setTaskGeneration(taskGeneration: boolean): void {
+        CacheHandler.storage.set('taskGeneration', taskGeneration);
     }
 }

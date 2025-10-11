@@ -4,7 +4,7 @@ export const useTaskSearch = (tasks: Task[], keyword: string) => {
   if (!keyword.trim()) return tasks;
   return tasks.filter(
     (task) =>
-      task.title.toLowerCase().includes(keyword.toLowerCase()) ||
+      task.taskTitle.toLowerCase().includes(keyword.toLowerCase()) ||
       (task.description?.toLowerCase().includes(keyword.toLowerCase()) ??
         false),
   );

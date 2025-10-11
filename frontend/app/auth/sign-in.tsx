@@ -2,7 +2,7 @@ import {ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, 
 import {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
 import CustomInput from "@/components/ui/input";
-import {useUser} from "../../context/UserContext";
+import {User, useUser} from "../../context/UserContext";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import {MMKV, Mode, useMMKVString} from 'react-native-mmkv';
@@ -21,6 +21,9 @@ export default function SignInScreen() {
   const isFormValid = email && password;
   const insets = useSafeAreaInsets();
   // const [user, setUser] = useMMKVString('user');
+  const {
+    synchronise
+  } = useUser();
 
   useEffect(() => {
     async function login() {
@@ -48,6 +51,8 @@ export default function SignInScreen() {
         const loggedInUser = data[0];
         setUser(loggedInUser); //save user data for global use
         console.log("check signed in user", loggedInUser.email);
+        // TODO: synchronise offline storage and server
+        await synchronise();
         CacheHandler.saveUser(loggedInUser);
 
         router.replace("../(tabs)/home");
@@ -59,11 +64,11 @@ export default function SignInScreen() {
     async function skipLoginIfUserCached() {
       // const cachedUser = await AsyncStorage.getItem("user");
       console.log('reading from local storage');
-      const cachedUser = CacheHandler.loadUser();
+      const cachedUser: User | null = CacheHandler.loadUser();
       console.log('cached user', cachedUser);
       if (cachedUser !== undefined) {
         // set user to cached user
-        setUser(JSON.parse(cachedUser));
+        setUser(cachedUser);
         router.replace("../(tabs)/home");
       }
     }

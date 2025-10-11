@@ -14,8 +14,6 @@ export default function IndexRedirect() {
     }
   }, [rootNavigationState]);
 
-  // TODO: synchronise local storage and server if out of sync
-
   return (
     <View>
       <ActivityIndicator size="large"/>

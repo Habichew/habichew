@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  ScrollView,
+  ScrollView, Switch,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {useUser} from "@/context/UserContext";
@@ -17,7 +17,7 @@ import {CacheHandler} from "@/context/CacheHandler";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user } = useUser(); // use user data
+  const { user, offlineMode, setOfflineMode, taskGeneration, setTaskGeneration } = useUser(); // use user data
 
   const navigateTo = (screen: string) => {
     router.push(`./profile-sub/${screen}`);
@@ -44,6 +44,32 @@ export default function ProfileScreen() {
           {/* <Image source={require('@/assets/images/purplecat.png')} style={styles.avatar} /> */}
           <Text style={styles.name}>{user?.username || "Unknown User"}</Text>
         </View>
+
+        {/* Section: Settings */}
+        <Text style={styles.sectionTitle}>Settings</Text>
+        <ProfileItem
+            label="Offline Mode"
+            toggleButton={true}
+            toggleValue={offlineMode}
+            onPress={() => {
+              console.log('toggling offline mode');
+              setOfflineMode(!offlineMode);
+              CacheHandler.setOfflineMode(!offlineMode);
+            }
+        }
+        />
+
+        <ProfileItem
+            label="Chat-GPT Task Generation"
+            toggleButton={true}
+            toggleValue={taskGeneration}
+            onPress={() => {
+                console.log('toggling task generation');
+                setTaskGeneration(!taskGeneration);
+                CacheHandler.setTaskGeneration(!taskGeneration);
+              }
+            }
+        />
 
         {/* Section: My Profile */}
         <Text style={styles.sectionTitle}>My Profile</Text>
@@ -83,22 +109,41 @@ export default function ProfileScreen() {
 }
 
 function ProfileItem({
-  label,
-  value,
-  onPress,
-}: {
-  label: string;
-  value?: string;
-  onPress: () => void;
+                       label,
+                       value,
+                       toggleButton,
+                       onPress,
+                       toggleValue
+                     }: {
+  label: string,
+  value?: string,
+  toggleButton?: boolean,
+  onPress: () => void,
+  toggleValue?: boolean
 }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.item}>
+    <TouchableOpacity onPress={toggleButton ? onPress : undefined} style={styles.item}>
       <View>
         <Text style={styles.label}>{label}</Text>
         {value && <Text style={styles.value}>{value}</Text>}
       </View>
-      <Ionicons name={"chevron-forward-outline"}></Ionicons>
-      {/*<Text style={styles.arrow}>{">"}</Text>*/}
+      { toggleButton ?
+          <View>
+            <Switch
+                trackColor={{false: '#767577', true: '#81b0ff'}}
+                thumbColor={toggleValue ? '#f5dd4b' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={onPress}
+                value={toggleValue}
+            />
+          </View>
+      :
+          <>
+            <Ionicons name={"chevron-forward-outline"}></Ionicons>
+            {/*<Text style={styles.arrow}>{">"}</Text>*/}
+          </>
+      }
+
     </TouchableOpacity>
   );
 }

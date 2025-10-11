@@ -16,13 +16,12 @@ import { useUser, Task } from "../../context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import TaskModal from '../../components/ui/TaskModal';
-import Rive, {Fit, RiveRef} from "rive-react-native";
+import TaskModal from '../../components/ui/modals/TaskModal';
+import {RiveRef} from "rive-react-native";
 import {AndroidHaptics} from 'expo-haptics';
-import Animated, {Easing, SharedValue, useAnimatedStyle, withTiming,} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import SwipeableFlatList, {SwipeableFlatListRef} from 'rn-gesture-swipeable-flatlist';
+import {SwipeableFlatListRef} from 'rn-gesture-swipeable-flatlist';
 import {ScaledSheet} from "react-native-size-matters";
 
 export default function Tasks() {
@@ -88,7 +87,7 @@ export default function Tasks() {
   useEffect(() => {
     let filtered = tasks.filter(t => {
       if (isHabitFilterLocked && numericHabitId) return t.habitId === numericHabitId;
-      return t.title.toLowerCase().includes(searchText.toLowerCase());
+      return t.taskTitle.toLowerCase().includes(searchText.toLowerCase());
     });
     filtered = sortTasks(filtered);
     setFilteredTasks(filtered);
@@ -203,22 +202,14 @@ export default function Tasks() {
         });
   }
 
-  const renderTask = ({ item, index }) => {
+  const renderTask = ( item: any) => {
     const isCompleted = item.completed === true;
     const ddl = item.dueAt;
-
-    async function handleSwipe( direction: any) {
-      console.log("vibrate");
-      await Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
-      if (direction === 'right') {
-        await toggleCompleted(item);
-      }
-    }
 
     return (
         <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginBottom: 10}}>
           <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}  android_ripple={{color: '#00000020', borderless: true, foreground: false, radius: 300}}>
-            <View style={styles.flexOne}>
+            <View>
               <TouchableOpacity disabled={!!item.completed}
                                 onPress={() => {
                                     if (Platform.OS === 'android') {
@@ -338,7 +329,7 @@ export default function Tasks() {
             swipeableProps={{
               friction: 2,
               overshootFriction: 8,
-              onSwipeableOpen: async (direction, swipeable) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
+              onSwipeableOpen: async (direction: any, swipeable: any) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
             }}
             style={{marginHorizontal: -40, paddingHorizontal: 25}}
             ListEmptyComponent={() => (

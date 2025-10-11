@@ -13,8 +13,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useUser, Task } from "@/context/UserContext";
-import { webDateInputWrapper, webDateInput } from "./webDateStyles";
-import CustomDropdown from "./select";
+import { webDateInputWrapper, webDateInput } from "../webDateStyles";
+import CustomDropdown from "../select";
 import {ScaledSheet} from "react-native-size-matters";
 
 interface TaskModalProps {
@@ -57,12 +57,12 @@ export default function TaskModal({
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title || "");
+      setTitle(task.taskTitle || "");
       setDescription(task.description ?? null);
       setDueDate(task.dueAt?.substring(0, 10) ?? null);
       if (
-        task.priority ?
-        ["low", "medium", "high"].includes(task.priority.toLowerCase()) : null
+        task.priority &&
+        ["low", "medium", "high"].includes(task.priority.toLowerCase())
       ) {
         const capitalized =
           task.priority.charAt(0).toUpperCase() +
@@ -108,7 +108,7 @@ export default function TaskModal({
 
     const formattedTask = {
       ...(task?.userTaskId ? { userTaskId: task.userTaskId } : {}),
-      title,
+      taskTitle: title,
       description: description?.trim() || null,
       dueAt: dueDate ? formatDate(dueDate) : null,
       priority: priority

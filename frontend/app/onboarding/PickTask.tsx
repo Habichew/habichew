@@ -12,7 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser, Task } from "../../context/UserContext";
-import TaskModal from "@/components/ui/TaskModal";
+import TaskModal from "@/components/ui/modals/TaskModal";
 import OnboardingProgress from "@/components/ui/OnboardingProgress";
 
 export default function PickTasks() {
