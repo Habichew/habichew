@@ -3,6 +3,14 @@ import {sendNotImplementedError} from "../index.js";
 import * as taskService from "../services/taskService.js";
 import * as userService from "../services/userService.js";
 
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get all categories that a habit can be assigned to.
+ * @param req
+ * @param res
+ * @returns {Promise<*>} All habit categories.
+ */
 export async function getHabitCategories(req, res) {
     try {
         const categories = await habitService.getHabitCategories();
@@ -15,6 +23,14 @@ export async function getHabitCategories(req, res) {
     }
 }
 
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get all default habits.
+ * @param req
+ * @param res
+ * @returns {Promise<*>} All default habits.
+ */
 export async function getPresetHabits(req, res) {
     try {
         const { categoryId } = req.params;
@@ -25,7 +41,14 @@ export async function getPresetHabits(req, res) {
     }
 }
 
-
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get a list of all habits created by a specific user.
+ * @param req user ID
+ * @param res
+ * @returns {Promise<*>} a list of all habits created by the user
+ */
 export async function getHabitListByUser(req, res) {
     try {
         const {userId} = req.params;
@@ -36,6 +59,14 @@ export async function getHabitListByUser(req, res) {
     }
 }
 
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get a list of all habits created by a specific user.
+ * @param req user ID
+ * @param res
+ * @returns {Promise<*>} a list of all habits created by the user
+ */
 export async function getHabitByUser(req, res) {
     try {
         const {userId, userHabitId} = req.params;
@@ -46,7 +77,14 @@ export async function getHabitByUser(req, res) {
     }
 }
 
-
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get a list of all habits created by a specific user.
+ * @param req user ID
+ * @param res
+ * @returns {Promise<*>} a list of all habits created by the user
+ */
 export async function createHabitByUser(req, res) {
     try {
         const { userId } = req.params;
@@ -69,6 +107,14 @@ export async function createHabitByUser(req, res) {
     }
 }
 
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Completes a user's habit and updates the user's credit.
+ * @param req user ID, user's habit's ID
+ * @param res
+ * @returns {Promise<*>} a list of all habits created by the user
+ */
 export async function completeHabit(req, res) {
     try {
         const { userId, userHabitId } = req.params;
@@ -110,6 +156,14 @@ export async function completeHabit(req, res) {
     }
 }
 
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Update a user's habit.
+ * @param req user ID
+ * @param res
+ * @returns {Promise<*>} the updated habit.
+ */
 export async function updateHabitByUser(req, res) {
     try {
         const { userId, userHabitId } = req.params;
@@ -132,6 +186,14 @@ export async function updateHabitByUser(req, res) {
     }
 }
 
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Delete a specific user's habit.
+ * @param req user ID, user's habit's ID
+ * @param res
+ * @returns {Promise<*>}
+ */
 export async function deleteUserHabit (req,res){
     const {userId,userHabitId} = req.params;
 
