@@ -24,6 +24,11 @@ import * as Haptics from 'expo-haptics';
 import {SwipeableFlatListRef} from 'rn-gesture-swipeable-flatlist';
 import {ScaledSheet} from "react-native-size-matters";
 
+/**
+ * This component contains the Tasks screen, which contains a list of user-created tasks.
+ * @category Frontend
+ * @returns {ReactNode} A React element that renders the Tasks screen.
+ */
 export default function Tasks() {
   const screenWidth = Dimensions.get('window').width;
 

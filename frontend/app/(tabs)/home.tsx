@@ -30,10 +30,12 @@ import AnimatedPet from "@/components/AnimatedPet";
 import HabitsList from "@/components/ui/lists/HabitsList";
 import ConfirmDeleteModal from "@/components/ui/modals/ConfirmDeleteModal";
 
+/**
+ * This component contains the Home screen, which contains a list of tasks and the interactive pet.
+ * @category Frontend
+ * @returns {ReactNode} A React element that renders the Home screen.
+ */
 const Home = () => {
-    /**
-     * Returns the Home screen.
-     */
 
     const {
         user,

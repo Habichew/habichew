@@ -24,6 +24,11 @@ import { ScaledSheet } from "react-native-size-matters";
 import PieChart, { dataItem } from "react-native-expo-pie-chart";
 import { Habit, Task, useUser } from "../../context/UserContext";
 
+/**
+ * This component contains the Insights screen, which contains and overview and breakdown related to the user's completed tasks.
+ * @category Frontend
+ * @returns {ReactNode} A React element that renders the Insights screen.
+ */
 export default function InsightsScreen() {
   const [selectedTab, setSelectedTab] = useState<
     "Today" | "Weekly" | "Monthly"

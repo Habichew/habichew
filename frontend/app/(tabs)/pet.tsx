@@ -24,7 +24,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import {ICarouselInstance} from "react-native-reanimated-carousel";
 
-
+/**
+ * This component contains the Pet screen, which contains unlockable rewards for collecting points and story elements.
+ * @category Frontend
+ * @returns {ReactNode} A React element that renders the Pet screen.
+ */
 export default function PetScreen(this: any) {
   const { pet, loadPet, user } = useUser(); // use user data
   const [selectedCard, setSelectedCard] = useState<{

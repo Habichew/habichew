@@ -9,7 +9,9 @@
     "includePattern": ".+\\.(js|tsx)$",
     "excludePattern": "(node_modules/|docs)"
   },
-  "plugins": ["plugins/markdown", "node_modules/jsdoc-babel"],
+  "plugins": ["plugins/markdown",
+    "node_modules/jsdoc-babel",
+    "node_modules/better-docs/category"],
   "templates": {
     "cleverLinks": false,
     "monospaceLinks": false
@@ -25,6 +27,7 @@
     "encoding": "utf8",
     "destination": "./docs/",
     "recurse": true,
-    "verbose": true
+    "verbose": true,
+    "template": "node_modules/better-docs"
   }
 }

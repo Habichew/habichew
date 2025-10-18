@@ -15,6 +15,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Ionicons} from "@expo/vector-icons";
 import {CacheHandler} from "@/context/CacheHandler";
 
+/**
+ * This component contains the Profile screen, which contains account settings as well as general app settings.
+ * @category Frontend
+ * @returns {ReactNode} A React element that renders the Profile screen.
+ */
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, offlineMode, setOfflineMode, taskGeneration, setTaskGeneration } = useUser(); // use user data
