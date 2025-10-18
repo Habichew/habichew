@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> backend/controllers/habitController.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="AnimatedPet.html">AnimatedPet</a></li><li><a href="CacheHandler.html">CacheHandler</a></li></ul></div><div class="category"><h2>Backend</h2><h3>Global</h3><ul><li><a href="global.html#completeHabit">completeHabit</a></li><li><a href="global.html#createHabitByUser">createHabitByUser</a></li><li><a href="global.html#deleteUserHabit">deleteUserHabit</a></li><li><a href="global.html#getHabitByUser">getHabitByUser</a></li><li><a href="global.html#getHabitCategories">getHabitCategories</a></li><li><a href="global.html#getHabitListByUser">getHabitListByUser</a></li><li><a href="global.html#getPresetHabits">getPresetHabits</a></li><li><a href="global.html#updateHabitByUser">updateHabitByUser</a></li></ul></div><div class="category"><h2>Frontend</h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InsightsScreen">InsightsScreen</a></li><li><a href="global.html#PetScreen">PetScreen</a></li><li><a href="global.html#ProfileScreen">ProfileScreen</a></li><li><a href="global.html#Tasks">Tasks</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>backend/controllers/habitController.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as habitService from "../services/habitService.js";
+import {sendNotImplementedError} from "../index.js";
+import * as taskService from "../services/taskService.js";
+import * as userService from "../services/userService.js";
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get all categories that a habit can be assigned to.
+ * @param req
+ * @param res
+ * @returns {Promise&lt;*>} All habit categories.
+ */
+export async function getHabitCategories(req, res) {
+    try {
+        const categories = await habitService.getHabitCategories();
+        if (categories.length ===0){
+            return res.status()
+        }
+        res.status(200).json(categories);
+    } catch (err) {
+        res.status(500).json({message: 'Failed to fetch habit categories', error: err.message});
+    }
+}
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get all default habits.
+ * @param req
+ * @param res
+ * @returns {Promise&lt;*>} All default habits.
+ */
+export async function getPresetHabits(req, res) {
+    try {
+        const { categoryId } = req.params;
+        const presets = await habitService.getPresetHabits(categoryId);
+        res.status(200).json(presets);
+    } catch (err) {
+        res.status(500).json({message: 'Failed to fetch preset habits', error: err.message});
+    }
+}
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get a list of all habits created by a specific user.
+ * @param req user ID
+ * @param res
+ * @returns {Promise&lt;*>} a list of all habits created by the user
+ */
+export async function getHabitListByUser(req, res) {
+    try {
+        const {userId} = req.params;
+        const list = await habitService.getUserHabitList(userId);
+        res.status(200).json(list);
+    } catch (err) {
+        res.status(500).json({message: 'Failed to fetch user habit list', error: err.message});
+    }
+}
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get a list of all habits created by a specific user.
+ * @param req user ID
+ * @param res
+ * @returns {Promise&lt;*>} a list of all habits created by the user
+ */
+export async function getHabitByUser(req, res) {
+    try {
+        const {userId, userHabitId} = req.params;
+        const habit = await habitService.getUserHabit(userId, userHabitId);
+        return res.status(200).json(habit);
+    } catch (err) {
+        return res.status(500).json({message: 'Failed to fetch the habit', error: err.message});
+    }
+}
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Get a list of all habits created by a specific user.
+ * @param req user ID
+ * @param res
+ * @returns {Promise&lt;*>} a list of all habits created by the user
+ */
+export async function createHabitByUser(req, res) {
+    try {
+        const { userId } = req.params;
+        const { habitId, customTitle, priority, startDate, goalDate, frequency } = req.body;
+
+
+        // Basic validation
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        if (!customTitle &amp;&amp; !habitId) {
+            return res.status(400).json({message: 'Choose a habit or add your custom one'})
+        }
+
+        const habit = await habitService.createHabitByUser(userId, habitId, customTitle, priority, startDate, goalDate, frequency);
+        res.status(201).json({ message: 'Habit created', habit });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to create habit', error: err.message });
+    }
+}
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Completes a user's habit and updates the user's credit.
+ * @param req user ID, user's habit's ID
+ * @param res
+ * @returns {Promise&lt;*>} a list of all habits created by the user
+ */
+export async function completeHabit(req, res) {
+    try {
+        const { userId, userHabitId } = req.params;
+
+        // get the habit to validate it's legal
+        const currentHabit = await habitService.getUserHabit(userId, userHabitId);
+        if (!currentHabit || currentHabit.length === 0) {
+            return res.status(404).json({ message: "Habit not found" });
+        }
+
+
+        if (currentHabit.isArchived) {
+            return res.status(200).json({
+                message: "Habit already completed",
+                habit: currentHabit,
+            });
+        }
+
+
+        // Mark the habit as completed
+        const isArchived = 1;
+        const updatedHabit = await habitService.updateHabitByUser(userId,userHabitId,null,null,null,null,null,1);
+
+        // Add credits to the user
+        const creditToAdd = 15;
+        const updatedUser = await userService.addUserCredit(userId, creditToAdd);
+
+        return res.status(200).json({
+            message: "Habit marked completed and credit updated",
+            updatedHabit
+        });
+
+    } catch (err) {
+        console.error("CompleteTask error:", err);
+        return res.status(500).json({
+            message: "Failed to complete task",
+            error: err.message,
+        });
+    }
+}
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Update a user's habit.
+ * @param req user ID
+ * @param res
+ * @returns {Promise&lt;*>} the updated habit.
+ */
+export async function updateHabitByUser(req, res) {
+    try {
+        const { userId, userHabitId } = req.params;
+        const { customTitle, priority, startDate, goalDate, frequency, isArchived } = req.body;
+
+
+        // Basic validation
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        if (!userHabitId) {
+            return res.status(400).json({ message: 'Habit Id is required for this user' });
+        }
+
+        const habit = await habitService.updateHabitByUser(userId, userHabitId, customTitle, priority, startDate, goalDate, frequency, isArchived);
+        return res.status(200).json({ message: 'User habit updated successfully' , habit });
+    } catch (err) {
+        return res.status(500).json({ message: 'Failed to update habit', error: err.message });
+    }
+}
+
+/**
+ * @category Backend
+ * @subcategory Habit
+ * Delete a specific user's habit.
+ * @param req user ID, user's habit's ID
+ * @param res
+ * @returns {Promise&lt;*>}
+ */
+export async function deleteUserHabit (req,res){
+    const {userId,userHabitId} = req.params;
+
+    try {
+        const deleted = await habitService.deleteUserHabit(userId, userHabitId);
+
+        if (!deleted) {
+            return res.status(404).json({ message: 'Habit not found or already deleted' });
+        }
+
+        res.status(200).json({ message: 'Habit and related tasks deleted successfully' });
+    } catch (err) {
+        console.error('Delete error:', err);
+        res.status(500).json({ message: 'Failed to delete habit', error: err.message });
+    }
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

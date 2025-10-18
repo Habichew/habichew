@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> frontend/app/(tabs)/pet.tsx</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="AnimatedPet.html">AnimatedPet</a></li><li><a href="CacheHandler.html">CacheHandler</a></li></ul></div><div class="category"><h2>Backend</h2><h3>Global</h3><ul><li><a href="global.html#completeHabit">completeHabit</a></li><li><a href="global.html#createHabitByUser">createHabitByUser</a></li><li><a href="global.html#deleteUserHabit">deleteUserHabit</a></li><li><a href="global.html#getHabitByUser">getHabitByUser</a></li><li><a href="global.html#getHabitCategories">getHabitCategories</a></li><li><a href="global.html#getHabitListByUser">getHabitListByUser</a></li><li><a href="global.html#getPresetHabits">getPresetHabits</a></li><li><a href="global.html#updateHabitByUser">updateHabitByUser</a></li></ul></div><div class="category"><h2>Frontend</h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InsightsScreen">InsightsScreen</a></li><li><a href="global.html#PetScreen">PetScreen</a></li><li><a href="global.html#ProfileScreen">ProfileScreen</a></li><li><a href="global.html#Tasks">Tasks</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>frontend/app/(tabs)/pet.tsx</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Dimensions, Modal, Pressable, TouchableWithoutFeedback,
+} from "react-native";
+import { useUser } from "@/context/UserContext";
+import { ScaledSheet } from "react-native-size-matters";
+
+import FlipCard from "react-native-flip-card";
+import Postcard from "@/components/ui/Postcard";
+import {postcardImgs} from "@/constants/PostcardData"
+/*import Carousel, {
+  ICarouselInstance,
+} from "react-native-reanimated-carousel";*/
+import { Image } from 'expo-image';
+import {Ionicons} from "@expo/vector-icons";
+import {Gesture, GestureDetector, PinchGestureHandler} from "react-native-gesture-handler";
+import {scale} from "style-value-types";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+import {ICarouselInstance} from "react-native-reanimated-carousel";
+
+/**
+ * This component contains the Pet screen, which contains unlockable rewards for collecting points and story elements.
+ * @category Frontend
+ * @returns {ReactNode} A React element that renders the Pet screen.
+ */
+export default function PetScreen(this: any) {
+  const { pet, loadPet, user } = useUser(); // use user data
+  const [selectedCard, setSelectedCard] = useState&lt;{
+    frontUrl: any;
+    backUrl: any;
+    unlockScore: number;
+  } | null>(null);
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useState(() => {
+    console.log("load user pet");
+    loadPet();
+    console.log('PetScreen', pet);
+  });
+
+  const ref = React.useRef&lt;ICarouselInstance>(null);
+  const width = Dimensions.get("window").width;
+
+  const scale = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+
+  const pinchGesture = Gesture.Pinch()
+      .onUpdate((e) => {
+        scale.value = savedScale.value * e.scale;
+      })
+      .onEnd(() => {
+        savedScale.value = scale.value;
+      });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    &lt;View style={styles.container}>
+      &lt;View style={styles.headerContainer}>
+        &lt;Text style={styles.title}>{pet ? `${pet.name}'s` : 'Pet'} Journey&lt;/Text>
+      &lt;/View>
+
+      &lt;ScrollView style={styles.scrollContainer}>
+        {/* Pet Info */}
+        &lt;View style={styles.petInfoContainer}>
+          &lt;View style={styles.petInfo}>
+            &lt;Image source={require('@/assets/images/pet profile.png')} style={styles.avatar} />
+            &lt;View style={styles.avatarDescription}>
+              &lt;Text style={styles.petName}>{pet?.name}&lt;/Text>
+              {/*&lt;Text style={styles.personality}>{pet?.personality}&lt;/Text>*/}
+              {/*&lt;Text style={styles.textLine}>Mood: {pet?.mood}&lt;/Text>*/}
+              &lt;Text style={styles.level}>Level: {pet?.level}&lt;/Text>
+              &lt;View style={styles.creditContainer}>
+                &lt;Ionicons name="star" size={20} color="#1CC282"/>
+                &lt;Text style={{ lineHeight:20 }}> {user?.credits|0}&lt;/Text>
+              &lt;/View>
+            &lt;/View>
+          &lt;/View>
+        &lt;/View>
+
+        &lt;View style={styles.postcards}>
+          &lt;Text style={styles.postcardsTitle}>Postcards&lt;/Text>
+
+          &lt;View style={{ marginBottom: 30 }}>
+            {postcardImgs.reduce((rows, current, index) => {
+              if (index % 3 === 0) rows.push([]);
+              rows[rows.length - 1].push(current);
+              return rows;
+            }, []).map((row, rowIndex) => (
+                &lt;View key={rowIndex} style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 20, marginBottom: 10 }}>
+                  {row.map((item, idx) => (
+                      &lt;Postcard
+                          key={`postcard-${rowIndex}-${idx}`}
+                          source={item.frontUrl}
+                          unlockScore={item.unlockScore}
+                          isUnlocked={user.credits >= item.unlockScore}
+                          onPress={() => {
+                            setSelectedCard(item);        // select the unlocked postcard
+                            setModalVisible(true);        // Open the modal to flip the postcard
+                          }}
+                      />
+                  ))}
+                &lt;/View>
+            ))}
+          &lt;/View>
+
+          &lt;Modal
+              visible={modalVisible}
+              transparent={true}
+              animationType="fade"
+          >
+            &lt;TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+              &lt;View style={styles.modalBackground}>
+                &lt;TouchableWithoutFeedback onPress={() => {}}>
+                  &lt;View style={styles.modalContainer}>
+                    &lt;GestureDetector gesture={pinchGesture}>
+
+                    &lt;FlipCard
+                        flipHorizontal
+                        flipVertical={false}
+                        friction={8}
+                        perspective={2000}
+                        useNativeDriver
+                        style={animatedStyle}
+                    >
+                      {/* Front Side of Postcard */}
+                    &lt;View style={{ flex: 1, justifyContent: 'center', transform: [{scale: scale.value}] }}>
+                      &lt;Image style={[styles.faceImg]} source={selectedCard?.frontUrl} key={`front`}>&lt;/Image>
+                    &lt;/View>
+                    {/* Back Side of Postcard */}
+                    &lt;View style={{ flex: 1, justifyContent: 'center', transform: [{scale: scale.value}] }}>
+                      &lt;Image style={[styles.faceImg]} source={selectedCard?.backUrl} key={"back"}>&lt;/Image>
+                    &lt;/View>
+                    &lt;/FlipCard>
+                  &lt;/GestureDetector>
+                  &lt;/View>
+                &lt;/TouchableWithoutFeedback>
+              &lt;/View>
+            &lt;/TouchableWithoutFeedback>
+          &lt;/Modal>
+
+          {/*&lt;Carousel*/}
+          {/*    ref={ref}*/}
+          {/*    width={width}*/}
+          {/*    data={postCardImgs.filter((item, index) => {*/}
+          {/*      if (item.unlockScore &lt; user.credits) return item;*/}
+          {/*    }).reverse()}*/}
+          {/*    pagingEnabled={true}*/}
+          {/*    snapEnabled={true}*/}
+          {/*    style={{*/}
+          {/*      alignItems: "center",*/}
+          {/*      justifyContent: "center",*/}
+          {/*      width: "100%",*/}
+          {/*      paddingTop: 50,*/}
+          {/*      top: 0,*/}
+          {/*      marginBottom: Dimensions.get('window').height * 0.5*/}
+          {/*    }}*/}
+          {/*    mode={"vertical-stack"}*/}
+          {/*    modeConfig={{*/}
+          {/*      snapDirection: "left",*/}
+          {/*      stackInterval: -10,*/}
+          {/*      opacityInterval: 0*/}
+          {/*    }}*/}
+          {/*    customConfig={() => ({ type: "positive", viewCount: 5 })}*/}
+          {/*    renderItem={({index, item}) => (*/}
+          {/*        &lt;FlipCard style={{flexDirection: 'row', width: '100%'}} flipHorizontal={true} flipVertical={false} friction={8} perspective={2000} useNativeDriver={true}>*/}
+          {/*          /!* Face Side *!/*/}
+          {/*          &lt;View style={styles.face}>*/}
+          {/*            &lt;Image style={[styles.faceImg]} source={item.frontUrl} key={"postcard-"+index}>&lt;/Image>*/}
+          {/*          &lt;/View>*/}
+          {/*          /!* Back Side *!/*/}
+          {/*          &lt;View style={styles.back}>*/}
+          {/*            &lt;Image style={styles.backImg} source={item.backUrl} key={"postcard-"+index}/>*/}
+          {/*          &lt;/View>*/}
+          {/*        &lt;/FlipCard>*/}
+          {/*    )}*/}
+          {/*    loop={false}*/}
+          {/*/>*/}
+        &lt;/View>
+      &lt;/ScrollView>
+    &lt;/View>
+  );
+}
+
+const styles = ScaledSheet.create({
+  headerContainer: { backgroundColor: "white", paddingTop: 20 },
+  title: {
+    fontSize: 15,
+    fontFamily: "Poppins",
+    fontWeight: "900",
+    letterSpacing: 0,
+    alignSelf: "center",
+    marginVertical: 8,
+    marginBottom: 20,
+  },
+  container: { flex: 1, backgroundColor: "#D7B5FC" },
+  petInfoContainer: {
+    width: "100%",
+    height: "auto",
+    backgroundColor: "white",
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    paddingVertical: 20,
+    paddingTop: 120,
+    marginTop: -100,
+  },
+  scrollContainer: {
+    paddingBottom: 40,
+  },
+  sectionBox: {
+    backgroundColor: "#fdfdfe",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+  },
+  petInfo: {
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    gap: 12,
+    paddingHorizontal: "30@ms",
+    paddingBottom: "10@ms",
+  },
+  avatar: {
+    width: "120@ms",
+    height: "120@ms",
+    borderRadius: 8,
+    backgroundColor: "#ddd",
+  },
+  textLine: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 4,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  subText: {
+    fontSize: 12,
+    color: "#555",
+    marginBottom: 8,
+  },
+  rowEnd: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 6,
+  },
+  linkText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 6,
+  },
+  dotBox: {
+    width: 24,
+    height: 24,
+    borderWidth: 1,
+    borderColor: "#bbb",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    backgroundColor: "#333",
+    borderRadius: 3,
+  },
+  petName: {
+    fontSize: 32,
+    color: "#1CC282",
+    fontWeight: "bold",
+    fontFamily: "Poppins",
+  },
+  creditContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  personality: {
+    fontSize: 14,
+    fontFamily: "Poppins",
+  },
+  avatarDescription: {
+    paddingHorizontal: 10,
+    flexDirection: 'column'
+  },
+  level: {
+    fontSize: 15,
+    fontWeight: "600",
+    flexGrow: 1,
+  },
+  postcards: {
+    paddingTop: 50,
+    paddingBottom: 100
+  },
+  postcardsTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    fontFamily: "Poppins",
+    alignSelf: "flex-start",
+    marginBottom: 15,
+    paddingHorizontal: "40@ms",
+  },
+  postcardsButton: {
+    backgroundColor: "#1CC282",
+    fontWeight: "bold",
+    minWidth: "175@ms",
+    marginHorizontal: "auto",
+    marginVertical: 30,
+  },
+  postcardsImgs: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: "16@ms",
+    gap: 12,
+    marginHorizontal: "auto",
+  },
+  postcard: {
+    flex: 1,
+  },
+  face: {
+    width: "auto",
+  },
+  back: {},
+  faceImg: {
+    alignSelf: "center",
+    marginVertical: 8,
+    backgroundColor: "white",
+    aspectRatio: 3 / 2,
+    width: Dimensions.get("window").width * 0.8,
+    borderWidth: 1,
+    borderColor: "#00000069",
+  },
+  backImg: {
+    alignSelf: "center",
+    marginVertical: 8,
+    backgroundColor: "white",
+    aspectRatio: 3 / 2,
+    width: Dimensions.get("window").width * 0.8,
+    borderWidth: 1,
+    borderColor: "#00000069",
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: Dimensions.get("window").width * 0.8,
+    aspectRatio: 3/2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

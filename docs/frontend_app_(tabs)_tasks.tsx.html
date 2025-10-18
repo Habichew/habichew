@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> frontend/app/(tabs)/tasks.tsx</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="AnimatedPet.html">AnimatedPet</a></li><li><a href="CacheHandler.html">CacheHandler</a></li></ul></div><div class="category"><h2>Backend</h2><h3>Global</h3><ul><li><a href="global.html#completeHabit">completeHabit</a></li><li><a href="global.html#createHabitByUser">createHabitByUser</a></li><li><a href="global.html#deleteUserHabit">deleteUserHabit</a></li><li><a href="global.html#getHabitByUser">getHabitByUser</a></li><li><a href="global.html#getHabitCategories">getHabitCategories</a></li><li><a href="global.html#getHabitListByUser">getHabitListByUser</a></li><li><a href="global.html#getPresetHabits">getPresetHabits</a></li><li><a href="global.html#updateHabitByUser">updateHabitByUser</a></li></ul></div><div class="category"><h2>Frontend</h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InsightsScreen">InsightsScreen</a></li><li><a href="global.html#PetScreen">PetScreen</a></li><li><a href="global.html#ProfileScreen">ProfileScreen</a></li><li><a href="global.html#Tasks">Tasks</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>frontend/app/(tabs)/tasks.tsx</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useEffect, useRef, useState } from "react";
+import {
+  Dimensions,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  FlatList,
+  Platform
+} from 'react-native';
+import { useUser, Task } from "../../context/UserContext";
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
+import TaskModal from '../../components/ui/modals/TaskModal';
+import {RiveRef} from "rive-react-native";
+import {AndroidHaptics} from 'expo-haptics';
+import Animated from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import {SwipeableFlatListRef} from 'rn-gesture-swipeable-flatlist';
+import {ScaledSheet} from "react-native-size-matters";
+
+/**
+ * This component contains the Tasks screen, which contains a list of user-created tasks.
+ * @category Frontend
+ * @returns {ReactNode} A React element that renders the Tasks screen.
+ */
+export default function Tasks() {
+  const screenWidth = Dimensions.get('window').width;
+
+  const { user, tasks, setUser, loadTasks, completeTask, loadUser } = useUser();
+  const { habitId, habitName } = useLocalSearchParams();
+  const numericHabitId = habitId ? parseInt(habitId as string) : undefined;
+
+  const [filteredTasks, setFilteredTasks] = useState&lt;Task[]>([]);
+  const [searchText, setSearchText] = useState((habitName as string) || "");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState&lt;Task | null>(null);
+  const [isHabitFilterLocked, setIsHabitFilterLocked] = useState(true);
+  const [hasEverEnteredHabit, setHasEverEnteredHabit] = useState(false);
+  const [showEmptyPrompt, setShowEmptyPrompt] = useState(false);
+  const [lastFilteredHabitId, setLastFilteredHabitId] = useState&lt;number | null>(
+      null,
+  );
+  const [loadingTasks, setLoadingTasks] = useState&lt;boolean>(false);
+
+  const riveRef = useRef&lt;RiveRef>(null);
+  const swipeRef = useRef&lt;any>(null);
+
+  let row: Array&lt;any> = [];
+  const flatListRef = useRef&lt;SwipeableFlatListRef&lt;any> | null>(null);
+
+  const closeAllOpenRows = () => {
+    flatListRef.current?.closeAnyOpenRows();
+  };
+
+  //When the page regains focus and there is no habitId parameter, clear the filter
+  useFocusEffect(
+      React.useCallback(() => {
+        if (!habitId) {
+          setSearchText("");
+          setIsHabitFilterLocked(false);
+          setLastFilteredHabitId(null);
+        }
+      }, [habitId]),
+  );
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    if (numericHabitId &amp;&amp; numericHabitId !== lastFilteredHabitId) {
+      setSearchText(habitName as string);
+      setIsHabitFilterLocked(true);
+      setLastFilteredHabitId(numericHabitId);
+    }
+  }, [numericHabitId]);
+
+  function sortTasks(tasks: Task[]) {
+    return tasks?.sort((a: Task, b: Task) => {
+      if (!a.completed &amp;&amp; b.completed) return -1;
+      else if (a.completed &amp;&amp; !b.completed) return 1;
+      else return 0;
+    });
+  }
+
+  useEffect(() => {
+    let filtered = tasks?.filter(t => {
+      if (isHabitFilterLocked &amp;&amp; numericHabitId) return t.habitId === numericHabitId;
+      return t.taskTitle.toLowerCase().includes(searchText.toLowerCase());
+    });
+    filtered = sortTasks(filtered);
+    setFilteredTasks(filtered);
+
+    if (isHabitFilterLocked &amp;&amp; numericHabitId &amp;&amp; filtered.length === 0) {
+      setShowEmptyPrompt(true);
+    } else {
+      setShowEmptyPrompt(false);
+    }
+  }, [tasks, searchText, numericHabitId, isHabitFilterLocked]);
+
+//When the page regains focus and there is no habitId parameter, clear the filter
+  useFocusEffect(
+      React.useCallback(() => {
+        if (!habitId) {
+          setSearchText('');
+          setIsHabitFilterLocked(false);
+          setLastFilteredHabitId(null);
+        }
+      }, [habitId])
+  );
+
+  const handleEdit = (task: Task) => {
+    setEditingTask(task);
+    setModalVisible(true);
+  };
+
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  };
+
+  const toggleCompleted = async (task: Task) => {
+    if (!user || !task.userTaskId) return;
+    if (task.completed) {
+      console.log("Un-completing is not supported via completeTask API.");
+      return;
+    }
+
+    try {
+      await completeTask(task);
+
+      // Update the local task list
+      const updatedTasks = tasks.map((t) =>
+          t.userTaskId === task.userTaskId
+              ? { ...t, completed: true }
+              : t
+      );
+
+      setFilteredTasks(sortTasks(updatedTasks));
+      console.log("Task marked as completed");
+      console.log('updating user...');
+      await loadUser();
+      console.log(`User credits updated to: ${user.credits}`)
+    } catch (err) {
+      console.error("Failed to complete task:", err);
+    }
+    setFilteredTasks(sortTasks(tasks));
+  };
+
+  function handleGenerateTasks() {
+    if (!habitName) return alert("Please enter a habit name.");
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append(
+        "Authorization",
+        "Bearer " + process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+    );
+
+    const raw = JSON.stringify({
+      model: "gpt-4.1",
+      messages: [
+        {
+          role: "user",
+          content:
+              "In short sentences, break down this habit into a bulleted list of max. 6 tasks that are directly executable: '" +
+              habitName +
+              "'. Only respond with a bulleted list",
+        },
+      ],
+    });
+
+    const requestOptions: RequestInit = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    // setGeneratedTasks(["Find a private or comfortable space", "Acknowledge your emotions", "Allow your feelings to flow without holding back", "Breathe deeply and steadily", "Use tissues or a cloth if needed", "Take time afterwards to rest or reflect"]);
+    setLoadingTasks(true);
+    fetch("https://api.openai.com/v1/chat/completions", requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          let newTasks = result.choices[0].message.content;
+          newTasks = newTasks.split("\n").map((t: string) => {
+            if (t.startsWith("- ")) {
+              return t.slice(2);
+            }
+            return t;
+          });
+          setFilteredTasks(newTasks);
+          console.log("set generated tasks", newTasks, "length", newTasks.length);
+          setLoadingTasks(false);
+          setShowEmptyPrompt(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setLoadingTasks(false);
+        });
+  }
+
+  const renderTask = ( item: any) => {
+    const isCompleted = item.completed === true;
+    const ddl = item.dueAt;
+
+    return (
+        &lt;View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginBottom: 10}}>
+          &lt;Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}  android_ripple={{color: '#00000020', borderless: true, foreground: false, radius: 300}}>
+            &lt;View>
+              &lt;TouchableOpacity disabled={!!item.completed}
+                                onPress={() => {
+                                    if (Platform.OS === 'android') {
+                                      Haptics.performAndroidHapticsAsync(AndroidHaptics.Confirm);
+                                    } else {
+                                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+                                    }
+                                    toggleCompleted(item)
+                                  }
+                                }
+                                style={{ padding: 5, margin: -5}}>
+                &lt;Ionicons
+                    name={!item.completed ? "ellipse-outline" : "checkmark-circle-outline"}
+                    size={24} color="black"/>
+              &lt;/TouchableOpacity>
+            &lt;/View>
+            &lt;View style={styles.flexTwo}>
+              &lt;Text style={[styles.taskTitle, {textDecorationLine: item.completed ? 'line-through' : 'none'}]}>{item.title}&lt;/Text>
+              {item.description ?
+                  &lt;Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={styles.taskDescription}>
+                    {item.description}
+                  &lt;/Text> : null}
+              &lt;View style={styles.metaRow}>
+                { item.dueAt ?
+                    &lt;View style={styles.badge}>
+                      &lt;Ionicons name="calendar-outline" size={16} color="#000" />
+                      &lt;Text style={styles.badgeText}>
+                        {item.dueAt ? new Date(item.dueAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short' }) : ''}
+                      &lt;/Text>
+                    &lt;/View> : ""
+                }
+                { item.priority ?
+                    &lt;View style={styles.badge}>
+                      &lt;Ionicons name="flag-outline" size={16} color="#000"/>
+                      &lt;Text style={styles.badgeText}>
+                        {item.priority
+                            ? `${item.priority.charAt(0).toUpperCase()}${item.priority.slice(1)}`
+                            : 'No Priority'}
+                      &lt;/Text>
+                    &lt;/View>
+                    : ""
+                }
+              &lt;/View>
+            &lt;/View>
+          &lt;/Pressable>
+        &lt;/View>
+    );
+  }
+
+  async function handleSwipe( direction: any, swipeable: any) {
+    console.log("vibrate");
+    await Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+    if (direction === 'right') {
+      await toggleCompleted(swipeable);
+    }
+  }
+
+  return (
+      &lt;View style={styles.container}>
+
+        &lt;View style={styles.topBar}>
+          &lt;TextInput
+              style={styles.search}
+              placeholder={
+                isHabitFilterLocked &amp;&amp; numericHabitId
+                    ? `Tasks belonged to ${habitName}`
+                    : "Search Taskname"
+              }
+              placeholderTextColor="#999"
+              value={searchText}
+              onChangeText={(text) => {
+                if (isHabitFilterLocked) setIsHabitFilterLocked(false);
+                setSearchText(text);
+              }}
+          />
+        &lt;/View>
+
+        &lt;View style={styles.headerRow}>
+          &lt;Text style={styles.sectionTitle}>Task List&lt;/Text>
+          {habitId ? &lt;TouchableOpacity onPress={() => setModalVisible(true)}>
+            &lt;Ionicons name="add" size={24} color="#000" />
+          &lt;/TouchableOpacity> : null}
+        &lt;/View>
+
+        {/*{showEmptyPrompt &amp;&amp;*/}
+        {/*    (loadingTasks ? (*/}
+        {/*        &lt;ActivityIndicator size={"large"} />*/}
+        {/*    ) : (*/}
+        {/*        &lt;View style={{ alignItems: "center", marginTop: 40 }}>*/}
+        {/*          &lt;Text*/}
+        {/*              style={{ textAlign: "center", fontSize: 14, marginBottom: 20 }}*/}
+        {/*          >*/}
+        {/*            You don’t have any task for the habit{"\n"}*/}
+        {/*            Generate tasks with just a click or use + to add your own !*/}
+        {/*          &lt;/Text>*/}
+        {/*          &lt;TouchableOpacity*/}
+        {/*              style={styles.generateBtn}*/}
+        {/*              onPress={() => setModalVisible(true)}*/}
+        {/*          >*/}
+        {/*            &lt;Text style={styles.generateText}>Generate Tasks&lt;/Text>*/}
+        {/*          &lt;/TouchableOpacity>*/}
+        {/*        &lt;/View>*/}
+        {/*    ))}*/}
+
+        &lt;FlatList
+            data={filteredTasks}
+            ref={flatListRef}
+            keyExtractor={(item) =>
+                item.userTaskId?.toString() || Math.random().toString()
+            }
+            contentContainerStyle={{ paddingBottom: 100 }}
+            renderItem={renderTask}
+            enableOpenMultipleRows={false}
+            swipeableProps={{
+              friction: 2,
+              overshootFriction: 8,
+              onSwipeableOpen: async (direction: any, swipeable: any) => {console.log('swipeeee'); handleSwipe(direction, swipeable)}
+            }}
+            style={{marginHorizontal: -40, paddingHorizontal: 25}}
+            ListEmptyComponent={() => (
+                &lt;View style={styles.emptyContainer}>
+                  &lt;Ionicons name="checkmark-done-outline" style={styles.emptyIcon} color="black"/>
+                  &lt;Text style={styles.emptyTitle}>All Tasks Cleared&lt;/Text>
+                  &lt;Text style={styles.emptySubtitle}>
+                    There are no tasks to display.{'\n'}Try adding one to get started!
+                  &lt;/Text>
+                  &lt;TouchableOpacity
+                      style={styles.generateBtn}
+                      onPress={() => setModalVisible(true)}
+                  >
+                    &lt;Text style={styles.generateText}>Generate Tasks&lt;/Text>
+                  &lt;/TouchableOpacity>
+                &lt;/View>)}
+        />
+
+        {modalVisible ? &lt;Animated.View style={[styles.overlay]}/> : null}
+        &lt;TaskModal
+            visible={modalVisible}
+            onClose={() => {
+              setModalVisible(false);
+              setEditingTask(null);
+            }}
+            onSave={() => {
+              setModalVisible(false);
+              setEditingTask(null);
+              setShowEmptyPrompt(false); // once added the task, hide the prompt
+            }}
+            task={editingTask}
+            defaultHabitId={numericHabitId}
+        />
+      &lt;/View>
+  );
+}
+
+const styles = ScaledSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: '#000000aa',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    position: "absolute",
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width,
+    zIndex: 2
+  },
+  container: { flex: 1, padding: 24, backgroundColor: "#fff" },
+  topBar: { marginBottom: 16 },
+  search: {
+    backgroundColor: "#F1F1F1",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: "#000",
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  sectionTitle: { fontWeight: "bold", fontSize: 20 },
+  taskCard: {
+    flexDirection: "row",
+    padding: 16,
+    borderRadius: 16,
+    // marginVertical: 6,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  flexTwo: {flex: 2, marginLeft: 15, marginVertical: 'auto', paddingVertical: 0, textAlign: 'center', alignSelf: 'center'},
+  taskTitle: {
+    fontWeight: "normal",
+    fontSize: "13@ms0.2",
+    // marginBottom: 4,
+    color: "#000"
+  },
+  taskDescription: { fontSize: 12, color: "#555", marginBottom: 6 },
+  metaRow: { flexDirection: "row", gap: 12, marginTop: 8 },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  badgeText: { fontSize: 14, marginLeft: 6, color: "#000" },
+  iconGroup: { flexDirection: "column", alignItems: "center", gap: 10 },
+  pencil: { position: "absolute", right: 0, top: 4 },
+  tickBox: { padding: 6, backgroundColor: "#fff", borderRadius: 6 },
+  tickBoxCompleted: { backgroundColor: "#fff" },
+  generateBtn: {
+    marginTop: 20,
+    backgroundColor: "#DAB7FF",
+    borderRadius: 40,
+    paddingHorizontal: 40,
+    paddingVertical: 12,
+  },
+  generateText: { fontWeight: "bold", fontSize: 16, color: "#000" },
+  leftAction: {
+    transform: [{ translateX: 0 }],
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    backgroundColor: '#1CC282',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    marginVertical: 6,
+    paddingRight: 40,
+    marginRight: -Dimensions.get('window').width + 70,
+    width: Dimensions.get('window').width
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+  }
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

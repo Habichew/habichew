@@ -1,0 +1,366 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> frontend/context/CacheHandler.tsx</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="AnimatedPet.html">AnimatedPet</a></li><li><a href="CacheHandler.html">CacheHandler</a></li></ul></div><div class="category"><h2>Backend</h2><h3>Global</h3><ul><li><a href="global.html#completeHabit">completeHabit</a></li><li><a href="global.html#createHabitByUser">createHabitByUser</a></li><li><a href="global.html#deleteUserHabit">deleteUserHabit</a></li><li><a href="global.html#getHabitByUser">getHabitByUser</a></li><li><a href="global.html#getHabitCategories">getHabitCategories</a></li><li><a href="global.html#getHabitListByUser">getHabitListByUser</a></li><li><a href="global.html#getPresetHabits">getPresetHabits</a></li><li><a href="global.html#updateHabitByUser">updateHabitByUser</a></li></ul></div><div class="category"><h2>Frontend</h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InsightsScreen">InsightsScreen</a></li><li><a href="global.html#PetScreen">PetScreen</a></li><li><a href="global.html#ProfileScreen">ProfileScreen</a></li><li><a href="global.html#Tasks">Tasks</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>frontend/context/CacheHandler.tsx</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {MMKV, Mode} from "react-native-mmkv";
+import {Habit, Task, User, CachedRequest} from "@/context/UserContext";
+
+export enum HttpMethod {
+    GET = 'GET',
+    POST = 'POST',
+    PUT = 'PUT',
+    PATCH = 'PATCH',
+    DELETE = 'DELETE'
+}
+
+/**
+ * Manages interactions with local key-value storage.
+ */
+export class CacheHandler {
+    static storage = new MMKV({
+        id: `user-storage`,
+        encryptionKey: 'pogo',
+        mode: Mode.MULTI_PROCESS,
+        readOnly: false
+    });
+
+    private static hasChangedFlag: boolean = this.hasChangedOffline();  // cache if storage has changed to prevent repeated read operations to storage
+
+    private static hasChangedOffline(): boolean {
+        return !!CacheHandler.storage.getBoolean('hasChangedOffline');
+    }
+
+    public static getHasChangedOffline(): boolean {
+        return this.hasChangedFlag;
+    }
+
+    public static setHasChangedOffline(hasChangedOffline: boolean) {
+        if (this.hasChangedFlag === hasChangedOffline) {
+            return;
+        }
+        CacheHandler.storage.set('hasChangedOffline', hasChangedOffline);
+        this.hasChangedFlag = hasChangedOffline;
+    }
+
+    private static addToQueue(method: HttpMethod, entity: Habit | Task | User) {
+        let queueStr: string | undefined = CacheHandler.storage.getString('requestQueue');
+        if (queueStr != null) {
+            let queue: CachedRequest[] = JSON.parse(queueStr);
+            queue.push(new CachedRequest(method, entity));
+            CacheHandler.storage.set('requestQueue', JSON.stringify(queue));
+        }
+    }
+
+    public static loadQueue(): CachedRequest[] | null {
+        const qStr = CacheHandler.storage.getString('requestQueue');
+        if (qStr != null) {
+            return JSON.parse(qStr);
+        }
+        return null;
+    }
+
+    private static clearQueue() {
+        CacheHandler.storage.delete('requestQueue');
+    }
+
+    static addHabit(h: Habit) {
+        console.log("caching new habit", h);
+
+        const habitsStr = CacheHandler.storage.getString('habits');
+        console.log('habitsStr',  habitsStr);
+        let habits: Habit[] = habitsStr ? JSON.parse(habitsStr) : [];
+        console.log('habits',  habits);
+        h.offlineUserHabitId = habits.length;
+        let newHabits: Habit[] = habits;
+        newHabits.push(h);
+        console.log('new habits',  newHabits);
+
+        CacheHandler.storage.set('habits', JSON.stringify(newHabits));
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.POST, h);
+        return h;
+    }
+
+    static updateHabit(h: Habit) {
+        const habitsStr = CacheHandler.storage.getString('habits');
+        if (habitsStr) {
+            const habits: Habit[] = JSON.parse(habitsStr);
+            let newHabits: Habit[] = habits;
+            habits.forEach((habit, index) => {
+                if (habit.userHabitId === h.userHabitId) {
+                    newHabits[index] = h;
+                }
+            });
+            CacheHandler.storage.set('habits', JSON.stringify(newHabits));
+        }
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.PATCH, h);
+    }
+
+    static completeHabit(h: Habit) {
+        console.log("complete cached habit", h);
+        const habitsStr = CacheHandler.storage.getString('habits');
+        if (habitsStr) {
+            const habitsArr: Habit[] = JSON.parse(habitsStr);
+            let newHabits: Habit[] = habitsArr;
+            newHabits.forEach((habit, index) => {
+                console.log('userHabitId', habit.userHabitId, h.userHabitId);
+                if (habit.userHabitId === undefined) { // TODO: generate unique negative IDs for every habit generated in offline mode
+                    h.isArchived = 1;
+                    newHabits[index] = h;
+                    // TODO: complete every task in habit
+                    let habitTasks = CacheHandler.storage.getString('tasks');
+                    if (habitTasks) {
+                        let habitTasksJSON: Task[] =  JSON.parse(habitTasks);
+                        habitTasksJSON.forEach((task) => {
+                            if (task.habitId === h.userHabitId) {
+                                this.completeTask(task);
+                            }
+                        })
+                    }
+                }
+            });
+            console.log('new habitsssss', newHabits);
+            CacheHandler.storage.set('habits', JSON.stringify(newHabits));
+            const cachedUserStr: string | undefined = CacheHandler.storage.getString('user');
+            let cachedUserObj: User;
+            if (cachedUserStr) {
+                cachedUserObj = JSON.parse(cachedUserStr);
+                if (cachedUserObj?.credits) cachedUserObj.credits += 10; // TODO: replace with backend algorithm (taskService.calculateTaskCredit)
+                CacheHandler.storage.set('user', JSON.stringify(cachedUserObj));
+            }
+        }
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.PATCH, h)
+    }
+
+    static saveHabits(habits: Habit[]) {
+        console.log("caching habits");
+        CacheHandler.storage.set('habits', JSON.stringify(habits));
+    }
+
+    static loadHabits() {
+        console.log("loading cached habits");
+        const habitsStr = CacheHandler.storage.getString('habits');
+        return habitsStr ? JSON.parse(habitsStr) : null;
+    }
+
+    static updateTask(t: Task) {
+        const tasksStr = CacheHandler.storage.getString('tasks');
+        if (tasksStr) {
+            const tasksArr: Task[] = JSON.parse(tasksStr);
+            let newTasks: Task[] = tasksArr;
+            tasksArr.forEach((task, index) => {
+                if (task.userTaskId === t.userTaskId) {
+                    newTasks[index] = t;
+                }
+            });
+            CacheHandler.storage.set('tasks', JSON.stringify(newTasks));
+        }
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.PATCH, t);
+    }
+
+    static completeTask(t: Task) {
+        console.log("complete cached task", t);
+        const tasksStr = CacheHandler.storage.getString('tasks');
+        if (tasksStr) {
+            const tasksArr: Task[] = JSON.parse(tasksStr);
+            let newTasks: Task[] = tasksArr;
+            tasksArr.forEach((task, index) => {
+                if (task.userTaskId === t.userTaskId) {
+                    t.completed = true;
+                    newTasks[index] = t;
+                }
+            });
+            CacheHandler.storage.set('tasks', JSON.stringify(newTasks));
+            const cachedUserStr: string | undefined = CacheHandler.storage.getString('user');
+            let cachedUserObj: User;
+            if (cachedUserStr) {
+                cachedUserObj = JSON.parse(cachedUserStr);
+                if (cachedUserObj?.credits) cachedUserObj.credits += 10; // TODO: replace with backend algorithm (taskService.calculateTaskCredit)
+                CacheHandler.storage.set('user', JSON.stringify(cachedUserObj));
+            }
+        }
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.PATCH, t);
+    }
+
+    static saveTasks(mapped: any[]) {
+        console.log("caching mapped tasks");
+        CacheHandler.storage.set('tasks', JSON.stringify(mapped));
+    }
+
+    static deleteTask(t: Task) {
+        console.log("delete cached task", t);
+        const tasksStr = CacheHandler.storage.getString('tasks');
+        if (tasksStr) {
+            const tasksArr: Task[] = JSON.parse(tasksStr);
+            let newTasks: Task[] = tasksArr;
+            tasksArr.forEach((task, index) => {
+                if (task.userTaskId === t.userTaskId) {
+                    delete newTasks[index];
+                }
+            });
+            CacheHandler.storage.set('tasks', JSON.stringify(newTasks));
+        }
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.DELETE, t);
+    }
+
+    static loadTasks() {
+        console.log("loading cached tasks");
+        let tasksStr = CacheHandler.storage.getString('tasks');
+        return tasksStr ? JSON.parse(tasksStr) : null;
+    }
+
+    static saveUser(user: User) {
+        console.log("caching user", user)
+        CacheHandler.storage.set('user', JSON.stringify(user));
+    }
+
+    static loadUser(): User | null {
+        console.log("loading cached user");
+        let userStr = CacheHandler.storage.getString('user');
+        return userStr ? JSON.parse(userStr) : null;
+    }
+
+    static clearUserCache() {
+        CacheHandler.storage.delete('user');
+        CacheHandler.storage.delete('tasks');
+        CacheHandler.storage.delete('habits');
+        // CacheHandler.storage.delete('offlineMode');
+    }
+
+    static getOfflineMode(): boolean {
+        return !!CacheHandler.storage.getBoolean('offlineMode');
+    }
+
+    static setOfflineMode(offlineMode: boolean): void {
+        CacheHandler.storage.set('offlineMode', offlineMode);
+    }
+
+    static getTaskGeneration(): boolean {
+        return !!CacheHandler.storage.getBoolean('taskGeneration');
+    }
+
+    static setTaskGeneration(taskGeneration: boolean): void {
+        CacheHandler.storage.set('taskGeneration', taskGeneration);
+    }
+
+    static clearStorage(): void {
+        CacheHandler.storage.clearAll();
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>
