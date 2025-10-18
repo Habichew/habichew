@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useUser } from "@/context/UserContext";
+import {CacheHandler} from "@/context/CacheHandler";
 
 export default function DeleteAccountScreen() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function DeleteAccountScreen() {
 
       if (res.ok) {
         setUser(null);
+        CacheHandler.clearStorage();
         router.replace("/auth/sign-in");
       } else {
         console.error("Delete failed:", data.error || "Unknown error");

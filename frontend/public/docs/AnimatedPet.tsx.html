@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: AnimatedPet.tsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: AnimatedPet.tsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {
+    View,
+    StyleSheet,
+    Text,
+    Platform, Pressable, Linking,
+} from "react-native";
+import {useRouter} from "expo-router";
+import {useUser} from "@/context/UserContext";
+import Rive, {Fit, RiveRef} from "rive-react-native";
+import * as Haptics from "expo-haptics";
+import {AndroidHaptics} from "expo-haptics";
+import {Ionicons} from "@expo/vector-icons";
+import AnimatedNumbers from "react-native-animated-numbers";
+import React, {useState} from "react";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
+
+interface AnimatedPetProps {
+    artboardName: string;
+    riveRef: React.RefObject&lt;RiveRef | null>;
+    setEditHabit: any;
+    setModalVisible: any;
+}
+
+/**
+ * The component handling the Rive animation of the pet shown on the home screen
+ * @param artboardName the name of the rive artboard
+ * @param riveRef reference to the rive element
+ * @param setEditHabit method for handling habit creation form
+ * @param setModalVisible method for handling addHabit modal visibility
+ * @constructor
+ */
+export default function
+    AnimatedPet({
+                    artboardName,
+                    riveRef,
+                    setEditHabit,
+                    setModalVisible,
+                }: AnimatedPetProps) {
+    const insets = useSafeAreaInsets();
+    const router = useRouter();
+    const {
+        user,
+        loadUser,
+    } = useUser();
+
+    const [petFed, setPetFed] = useState&lt;boolean>(false);
+
+    async function handlePetInteraction() {
+        const isHappy: boolean | null | undefined = await riveRef.current?.getBooleanState('IsHappy');
+        const nightTime: boolean | null | undefined = await riveRef.current?.getBooleanState('NightTime');
+        const shouldTravel: boolean | null | undefined = await riveRef.current?.getBooleanState('ShouldTravel');
+        const habitTicked: boolean | null | undefined = await riveRef.current?.getBooleanState('HabitTicked');
+        console.log('NightTime', nightTime, 'HabitTicked', habitTicked, 'isHappy', isHappy, 'petFed', petFed);
+        if (isHappy) {
+            // reset happy
+            riveRef.current?.setInputState('State Machine 1', 'IsHappy', false);
+        }
+        if (petFed) {
+            // interrupt happy
+            riveRef.current?.setInputState('State Machine 1', 'IsHappy', true);
+            setPetFed(false);
+        } else {
+            if (nightTime) {
+                riveRef.current?.setInputState('State Machine 1', 'NightTime', false);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            } else if (shouldTravel) {
+                riveRef.current?.setInputState('State Machine 1', 'ShouldTravel', false);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            } else {
+                if (habitTicked) {
+                    console.log('feed pet');
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    feedPet();
+                    // setArboardName('Indoor 2');
+                } else {
+                    if (Platform.OS === 'android') {
+                        Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                    } else {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }
+                }
+            }
+        }
+    }
+
+    async function feedPet() {
+        riveRef.current?.fireState("State Machine 1", "Feed");
+        riveRef.current?.setInputState("State Machine 1", "HabitTicked", false);
+        riveRef.current?.setInputState("State Machine 1", "Overdue", false);
+        // riveRef.current?.setInputState("State Machine 1", "IsHappy", true);
+        setPetFed(true);
+        await loadUser();
+    }
+
+    const handleAdd = () => {
+        setEditHabit(null);
+        setModalVisible(true);
+        if (Platform.OS === 'android') {
+            Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+        } else {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }
+    };
+
+    return (
+        &lt;Rive
+            artboardName={artboardName}
+            url={"https://habichew.github.io/assets/rive/test0827.riv"}
+            // url={Platform.OS === 'ios' ? "https://habichew.github.io/assets/rive/test0827.riv" : undefined}
+            // resourceName={Platform.OS === 'android' ? 'pet' : undefined}
+            fit={Fit.Cover}
+            ref={riveRef}
+            stateMachineName={"State Machine 1"}
+            style={styles.pet}
+            aria-live={'polite'}
+            accessible={true}
+        >
+            &lt;Pressable
+                onPress={() => Linking.openURL("https://habichew.framer.website/")}
+                style={[styles.helpButton, {top: insets.top + 15}]}
+                accessibilityLabel={'Help'}
+            >
+                &lt;Text style={styles.helpText}>?&lt;/Text>
+            &lt;/Pressable>
+            &lt;Pressable onPress={handlePetInteraction}
+                       style={{width: "100%", height: "100%", zIndex: 1, position: 'absolute'}}
+                       android_ripple={{color: '#ffffff20', borderless: true, foreground: true, radius: 300}}/>
+            &lt;View style={{
+                marginTop: "auto",
+                flexDirection: "row",
+                justifyContent: 'space-between',
+                marginHorizontal: 20,
+                marginVertical: 10,
+                height: "auto",
+                zIndex: 10
+            }}>
+                &lt;View style={{width: 125, borderRadius: 20, overflow: 'hidden', marginVertical: 7}}>
+                    &lt;Pressable android_ripple={{color: '#ffffff30', borderless: false, foreground: true, radius: 100}}
+                               onPress={handleAdd}
+                               style={{maxWidth: 125, zIndex: 4, flex: 1, backgroundColor: '#1CC282', borderRadius: 20}}
+                               accessibilityLabel={'Add Habit'}>
+                        &lt;Text style={{
+                            textAlign: "center",
+                            justifyContent: 'center',
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            color: '#000',
+                            fontFamily: "Poppins",
+                            width: "100%",
+                            paddingVertical: 8,
+                        }}>Add Habit&lt;/Text>
+                    &lt;/Pressable>
+                &lt;/View>
+
+                &lt;View style={{borderRadius: 20}}>
+                    &lt;Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}}
+                               onPress={() => {
+                                   router.push('/(tabs)/pet');
+                                   if (Platform.OS === 'android') {
+                                       Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                                   } else {
+                                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                   }
+                               }}
+                               style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}}
+                               accessibilityLabel={'Credits'}>
+                        &lt;Ionicons name="star" size={30} color="#1CC282"
+                                  style={{marginVertical: 'auto', marginBottom: 4, marginRight: 6}}/>
+                        &lt;AnimatedNumbers
+                            includeComma
+                            animateToNumber={user?.credits ? user.credits : 0}
+                            fontStyle={{fontSize: 20}}
+                            containerStyle={{marginVertical: 'auto'}}
+                        />
+                    &lt;/Pressable>
+                &lt;/View>
+
+            &lt;/View>
+        &lt;/Rive>
+    );
+}
+const styles = StyleSheet.create({
+    pet: {width: '100%', borderRadius: 20, backgroundColor: 'white', overflow: 'hidden'},
+    inactiveCatShadow: {
+        shadowColor: "#fff",
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.8,
+        shadowRadius: 6,
+        elevation: 6,
+    },
+    activeCatShadow: {
+        shadowColor: "#1CC282", shadowOffset: {width: 0, height: 5}, shadowOpacity: 1, shadowRadius: 6, elevation: 6,
+    },
+    helpButton: {
+        position: "absolute",
+        right: 20,
+        width: 30,
+        height: 30,
+        borderRadius: 20,
+        backgroundColor: "#fff",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 50,
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.25,
+        shadowRadius: 3.5
+    },
+    helpText: {
+        color: "#000",
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AnimatedPet.html">AnimatedPet</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Oct 12 2025 00:18:01 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

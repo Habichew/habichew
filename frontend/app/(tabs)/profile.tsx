@@ -59,18 +59,6 @@ export default function ProfileScreen() {
         }
         />
 
-        <ProfileItem
-            label="Chat-GPT Task Generation"
-            toggleButton={true}
-            toggleValue={taskGeneration}
-            onPress={() => {
-                console.log('toggling task generation');
-                setTaskGeneration(!taskGeneration);
-                CacheHandler.setTaskGeneration(!taskGeneration);
-              }
-            }
-        />
-
         {/* Section: My Profile */}
         <Text style={styles.sectionTitle}>My Profile</Text>
         <ProfileItem
@@ -98,6 +86,11 @@ export default function ProfileScreen() {
         <ProfileItem label="FAQs" onPress={() => navigateTo("faqs")} />
         <ProfileItem label="About Us" onPress={() => navigateTo("about-us")} />
         <ProfileItem label="Policy" onPress={() => navigateTo("policy")} />
+
+        {/* Clear cache button */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={() => CacheHandler.clearUserCache()}>
+          <Text style={styles.logoutText}>Clear Cache</Text>
+        </TouchableOpacity>
 
         {/* Logout button */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>

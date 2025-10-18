@@ -4,9 +4,9 @@ import {
     Text,
     Platform, Pressable, Linking,
 } from "react-native";
-import { useRouter } from "expo-router";
+import {useRouter} from "expo-router";
 import {useUser} from "@/context/UserContext";
-import Rive, { Fit, RiveRef } from "rive-react-native";
+import Rive, {Fit, RiveRef} from "rive-react-native";
 import * as Haptics from "expo-haptics";
 import {AndroidHaptics} from "expo-haptics";
 import {Ionicons} from "@expo/vector-icons";
@@ -21,14 +21,21 @@ interface AnimatedPetProps {
     setModalVisible: any;
 }
 
+/**
+ * The component handling the Rive animation of the pet shown on the home screen
+ * @param artboardName the name of the rive artboard
+ * @param riveRef reference to the rive element
+ * @param setEditHabit method for handling habit creation form
+ * @param setModalVisible method for handling addHabit modal visibility
+ * @constructor
+ */
 export default function
     AnimatedPet({
-                  artboardName,
-                  riveRef,
-                  setEditHabit,
-    setModalVisible,
-              }: AnimatedPetProps)
-{
+                    artboardName,
+                    riveRef,
+                    setEditHabit,
+                    setModalVisible,
+                }: AnimatedPetProps) {
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const {
@@ -115,7 +122,9 @@ export default function
             >
                 <Text style={styles.helpText}>?</Text>
             </Pressable>
-            <Pressable onPress={handlePetInteraction} style={{width: "100%", height: "100%", zIndex: 1, position: 'absolute'}} android_ripple={{color: '#ffffff20', borderless: true, foreground: true, radius: 300}}/>
+            <Pressable onPress={handlePetInteraction}
+                       style={{width: "100%", height: "100%", zIndex: 1, position: 'absolute'}}
+                       android_ripple={{color: '#ffffff20', borderless: true, foreground: true, radius: 300}}/>
             <View style={{
                 marginTop: "auto",
                 flexDirection: "row",
@@ -126,9 +135,11 @@ export default function
                 zIndex: 10
             }}>
                 <View style={{width: 125, borderRadius: 20, overflow: 'hidden', marginVertical: 7}}>
-                    <Pressable android_ripple={{color: '#ffffff30', borderless: false, foreground: true, radius: 100}} onPress={handleAdd}
-                               style={{maxWidth: 125, zIndex: 4, flex: 1, backgroundColor: '#1CC282', borderRadius: 20 }} accessibilityLabel={'Add Habit'}>
-                        <Text  style={{
+                    <Pressable android_ripple={{color: '#ffffff30', borderless: false, foreground: true, radius: 100}}
+                               onPress={handleAdd}
+                               style={{maxWidth: 125, zIndex: 4, flex: 1, backgroundColor: '#1CC282', borderRadius: 20}}
+                               accessibilityLabel={'Add Habit'}>
+                        <Text style={{
                             textAlign: "center",
                             justifyContent: 'center',
                             fontSize: 16,
@@ -142,19 +153,23 @@ export default function
                 </View>
 
                 <View style={{borderRadius: 20}}>
-                    <Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}} onPress={() => {router.push('/(tabs)/pet');
-                        if (Platform.OS === 'android') {
-                            Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
-                        } else {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        }
-                    }}
-                               style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}} accessibilityLabel={'Credits'}>
-                        <Ionicons name="star" size={30} color="#1CC282" style={{marginVertical: 'auto', marginBottom: 4, marginRight: 6}}/>
+                    <Pressable android_ripple={{color: '#00000010', borderless: true, foreground: true, radius: 80}}
+                               onPress={() => {
+                                   router.push('/(tabs)/pet');
+                                   if (Platform.OS === 'android') {
+                                       Haptics.performAndroidHapticsAsync(AndroidHaptics.Gesture_Start);
+                                   } else {
+                                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                   }
+                               }}
+                               style={{padding: 10, borderRadius: 20, flexDirection: "row", zIndex: 3}}
+                               accessibilityLabel={'Credits'}>
+                        <Ionicons name="star" size={30} color="#1CC282"
+                                  style={{marginVertical: 'auto', marginBottom: 4, marginRight: 6}}/>
                         <AnimatedNumbers
                             includeComma
                             animateToNumber={user?.credits ? user.credits : 0}
-                            fontStyle={{ fontSize: 20 }}
+                            fontStyle={{fontSize: 20}}
                             containerStyle={{marginVertical: 'auto'}}
                         />
                     </Pressable>
@@ -168,12 +183,14 @@ const styles = StyleSheet.create({
     pet: {width: '100%', borderRadius: 20, backgroundColor: 'white', overflow: 'hidden'},
     inactiveCatShadow: {
         shadowColor: "#fff",
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.8,
         shadowRadius: 6,
-        elevation: 6,},
+        elevation: 6,
+    },
     activeCatShadow: {
-        shadowColor: "#1CC282", shadowOffset: { width: 0, height: 5 }, shadowOpacity: 1, shadowRadius: 6, elevation: 6,},
+        shadowColor: "#1CC282", shadowOffset: {width: 0, height: 5}, shadowOpacity: 1, shadowRadius: 6, elevation: 6,
+    },
     helpButton: {
         position: "absolute",
         right: 20,
@@ -186,7 +203,7 @@ const styles = StyleSheet.create({
         zIndex: 50,
         elevation: 5,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.25,
         shadowRadius: 3.5
     },

@@ -66,6 +66,7 @@ export class CacheHandler {
         console.log('habitsStr',  habitsStr);
         let habits: Habit[] = habitsStr ? JSON.parse(habitsStr) : [];
         console.log('habits',  habits);
+        h.offlineUserHabitId = habits.length;
         let newHabits: Habit[] = habits;
         newHabits.push(h);
         console.log('new habits',  newHabits);
@@ -73,6 +74,7 @@ export class CacheHandler {
         CacheHandler.storage.set('habits', JSON.stringify(newHabits));
         this.setHasChangedOffline(true);
         this.addToQueue(HttpMethod.POST, h);
+        return h;
     }
 
     static updateHabit(h: Habit) {
@@ -223,7 +225,7 @@ export class CacheHandler {
         CacheHandler.storage.delete('user');
         CacheHandler.storage.delete('tasks');
         CacheHandler.storage.delete('habits');
-        CacheHandler.storage.delete('offlineMode');
+        // CacheHandler.storage.delete('offlineMode');
     }
 
     static getOfflineMode(): boolean {
@@ -240,5 +242,9 @@ export class CacheHandler {
 
     static setTaskGeneration(taskGeneration: boolean): void {
         CacheHandler.storage.set('taskGeneration', taskGeneration);
+    }
+
+    static clearStorage(): void {
+        CacheHandler.storage.clearAll();
     }
 }

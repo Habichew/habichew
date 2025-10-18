@@ -184,8 +184,10 @@ const Home = () => {
         if (editHabit) {
             await updateHabit({...data, userHabitId: editHabit.userHabitId});
         } else {
+            console.log('test', data)
             const addedHabit: any = await addHabit(user!.id.toString(), data);
-            const userHabitId = addedHabit.habit.userHabitId;
+            console.log('adding habit', addedHabit);
+            const userHabitId = addedHabit.habit.userHabitId || addedHabit.habit.offlineUserHabitId;
             if (data.tasks && data.tasks.length > 0) {
                 for (let task of data.tasks) {
                     let newTask: Task = {

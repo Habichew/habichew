@@ -167,55 +167,6 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
         setGeneratedTasks(newTasks);
     }
 
-    function handleGenerateTasks() {
-        if (!formData.habitTitle) return alert('Please enter a habit name.');
-        const myHeaders = new Headers();
-        myHeaders.append('Content-Type', 'application/json');
-        myHeaders.append('Authorization', 'Bearer ' + process.env.EXPO_PUBLIC_OPENAI_API_KEY);
-
-        const raw = JSON.stringify({
-            model: 'gpt-4.1',
-            messages: [
-                {
-                    role: 'user',
-                    content:
-                        "In short sentences, break down this habit into a bulleted list of max. 6 tasks that are directly executable: '" +
-                        formData.habitTitle +
-                        "'. Only respond with a bulleted list",
-                },
-            ],
-        });
-
-        const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow',
-        };
-
-        // setGeneratedTasks(["Find a private or comfortable space", "Acknowledge your emotions", "Allow your feelings to flow without holding back", "Breathe deeply and steadily", "Use tissues or a cloth if needed", "Take time afterwards to rest or reflect"]);
-        setLoadingTasks(true);
-        fetch('https://api.openai.com/v1/chat/completions', requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                console.log(result);
-                let newTasks = result.choices[0].message.content;
-                newTasks = newTasks.split('\n').map((t: string) => {
-                    if (t.startsWith('- ')) {
-                        return t.slice(2);
-                    }
-                    return t;
-                });
-                setGeneratedTasks(newTasks);
-                console.log('set generated tasks', newTasks, 'length', newTasks.length);
-                setLoadingTasks(false);
-            })
-            .catch(error => {
-                console.error(error);
-                setLoadingTasks(false);
-            });
-    }
-
     const renderTask = (item: any, index: number) => {
         console.log('task index', index, 'item', item);
 
@@ -307,7 +258,7 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                             <TextInput
                                                 ref={inputRef}
                                                 autoFocus
-                                                placeholder="* Habit Title"
+                                                placeholder="Habit Title"
                                                 placeholderTextColor="#bbb"
                                                 style={styles.title}
                                                 value={formData.habitTitle}
@@ -469,12 +420,6 @@ const HabitModal: React.FC<Props> = ({visible, initialData, onClose, onSave, onD
                                                             onPress={() => setEditable(!editable)}>
                                                             <Ionicons name="pencil-outline" size={18} color="#000"/>
                                                         </TouchableOpacity>
-                                                        <Pressable
-                                                            style={[styles.generateTextBtn, {backgroundColor: formData.habitTitle ? '#1CC282' : '#85CCB3'}]}
-                                                            onPress={handleGenerateTasks} disabled={!formData.habitTitle}>
-                                                            {/*<Text style={styles.generateText}>Generate</Text>*/}
-                                                            <Text style={styles.generateText}>Generate Tasks</Text>
-                                                        </Pressable>
                                                     </View>
                                                 </View>
 

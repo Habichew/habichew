@@ -49,6 +49,7 @@ const isUser: (o: any) => o is User = (o: any): o is User => {
 
 export type Habit = {
     userHabitId?: number;
+    offlineUserHabitId?: number; // needed to create habits offline without clashing with database ids when syncing with servers
     habitTitle: string;
     goalDate?: string | null;
     startDate: string;
@@ -270,9 +271,10 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
     const addHabit = async (userId: string, habit: Habit) => {
         if (!user || offlineMode) {
             habit.isArchived = 0;
-            CacheHandler.addHabit(habit);
-            await loadHabits();
-            return;
+            const addedHabit = CacheHandler.addHabit(habit);
+            console.log('added habit', addedHabit);
+            return addedHabit;
+            // await loadHabits();
         }
 
         try {
@@ -417,9 +419,7 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         function loadCachedTasks() {
             // load cached tasks (if they exist)
             const cachedTasks = CacheHandler.loadTasks();
-            if (cachedTasks) {
-                setTasks(cachedTasks);
-            }
+            setTasks(cachedTasks);
         }
 
         try {

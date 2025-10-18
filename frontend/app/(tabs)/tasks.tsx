@@ -77,7 +77,7 @@ export default function Tasks() {
   }, [numericHabitId]);
 
   function sortTasks(tasks: Task[]) {
-    return tasks.sort((a: Task, b: Task) => {
+    return tasks?.sort((a: Task, b: Task) => {
       if (!a.completed && b.completed) return -1;
       else if (a.completed && !b.completed) return 1;
       else return 0;
@@ -85,7 +85,7 @@ export default function Tasks() {
   }
 
   useEffect(() => {
-    let filtered = tasks.filter(t => {
+    let filtered = tasks?.filter(t => {
       if (isHabitFilterLocked && numericHabitId) return t.habitId === numericHabitId;
       return t.taskTitle.toLowerCase().includes(searchText.toLowerCase());
     });
