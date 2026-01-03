@@ -56,6 +56,10 @@ const handleSignUp = async () => {
   }
 };
 
+  const handleSkipSignUp = async () => {
+    router.replace("../onboarding/launch");
+  };
+
 
   return (
     <View style={styles.screen}>
@@ -98,6 +102,12 @@ const handleSignUp = async () => {
           disabled={!isFormValid}
         >
           <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+            style={[styles.button, styles.skipButton, { opacity: isFormValid ? 1 : 0.6 }]}
+            onPress={handleSkipSignUp}
+        >
+          <Text style={styles.buttonText}>Skip to Onboarding</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -162,4 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  skipButton: {
+    backgroundColor: "#bbb",
+  }
 });

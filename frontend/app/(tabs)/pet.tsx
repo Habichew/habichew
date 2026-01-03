@@ -102,7 +102,7 @@ export default function PetScreen(this: any) {
                           key={`postcard-${rowIndex}-${idx}`}
                           source={item.frontUrl}
                           unlockScore={item.unlockScore}
-                          isUnlocked={user.credits >= item.unlockScore}
+                          isUnlocked={user?.credits >= item.unlockScore}
                           onPress={() => {
                             setSelectedCard(item);        // select the unlocked postcard
                             setModalVisible(true);        // Open the modal to flip the postcard

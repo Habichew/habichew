@@ -3,12 +3,9 @@ import {
   Dimensions,
   View,
   Text,
-  StyleSheet,
-  Image,
   Pressable,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   FlatList,
   Platform
 } from 'react-native';
@@ -348,7 +345,7 @@ export default function Tasks() {
                       style={styles.generateBtn}
                       onPress={() => setModalVisible(true)}
                   >
-                    <Text style={styles.generateText}>Generate Tasks</Text>
+                    <Text style={styles.generateText}>Create Tasks</Text>
                   </TouchableOpacity>
                 </View>)}
         />
