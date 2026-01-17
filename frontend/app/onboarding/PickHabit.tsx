@@ -69,17 +69,17 @@ export default function PickHabit() {
   };
 
   const handleSubmitHabit = async (habit: string, presetHabitId?: number) => {
-    if (!userId) {
-      alert("Please log in first");
-      return;
-    }
+    // if (!userId) {
+    //   alert("Please log in first");
+    //   return;
+    // }
 
     try {
       const payload: any = {
         ...(presetHabitId ? { habitId: presetHabitId } : {}),
         customTitle: habit,
       };
-
+      // CacheHandler.saveHabits()
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${userId}`,
         {
