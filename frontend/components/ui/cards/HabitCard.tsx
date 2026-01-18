@@ -184,6 +184,11 @@ export default function
     const getPriorityLabel = (val: string | number) =>
         val === 1 ? "High" : val === 2 ? "Medium" : val === 3 ? "Low" : "Priority";
 
+    function hasTasks() {
+        return progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0
+            || progressMap?.[item.offlineUserHabitId] || progressMap?.[item.offlineUserHabitId] === 0;
+    }
+
     return (
         <Swipeable
             friction={2}
@@ -209,7 +214,7 @@ export default function
                            android_ripple={{color: '#00000010', borderless: true, radius: 300}}>
                     <View style={styles.headerRow}>
                         <Text style={styles.title}>{item.habitTitle}</Text>
-                        {progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0 ? (
+                        {hasTasks() ? (
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{marginLeft: 'auto', marginVertical: 'auto', marginRight: 5}}>
                                     {completedTasks.toString()}/{allTasks.toString()}
@@ -218,7 +223,7 @@ export default function
                         ) : null}
                     </View>
                     {
-                        progressMap?.[item.userHabitId] || progressMap?.[item.userHabitId] === 0 ?
+                        hasTasks() ?
                             <View style={styles.progressBarBackground}>
                                 <View style={[styles.progressBarFill, {width: `${percent}%`}]}/>
                             </View> : null

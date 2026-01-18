@@ -140,6 +140,24 @@ export class CacheHandler {
         return habitsStr ? JSON.parse(habitsStr) : null;
     }
 
+    static addTask(t: Task) {
+        console.log("caching new task", t);
+
+        const tasksStr = CacheHandler.storage.getString('tasks');
+        console.log('taskssStr',  tasksStr);
+        let tasks: Task[] = tasksStr ? JSON.parse(tasksStr) : [];
+        console.log('tasks',  tasks);
+        t.offlineUserTaskId = tasks.length;
+        let newTasks: Task[] = tasks;
+        newTasks.push(t);
+        console.log('new tasks',  newTasks);
+
+        CacheHandler.storage.set('tasks', JSON.stringify(newTasks));
+        this.setHasChangedOffline(true);
+        this.addToQueue(HttpMethod.POST, t);
+        return t;
+    }
+
     static updateTask(t: Task) {
         const tasksStr = CacheHandler.storage.getString('tasks');
         if (tasksStr) {
@@ -206,6 +224,7 @@ export class CacheHandler {
     static loadTasks() {
         console.log("loading cached tasks");
         let tasksStr = CacheHandler.storage.getString('tasks');
+        console.log('cached tasks', tasksStr);
         return tasksStr ? JSON.parse(tasksStr) : null;
     }
 
@@ -217,7 +236,18 @@ export class CacheHandler {
     static loadUser(): User | null {
         console.log("loading cached user");
         let userStr = CacheHandler.storage.getString('user');
-        return userStr ? JSON.parse(userStr) : null;
+        if (userStr) {
+            return JSON.parse(userStr);
+        }
+        else {
+            let user: User = {
+                id: undefined,
+                username: "default",
+                email: undefined
+            }
+            CacheHandler.storage.set('user', JSON.stringify(user));
+            return user;
+        }
     }
 
     static clearUserCache() {

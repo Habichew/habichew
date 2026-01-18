@@ -49,6 +49,7 @@ const Home = () => {
         deleteHabit,
         addTask,
         loadTasks,
+        loadUser
     } = useUser();
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredHabits, setFilteredHabits] = useState(habits);
@@ -81,8 +82,9 @@ const Home = () => {
         if (user) {
             setRefreshing(true);
             loadHabits().then(() => {
+                setFilteredHabits(habits);
                 loadTasks().then(() => {
-
+                    console.log('load tasks', tasks);
                     const ONE_MINUTE = 60 * 1000;
 
                     // TODO: Change pet animation based on time since task was last completed
@@ -147,6 +149,12 @@ const Home = () => {
                     // riveRef.current?.setInputState('State Machine 1', 'HabitTicked', true);
                 });
             });
+        } else {
+            loadUser().then(() =>
+                {
+                    console.log('loaded user', user);
+                }
+            );
         }
     }, [user]);
 
@@ -172,9 +180,12 @@ const Home = () => {
         const newHabits = habits.filter((h) =>
             h.habitTitle?.toLowerCase().includes(searchTerm.toLowerCase()),
         );
-        // console.log("newHabits", habits);
+        console.log("newHabits", habits);
         setFilteredHabits(newHabits);
-    }, [searchTerm, habits]);
+        console.log('newTasks', tasks);
+        // loadHabits();
+        // loadTasks().then(r => console.log('check'));
+    }, [searchTerm, habits, loadHabits, loadTasks]);
 
     function closeHabits(): void {
         for (let h of row) {
@@ -187,7 +198,7 @@ const Home = () => {
             await updateHabit({...data, userHabitId: editHabit.userHabitId});
         } else {
             console.log('adding data', data)
-            const addedHabit: any = await addHabit(user ? user!.id.toString() : "", data);
+            const addedHabit: any = await addHabit(user && user.id ? user.id.toString() : "", data);
             console.log('adding habit', addedHabit);
             const userHabitId = addedHabit.habit?.userHabitId || addedHabit.offlineUserHabitId;
             if (data.tasks && data.tasks.length > 0) {

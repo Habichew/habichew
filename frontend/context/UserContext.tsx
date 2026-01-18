@@ -32,8 +32,8 @@ export class CachedRequest {
 }
 
 export type User = {
-    id: number;
-    email: string;
+    id?: number;
+    email?: string;
     username: string;
     profileImg?: string;
     mood?: string | null;
@@ -64,6 +64,7 @@ const isHabit: (o: any) => o is Habit = (o: any): o is Habit => {
 
 export type Task = {
     userTaskId?: number;
+    offlineUserTaskId?: number;
     taskTitle: string;  // renamed from 'title' to make type guarding easier
     description?: string | null;
     completed?: boolean;
@@ -182,6 +183,13 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
 
     // ----------------- User Log --------------------
     const loadUser = async () => {
+        console.log('loading cache', user === null || offlineMode);
+        if (user === null || offlineMode) {
+            console.log('loading cached user');
+            loadCachedUser();
+            return;
+        }
+
         try {
             const response = await fetch(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${user?.id}`,
@@ -204,6 +212,15 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
             // await loadHabits();
         } catch (error) {
             console.error("Failed to update user:", error);
+        }
+
+        function loadCachedUser() {
+            // load cached user (if they exist)
+            const cachedUser = CacheHandler.loadUser();
+            if (cachedUser) {
+                console.log("setting cached user", cachedUser);
+                setUser(cachedUser);
+            }
         }
     }
 
@@ -243,6 +260,7 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
     // ----------------- Habit Logic -----------------
     const loadHabits = async () => {
         if (!user || offlineMode) {
+            console.log('loading cached habits');
             loadCachedHabits();
             return;
         }
@@ -268,7 +286,7 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         }
     };
 
-    const addHabit = async (userId: string, habit: Habit) => {
+    const addHabit = async (userId: string | undefined, habit: Habit) => {
         if (!user || offlineMode) {
             habit.isArchived = 0;
             const addedHabit = CacheHandler.addHabit(habit);
@@ -419,7 +437,8 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         function loadCachedTasks() {
             // load cached tasks (if they exist)
             const cachedTasks = CacheHandler.loadTasks();
-            setTasks(cachedTasks);
+            console.log('setting cached tasks', cachedTasks);
+            setTasks(cachedTasks ? cachedTasks : []);
         }
 
         try {
@@ -442,7 +461,6 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
                     completedAt: t.completedAt,
                 };
             });
-
             setTasks(mapped);
             CacheHandler.saveTasks(mapped); // cache tasks
         } catch (err) {
@@ -454,15 +472,18 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
     // return habitId → % map
     const calculateHabitProgress = (): Record<number, number> => {
         const progressMap: Record<number, any> = {};
+        console.log('calculating habit progress for tasks', tasks);
         const grouped = tasks.reduce(
             (acc, t) => {
                 if (!t.habitId) return acc;
                 if (!acc[t.habitId]) acc[t.habitId] = [];
                 acc[t.habitId].push(t);
-                return acc;
+                return acc; //FIXME
             },
             {} as Record<number, Task[]>,
         );
+
+        console.log('groups', grouped);
 
         for (const habitId in grouped) {
             const all = grouped[habitId];
@@ -471,12 +492,16 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
                 all.length === 0 ? 0 : Math.round((done / all.length) * 100);
             progressMap[+habitId] = {percent: percent, all: all.length, done: done};
         }
+        console.log('progress', progressMap);
         return progressMap;
     };
 
     const addTask = async (t: Task) => {
         if (!user || offlineMode) {
             // TODO: add task in offline mode (CacheHandler)
+            t.completed = false;
+            const addedTask: Task = CacheHandler.addTask(t);
+            console.log('added task', addedTask);
             return;
         }
 
@@ -742,7 +767,7 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
                 await updateHabit(habit);
                 break;
             case 'POST':
-                await addHabit(user.id.toString(), habit);
+                await addHabit(user.id?.toString(), habit);
                 break;
         }
     }

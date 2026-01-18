@@ -124,7 +124,7 @@ export default function Tasks() {
   };
 
   const toggleCompleted = async (task: Task) => {
-    if (!user || !task.userTaskId) return;
+    if (!user || (!task.userTaskId && !task.offlineUserTaskId)) return;
     if (task.completed) {
       console.log("Un-completing is not supported via completeTask API.");
       return;
@@ -135,7 +135,7 @@ export default function Tasks() {
 
       // Update the local task list
       const updatedTasks = tasks.map((t) =>
-          t.userTaskId === task.userTaskId
+          (t.userTaskId === task.userTaskId || t.offlineUserTaskId === task.offlineUserTaskId)
               ? { ...t, completed: true }
               : t
       );
@@ -207,51 +207,54 @@ export default function Tasks() {
   const renderTask = ( item: any) => {
     const isCompleted = item.completed === true;
     const ddl = item.dueAt;
+    const task: Task = item.item;
+    console.log('rendering task', task);
+    console.log('filtered tasks', filteredTasks);
 
     return (
         <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginBottom: 10}}>
           <Pressable onPress={() => handleEdit(item)} style={[styles.taskCard, { backgroundColor: isCompleted ? '#e6e6e6' : '#DAB7FF' }]}  android_ripple={{color: '#00000020', borderless: true, foreground: false, radius: 300}}>
             <View>
-              <TouchableOpacity disabled={!!item.completed}
+              <TouchableOpacity disabled={!!task.completed}
                                 onPress={() => {
                                     if (Platform.OS === 'android') {
                                       Haptics.performAndroidHapticsAsync(AndroidHaptics.Confirm);
                                     } else {
                                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
                                     }
-                                    toggleCompleted(item)
+                                    toggleCompleted(task)
                                   }
                                 }
                                 style={{ padding: 5, margin: -5}}>
                 <Ionicons
-                    name={!item.completed ? "ellipse-outline" : "checkmark-circle-outline"}
+                    name={!task.completed ? "ellipse-outline" : "checkmark-circle-outline"}
                     size={24} color="black"/>
               </TouchableOpacity>
             </View>
             <View style={styles.flexTwo}>
-              <Text style={[styles.taskTitle, {textDecorationLine: item.completed ? 'line-through' : 'none'}]}>{item.title}</Text>
-              {item.description ?
+              <Text style={[styles.taskTitle, {textDecorationLine: task.completed ? 'line-through' : 'none'}]}>{task.taskTitle}</Text>
+              {task.description ?
                   <Text
                       numberOfLines={1}
                       ellipsizeMode="tail"
                       style={styles.taskDescription}>
-                    {item.description}
+                    {task.description}
                   </Text> : null}
               <View style={styles.metaRow}>
-                { item.dueAt ?
+                { task.dueAt ?
                     <View style={styles.badge}>
                       <Ionicons name="calendar-outline" size={16} color="#000" />
                       <Text style={styles.badgeText}>
-                        {item.dueAt ? new Date(item.dueAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short' }) : ''}
+                        {task.dueAt ? new Date(task.dueAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short' }) : ''}
                       </Text>
                     </View> : ""
                 }
-                { item.priority ?
+                { task.priority ?
                     <View style={styles.badge}>
                       <Ionicons name="flag-outline" size={16} color="#000"/>
                       <Text style={styles.badgeText}>
-                        {item.priority
-                            ? `${item.priority.charAt(0).toUpperCase()}${item.priority.slice(1)}`
+                        {task.priority
+                            ? `${task.priority.charAt(0).toUpperCase()}${task.priority.slice(1)}`
                             : 'No Priority'}
                       </Text>
                     </View>
@@ -323,7 +326,7 @@ export default function Tasks() {
             data={filteredTasks}
             ref={flatListRef}
             keyExtractor={(item) =>
-                item.userTaskId?.toString() || Math.random().toString()
+                item.userTaskId?.toString() || item.offlineUserTaskId?.toString() || Math.random().toString()
             }
             contentContainerStyle={{ paddingBottom: 100 }}
             renderItem={renderTask}

@@ -46,9 +46,21 @@ export default function
 
     const renderHabit = ({item, index}: { item: any, index: any }) => {
         const progressMap: Record<number, any> = calculateHabitProgress();
-        const percent = progressMap?.[item.userHabitId]?.percent ?? 0;
-        const allTasks = progressMap?.[item.userHabitId]?.all ?? 0;
-        const completedTasks = progressMap?.[item.userHabitId]?.done ?? 0;
+        let percent, allTasks, completedTasks;
+        if (item.userHabitId) {
+            percent = progressMap?.[item.userHabitId]?.percent ?? 0;
+            allTasks = progressMap?.[item.userHabitId]?.all ?? 0;
+            completedTasks = progressMap?.[item.userHabitId]?.done ?? 0;
+        }
+        else if (item.offlineUserHabitId) {
+            percent = progressMap?.[item.offlineUserHabitId]?.percent ?? 0;
+            allTasks = progressMap?.[item.offlineUserHabitId]?.all ?? 0;
+            completedTasks = progressMap?.[item.offlineUserHabitId]?.done ?? 0;
+        }
+
+        console.log('percent', percent,
+            'allTasks', allTasks,
+            'completedTasks', completedTasks);
 
         return (
             <HabitCard
