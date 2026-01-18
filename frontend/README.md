@@ -154,24 +154,23 @@ Once you have a development build installed, you do not need to reinstall it unt
 
 ### Build on your local machine
 
-This process takes more time to prepare but is much faster once it is set up (on my laptop, it takes up to 15 minutes). It requires installing Android Studio to get the Android SDK and Android Debug Bridge.
+This process takes more time to prepare but is much faster once it is set up (on my laptop, it takes up to 15 minutes). It requires installing Android Studio, to get the Android SDK and Android Debug Bridge, and Java.
 
 #### Start the ADB server
 
 `adb start-server`
 
-Note: the terminal should respond with a message like "\* daemon not running; starting now at tcp:5037
-
-- daemon started successfully". If not, try shutting down the server with `adb kill-server` and starting it again.
+Note: the terminal should respond with a message like "\* daemon not running; starting now at tcp:5037 - daemon started successfully". If not, try shutting down the server with `adb kill-server` and starting it again.
 
 #### Build native Android project
-
+Connect your Android device to build your project on and enable USB-debugging in the settings (activate developer mode first). Then run the following command: 
 `npx expo run:android`
 
-If there are no errors, the terminal should then display the path to the .apk file.
+Alternatively, you can also use an emulator.
+If there are no errors, the terminal should eventually display the path to the .apk file.
 
 #### Deploy the build
 
-Copy the .apk to your device and install it from there. Alternatively, you can enable USB-debugging in the settings of your Android device (activate developer mode first), run `npx expo start` and press 'A' to let expo install the app automatically.
+You can then copy the .apk to your device and install it from there. Alternatively, you can also enable USB-debugging in the settings of your Android device (activate developer mode first), run `npx expo start` and press 'A' to let expo install the app automatically.
 
 Note: if you the error message `Error: could not connect to TCP port 5562`, try restarting the adb server.
