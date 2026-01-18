@@ -105,9 +105,9 @@ export default function
     return (
         <Rive
             artboardName={artboardName}
-            url={"https://habichew.github.io/assets/rive/test0827.riv"}
-            // url={Platform.OS === 'ios' ? "https://habichew.github.io/assets/rive/test0827.riv" : undefined}
-            // resourceName={Platform.OS === 'android' ? 'pet' : undefined}
+            // url={"https://habichew.github.io/assets/rive/test0827.riv"}
+            url={Platform.OS === 'ios' ? "https://habichew.github.io/assets/rive/test0827.riv" : undefined}
+            resourceName={Platform.OS === 'android' ? 'pet_new' : undefined}
             fit={Fit.Cover}
             ref={riveRef}
             stateMachineName={"State Machine 1"}

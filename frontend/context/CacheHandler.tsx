@@ -100,8 +100,7 @@ export class CacheHandler {
             const habitsArr: Habit[] = JSON.parse(habitsStr);
             let newHabits: Habit[] = habitsArr;
             newHabits.forEach((habit, index) => {
-                console.log('userHabitId', habit.userHabitId, h.userHabitId);
-                if (habit.userHabitId === undefined) { // TODO: generate unique negative IDs for every habit generated in offline mode
+                if (habit.offlineUserHabitId === h.offlineUserHabitId) {
                     h.isArchived = 1;
                     newHabits[index] = h;
                     // TODO: complete every task in habit
