@@ -4,15 +4,15 @@ import {
     Dimensions,
     TouchableOpacity,
 } from "react-native";
-import {useUser} from "@/context/UserContext";
+import {Habit, useUser} from "@/context/UserContext";
 import React from "react";
 import {ScaledSheet} from "react-native-size-matters";
 
 interface ConfirmDeleteModalProps {
     swipeRef: any;
     closeHabits: any;
-    toDeleteHabit: any;
-    setToDeleteHabit: any;
+    toDeleteHabit: Habit;
+    setToDeleteHabit: Habit;
     setShowConfirmDelete: any;
 }
 
@@ -43,9 +43,11 @@ export default function
                                           }}><Text
                             style={styles.cancelText}>Cancel</Text></TouchableOpacity>
                         <TouchableOpacity style={styles.saveBtn} onPress={() => {
-                            console.log('test delete habit', toDeleteHabit?.userHabitId);
-                            if (deleteHabit && toDeleteHabit?.userHabitId) {
-                                deleteHabit(toDeleteHabit?.userHabitId);
+                            console.log('delete habit', toDeleteHabit?.userHabitId, toDeleteHabit?.offlineUserHabitId);
+                            if (deleteHabit && (toDeleteHabit?.userHabitId) !== undefined || toDeleteHabit?.offlineUserHabitId !== undefined) {
+                                console.log('start deleting habit');
+                                // @ts-ignore
+                                deleteHabit(toDeleteHabit?.userHabitId, toDeleteHabit?.offlineUserHabitId);
                                 setShowConfirmDelete(false);
                             }
                         }}><Text style={styles.saveText}>Delete</Text></TouchableOpacity>

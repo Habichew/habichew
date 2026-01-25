@@ -131,7 +131,7 @@ type UserDataContextType = {
     completeHabit: (h: Habit) => Promise<void>;
     updateHabit: (h: Habit) => Promise<void>;
     completeHabitTasks: (h: Habit) => Promise<void>;
-    deleteHabit: (userHabitId: number) => Promise<void>;
+    deleteHabit: (userHabitId: number | undefined, offlineUserHabitId: number | undefined) => Promise<void>;
 
     addTask: (t: Task) => Promise<void>;
     updateTask: (t: Task) => Promise<void>;
@@ -396,6 +396,7 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         }
     }
 
+    //FIXME: not updated for offline mode
     const completeHabitTasks = async (habit: Habit) => {
         if (!user || !habit.userHabitId) return;
 
@@ -410,8 +411,13 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         console.log('completed all tasks of habit', habit.userHabitId);
     };
 
-    const deleteHabit = async (userHabitId: number) => {
-        if (!user) return;
+    const deleteHabit = async (userHabitId: number, offlineUserHabitId: number) => {
+        if (!user || offlineMode) {
+            CacheHandler.deleteHabit(userHabitId, offlineUserHabitId);
+            console.log('deleted habit');
+            await loadHabits();
+            return;
+        }
         try {
             const res = await fetch(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/habits/${user.id}/${userHabitId}`,

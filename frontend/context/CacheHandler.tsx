@@ -134,6 +134,25 @@ export class CacheHandler {
         CacheHandler.storage.set('habits', JSON.stringify(habits));
     }
 
+    static deleteHabit(userHabitId: number, offlineUserHabitId: number) {
+        console.log("delete cached habit", userHabitId, offlineUserHabitId);
+        const habitsStr = CacheHandler.storage.getString('habits');
+        if (habitsStr) {
+            let habitsArr: Habit[] = JSON.parse(habitsStr);
+            habitsArr = habitsArr.filter((habit) => habit !== null); // remove old null values from array
+            let newHabits: Habit[] = habitsArr;
+            habitsArr.forEach((habit, index) => {
+                if ((habit.userHabitId === userHabitId && habit.userHabitId !== undefined) || (habit.offlineUserHabitId === offlineUserHabitId && habit.offlineUserHabitId !== undefined)) {
+                    delete newHabits[index];
+                }
+            });
+            newHabits = newHabits.filter((habit) => habit !== null); // remove new null value from array
+            CacheHandler.storage.set('habits', JSON.stringify(newHabits));
+        }
+        this.setHasChangedOffline(true);
+        // this.addToQueue(HttpMethod.DELETE, userHabitId);
+    }
+
     static loadHabits() {
         console.log("loading cached habits");
         const habitsStr = CacheHandler.storage.getString('habits');
