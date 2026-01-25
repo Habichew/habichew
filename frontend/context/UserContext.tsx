@@ -73,6 +73,7 @@ export type Task = {
     dueAt?: string | null;
     //Habitid is used here because of the previous confusion,
     habitId?: number;
+    offlineHabitId?: number;
     createdAt?: string;
     completedAt?: string;
 };
@@ -396,9 +397,18 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         }
     }
 
-    //FIXME: not updated for offline mode
     const completeHabitTasks = async (habit: Habit) => {
-        if (!user || !habit.userHabitId) return;
+        if (!user || offlineMode) {
+            const habitTasks = tasks.filter(
+                (t) => t.offlineHabitId === habit.offlineUserHabitId
+            );
+
+            for (let task of habitTasks) {
+                task.completed = true;
+                await completeTask(task);
+            }
+            return;
+        }
 
         const habitTasks = tasks.filter(
             (t) => t.habitId === habit.userHabitId
@@ -411,7 +421,7 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         console.log('completed all tasks of habit', habit.userHabitId);
     };
 
-    const deleteHabit = async (userHabitId: number, offlineUserHabitId: number) => {
+    const deleteHabit = async (userHabitId: number | undefined, offlineUserHabitId: number | undefined) => {
         if (!user || offlineMode) {
             CacheHandler.deleteHabit(userHabitId, offlineUserHabitId);
             console.log('deleted habit');
@@ -592,8 +602,9 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
     };
 
     const completeTask = async (t: Task) => {
-        if (!t.userTaskId) return;
+        if (!t.userTaskId && !t.offlineUserTaskId) return;
         else if (!user || offlineMode) {
+            console.log('completing task in offline mode');
             CacheHandler.completeTask(t);
             return;
         }
@@ -772,7 +783,7 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
         if (!user) return;
         switch (method) {
             case 'DELETE':
-                if (habit.userHabitId) await deleteHabit(habit.userHabitId);
+                if (habit.userHabitId) await deleteHabit(habit.userHabitId, undefined);
                 break;
             case 'PATCH':
                 await updateHabit(habit);

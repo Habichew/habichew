@@ -134,7 +134,7 @@ export class CacheHandler {
         CacheHandler.storage.set('habits', JSON.stringify(habits));
     }
 
-    static deleteHabit(userHabitId: number, offlineUserHabitId: number) {
+    static deleteHabit(userHabitId: number | undefined, offlineUserHabitId: number | undefined) {
         console.log("delete cached habit", userHabitId, offlineUserHabitId);
         const habitsStr = CacheHandler.storage.getString('habits');
         if (habitsStr) {
@@ -200,7 +200,7 @@ export class CacheHandler {
             const tasksArr: Task[] = JSON.parse(tasksStr);
             let newTasks: Task[] = tasksArr;
             tasksArr.forEach((task, index) => {
-                if (task.userTaskId === t.userTaskId) {
+                if (task.offlineUserTaskId === t.offlineUserTaskId) {
                     t.completed = true;
                     newTasks[index] = t;
                 }
