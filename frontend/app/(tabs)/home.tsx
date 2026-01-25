@@ -189,7 +189,7 @@ const Home = () => {
 
     const handleSave = async (data: any) => {
         if (editHabit) {
-            await updateHabit({...data, userHabitId: editHabit.userHabitId});
+            await updateHabit({...data, userHabitId: editHabit.userHabitId, offlineUserHabitId: editHabit.offlineUserHabitId});
         } else {
             console.log('adding data', data)
             const addedHabit: any = await addHabit(user && user.id ? user.id.toString() : "", data);

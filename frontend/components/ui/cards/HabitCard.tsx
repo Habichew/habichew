@@ -70,7 +70,8 @@ export default function
                 paddingRight: 10,
                 paddingLeft: 130,
                 marginLeft: -140,
-                height: '100%'
+                marginBottom: 12,
+                height: "auto"
             };
         });
 
@@ -94,7 +95,8 @@ export default function
                 width: screenWidth - (prog.value < 0.045 ? 20 : 0),
                 marginLeft: 10,
                 borderRadius: 16,
-                paddingLeft: 20
+                paddingLeft: 20,
+                marginBottom: 12
             };
         });
 
@@ -164,7 +166,12 @@ export default function
         });
     };
 
-    function handleShowConfirmDelete(habit: any) {
+    async function handleShowConfirmDelete(habit: any) {
+        if (Platform.OS === 'android') {
+            await Haptics.performAndroidHapticsAsync(AndroidHaptics.Context_Click);
+        } else {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+        }
         setToDeleteHabit(habit);
         setShowConfirmDelete(true);
     }
@@ -206,9 +213,13 @@ export default function
             }
             }
             ref={(swipeRef: any) => row[index] = swipeRef}
-            containerStyle={{width: "100%", alignSelf: 'center', marginBottom: 12}}
+            containerStyle={{width: "100%", alignSelf: 'center', paddingBottom: 12}}
         >
-            <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10}}>
+            <View style={{borderRadius: 16, backgroundColor: 'white', zIndex: 3, marginHorizontal: 10, shadowColor: "#00000080",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.8,
+                shadowRadius: 6,
+                elevation: 6,}}>
                 <Pressable style={styles.card} onPress={() => handlePressHabit(item)}
                            onLongPress={() => handleShowConfirmDelete(item)}
                            android_ripple={{color: '#00000010', borderless: true, radius: 300}}>

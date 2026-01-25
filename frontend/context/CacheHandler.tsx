@@ -83,7 +83,7 @@ export class CacheHandler {
             const habits: Habit[] = JSON.parse(habitsStr);
             let newHabits: Habit[] = habits;
             habits.forEach((habit, index) => {
-                if (habit.userHabitId === h.userHabitId) {
+                if ((habit.userHabitId === h.userHabitId && habit.userHabitId !== undefined) || (habit.offlineUserHabitId === h.offlineUserHabitId && habit.offlineUserHabitId !== undefined)) {
                     newHabits[index] = h;
                 }
             });
@@ -254,6 +254,7 @@ export class CacheHandler {
         CacheHandler.storage.delete('user');
         CacheHandler.storage.delete('tasks');
         CacheHandler.storage.delete('habits');
+        console.log('cleared user cache');
         // CacheHandler.storage.delete('offlineMode');
     }
 

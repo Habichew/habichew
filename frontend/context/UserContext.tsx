@@ -292,7 +292,6 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
             const addedHabit = CacheHandler.addHabit(habit);
             console.log('added habit', addedHabit);
             return addedHabit;
-            // await loadHabits();
         }
 
         try {
@@ -323,7 +322,13 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
     };
 
     const updateHabit = async (habit: Habit) => {
-        if (!user || !habit.userHabitId) return;
+        if (!user || offlineMode) {
+            habit.isArchived = 0;
+            CacheHandler.updateHabit(habit);
+            console.log('updated habit');
+            await loadHabits();
+            return;
+        }
 
         try {
             const response = await fetch(
