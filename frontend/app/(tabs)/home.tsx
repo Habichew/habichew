@@ -1,13 +1,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    Dimensions,
-    FlatList,
-    Image, Pressable, RefreshControl,
-    Text,
     TextInput,
     TouchableOpacity,
-    Vibration,
-    View, Linking, Platform, ActivityIndicator
+    View, Platform
 } from "react-native";
 import {useRouter} from "expo-router";
 import {Ionicons} from "@expo/vector-icons";
@@ -19,7 +14,6 @@ import {SystemBars} from "react-native-edge-to-edge";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import Animated, {
     Easing,
-    SharedValue,
     useAnimatedStyle,
     withTiming,
 } from "react-native-reanimated";

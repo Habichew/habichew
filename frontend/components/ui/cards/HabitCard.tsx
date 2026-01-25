@@ -160,7 +160,7 @@ export default function
     const handlePressHabit = (habit: any) => {
         router.push({
             pathname: "./tasks",
-            params: {habitId: habit.userHabitId, habitName: habit.habitTitle},
+            params: {habitId: habit.userHabitId || habit.offlineUserHabitId, habitName: habit.habitTitle},
         });
     };
 

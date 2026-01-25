@@ -4,8 +4,6 @@ import {useRouter} from "expo-router";
 import CustomInput from "@/components/ui/input";
 import {User, useUser} from "../../context/UserContext";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-import {MMKV, Mode, useMMKVString} from 'react-native-mmkv';
 import {CacheHandler} from "@/context/CacheHandler";
 
 export default function SignInScreen() {
@@ -20,7 +18,7 @@ export default function SignInScreen() {
   const [statusMessage, setStatusMessage] = useState('');
   const isFormValid = email && password;
   const insets = useSafeAreaInsets();
-  // const [user, setUser] = useMMKVString('user');
+
   const {
     synchronise
   } = useUser();
@@ -176,19 +174,6 @@ export default function SignInScreen() {
           <Text style={styles.signInText}>Sign In</Text>
         )}
       </TouchableOpacity>
-
-      {/*<Text style={styles.orText}>OR LOG IN WITH</Text>*/}
-
-      {/*<View style={styles.iconRow}>*/}
-      {/*  <FontAwesome name="google" size={24} color="#555" />*/}
-      {/*  <FontAwesome name="apple" size={24} color="#555" style={styles.icon} />*/}
-      {/*  <FontAwesome*/}
-      {/*    name="facebook"*/}
-      {/*    size={24}*/}
-      {/*    color="#555"*/}
-      {/*    style={styles.icon}*/}
-      {/*  />*/}
-      {/*</View>*/}
 
       <TouchableOpacity onPress={() => router.push("/auth/sign-up")} style={{marginTop: 20}}>
         <Text style={styles.link}>

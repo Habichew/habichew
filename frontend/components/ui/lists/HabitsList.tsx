@@ -58,7 +58,7 @@ export default function
             completedTasks = progressMap?.[item.offlineUserHabitId]?.done ?? 0;
         }
 
-        console.log('percent', percent,
+        console.log('item', item, 'percent', percent,
             'allTasks', allTasks,
             'completedTasks', completedTasks);
 

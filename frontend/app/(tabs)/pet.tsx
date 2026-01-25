@@ -3,7 +3,7 @@ import {
   View,
   Text,
   ScrollView,
-  Dimensions, Modal, Pressable, TouchableWithoutFeedback,
+  Dimensions, Modal, TouchableWithoutFeedback,
 } from "react-native";
 import { useUser } from "@/context/UserContext";
 import { ScaledSheet } from "react-native-size-matters";
@@ -11,14 +11,10 @@ import { ScaledSheet } from "react-native-size-matters";
 import FlipCard from "react-native-flip-card";
 import Postcard from "@/components/ui/Postcard";
 import {postcardImgs} from "@/constants/PostcardData"
-/*import Carousel, {
-  ICarouselInstance,
-} from "react-native-reanimated-carousel";*/
 import { Image } from 'expo-image';
 import {Ionicons} from "@expo/vector-icons";
-import {Gesture, GestureDetector, PinchGestureHandler} from "react-native-gesture-handler";
-import {scale} from "style-value-types";
-import Animated, {
+import {Gesture, GestureDetector} from "react-native-gesture-handler";
+import {
   useSharedValue,
   useAnimatedStyle,
 } from 'react-native-reanimated';
@@ -76,8 +72,6 @@ export default function PetScreen(this: any) {
             <Image source={require('@/assets/images/pet profile.png')} style={styles.avatar} />
             <View style={styles.avatarDescription}>
               <Text style={styles.petName}>{pet?.name}</Text>
-              {/*<Text style={styles.personality}>{pet?.personality}</Text>*/}
-              {/*<Text style={styles.textLine}>Mood: {pet?.mood}</Text>*/}
               <Text style={styles.level}>Level: {pet?.level}</Text>
               <View style={styles.creditContainer}>
                 <Ionicons name="star" size={20} color="#1CC282"/>
@@ -147,44 +141,6 @@ export default function PetScreen(this: any) {
               </View>
             </TouchableWithoutFeedback>
           </Modal>
-
-          {/*<Carousel*/}
-          {/*    ref={ref}*/}
-          {/*    width={width}*/}
-          {/*    data={postCardImgs.filter((item, index) => {*/}
-          {/*      if (item.unlockScore < user.credits) return item;*/}
-          {/*    }).reverse()}*/}
-          {/*    pagingEnabled={true}*/}
-          {/*    snapEnabled={true}*/}
-          {/*    style={{*/}
-          {/*      alignItems: "center",*/}
-          {/*      justifyContent: "center",*/}
-          {/*      width: "100%",*/}
-          {/*      paddingTop: 50,*/}
-          {/*      top: 0,*/}
-          {/*      marginBottom: Dimensions.get('window').height * 0.5*/}
-          {/*    }}*/}
-          {/*    mode={"vertical-stack"}*/}
-          {/*    modeConfig={{*/}
-          {/*      snapDirection: "left",*/}
-          {/*      stackInterval: -10,*/}
-          {/*      opacityInterval: 0*/}
-          {/*    }}*/}
-          {/*    customConfig={() => ({ type: "positive", viewCount: 5 })}*/}
-          {/*    renderItem={({index, item}) => (*/}
-          {/*        <FlipCard style={{flexDirection: 'row', width: '100%'}} flipHorizontal={true} flipVertical={false} friction={8} perspective={2000} useNativeDriver={true}>*/}
-          {/*          /!* Face Side *!/*/}
-          {/*          <View style={styles.face}>*/}
-          {/*            <Image style={[styles.faceImg]} source={item.frontUrl} key={"postcard-"+index}></Image>*/}
-          {/*          </View>*/}
-          {/*          /!* Back Side *!/*/}
-          {/*          <View style={styles.back}>*/}
-          {/*            <Image style={styles.backImg} source={item.backUrl} key={"postcard-"+index}/>*/}
-          {/*          </View>*/}
-          {/*        </FlipCard>*/}
-          {/*    )}*/}
-          {/*    loop={false}*/}
-          {/*/>*/}
         </View>
       </ScrollView>
     </View>

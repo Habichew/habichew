@@ -498,10 +498,10 @@ export const UserProvider = ({children}: { children: ReactNode }) => {
 
     const addTask = async (t: Task) => {
         if (!user || offlineMode) {
-            // TODO: add task in offline mode (CacheHandler)
             t.completed = false;
             const addedTask: Task = CacheHandler.addTask(t);
             console.log('added task', addedTask);
+            await loadTasks();
             return;
         }
 
